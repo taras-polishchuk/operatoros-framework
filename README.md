@@ -1,14 +1,20 @@
 # OperatorOS
 
-> **Status:** Phase 0 incubation · v0.1.0 not yet released · design proposal open for review.
+> **Status:** Phase 1.8 · v0.2.0-alpha · Core CLI ships. 13 tests passing on Node 20.x and 22.x.
 
 **OperatorOS is a personal operating-system framework.** Modules are npm packages. Presets are Helm charts. OperatorOS is the runtime that ships both — for one human, and their agents.
 
 ```bash
-# Not yet shipped — v0.1.0 target
-# operatoros init --personal        # scaffold a personal workspace
-# operatoros up postgres journal    # apply modules
-# operatoros export --llm-bundle    # emit single-file LLM context
+# v0.2.0-alpha — install
+git clone https://github.com/taras-polishchuk/operatoros-framework.git
+cd operatoros-framework/core
+npm install && npm run build
+
+# use the CLI
+node dist/cli.js init --personal      # scaffold a workspace
+node dist/cli.js validate operatoros.yaml
+node dist/cli.js add ../examples/journal
+node dist/cli.js export --bundle tar.gz
 ```
 
 ---

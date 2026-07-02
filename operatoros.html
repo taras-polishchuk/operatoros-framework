@@ -102,8 +102,8 @@
   </div>
 
   <div class="meta">
-    <span><i class="dot"></i> Incubating — design proposal open for review</span>
-    <span><i class="dot dot--warn"></i> v0.1.0-alpha target: TBD</span>
+    <span><i class="dot"></i> Phase 1.8 — Core CLI ships</span>
+    <span><i class="dot"></i> v0.2.0-alpha available</span>
   </div>
 
   <h2>The problem</h2>
@@ -277,22 +277,31 @@
     </tbody>
   </table>
 
-  <h2>Quickstart (target v0.1.0)</h2>
+  <h2>Quickstart (v0.2.0-alpha)</h2>
 
-<pre><code># install
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+<pre><code># 1. install — clone the repo, install Core deps
+git clone https://github.com/taras-polishchuk/operatoros-framework.git
+cd operatoros-framework/core
+npm install
+npm run build
 
-# initialize a personal workspace
-operatoros init --personal
+# 2. initialize a personal workspace (in your projects dir)
+cd ..
+node core/dist/cli.js init --personal
+cd my-personal-workspace   # or whatever you named it
 
-# add a module
-operatoros add github.com/operatoros-modules/journal
+# 3. validate the workspace against its JSON-Schema
+node ../core/dist/cli.js validate operatoros.yaml
 
-# apply the personal preset
-operatoros apply preset/personal
+# 4. add a module
+node ../core/dist/cli.js add ../examples/journal
+node ../core/dist/cli.js validate modules/journal/module.yaml
 
-# export the whole workspace as a single bundle
-operatoros export --bundle tar.gz</code></pre>
+# 5. export the workspace (deny-list excludes vault/, .env, *.sqlite)
+node ../core/dist/cli.js export --bundle tar.gz
+# → my-personal-workspace-2026-07-02T20-30-25.tar.gz (secrets excluded)</code></pre>
+
+<p style="font-size:13px;color:var(--fg-dim)">v0.2.0-alpha ships a working CLI. v1.0 will add `operatoros apply` (apply preset), `operatoros run <module-command>` (dispatch), and a built-in module registry.</p>
 
   <h2>What it is NOT for</h2>
 
@@ -309,15 +318,15 @@ operatoros export --bundle tar.gz</code></pre>
   </p>
 
   <div class="cta">
-    <h3>Try it (alpha)</h3>
-    <p>v0.1.0 not yet released. The repository is scaffolded at the Phase 0 evidence-based shape — docs first, code second.</p>
+    <h3>Try v0.2.0-alpha</h3>
+    <p>OperatorOS Core v0.2.0-alpha ships a working CLI: init, validate, add, export. 13 tests passing on Node 20.x and 22.x. Real JSON-Schema validation, deny-list-aware export, MIT licensed.</p>
     <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
     <a class="btn btn--ghost" href="#">Read the proposal</a>
   </div>
 
   <div class="footer">
     <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
-    <div>Phase 1.6 · proposal open for review</div>
+    <div>Phase 1.8 · v0.2.0-alpha · Core CLI ships</div>
   </div>
 
 </div>

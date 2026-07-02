@@ -1,0 +1,39 @@
+{
+  "name": "operatoros-core",
+  "version": "0.2.0-alpha",
+  "description": "OperatorOS Core — CLI runtime for personal operating systems. Implements the framework spec defined in this repo's schemas/ directory.",
+  "main": "dist/cli.js",
+  "bin": {
+    "operatoros": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "start": "node dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["operatoros", "personal-os", "framework", "ai-native", "typed-substrate"],
+  "license": "MIT",
+  "author": "Taras Polishchuk",
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "js-yaml": "^4.1.0",
+    "tar": "^7.4.3"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.5"
+  }
+}
