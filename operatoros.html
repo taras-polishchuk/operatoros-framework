@@ -102,8 +102,8 @@
   </div>
 
   <div class="meta">
-    <span><i class="dot"></i> Phase 1.8 — Core CLI ships</span>
-    <span><i class="dot"></i> v0.2.0-alpha available</span>
+    <span><i class="dot"></i> Phase 1.9 — apply + run + binary</span>
+    <span><i class="dot"></i> v0.3.0-alpha available</span>
   </div>
 
   <h2>The problem</h2>
@@ -277,31 +277,39 @@
     </tbody>
   </table>
 
-  <h2>Quickstart (v0.2.0-alpha)</h2>
+  <h2>Quickstart (v0.3.0-alpha)</h2>
 
-<pre><code># 1. install — clone the repo, install Core deps
+<pre><code># Option A — install the single-file binary (recommended)
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+# operatoros is now on your PATH
+
+# Option B — clone + build from source
 git clone https://github.com/taras-polishchuk/operatoros-framework.git
 cd operatoros-framework/core
-npm install
-npm run build
+npm install && npm run build
 
-# 2. initialize a personal workspace (in your projects dir)
-cd ..
-node core/dist/cli.js init --personal
-cd my-personal-workspace   # or whatever you named it
+# 1. initialize a personal workspace
+operatoros init --personal
+cd personal-workspace
 
-# 3. validate the workspace against its JSON-Schema
-node ../core/dist/cli.js validate operatoros.yaml
+# 2. validate against the JSON-Schema
+operatoros validate operatoros.yaml
 
-# 4. add a module
-node ../core/dist/cli.js add ../examples/journal
-node ../core/dist/cli.js validate modules/journal/module.yaml
+# 3. apply the preset (installs all modules in presets/personal/preset.yaml)
+operatoros apply
+# → installs journal module (the only example)
+
+# 4. run a module command
+operatoros run journal add "shipped v0.3.0-alpha — apply + run + binary"
 
 # 5. export the workspace (deny-list excludes vault/, .env, *.sqlite)
-node ../core/dist/cli.js export --bundle tar.gz
-# → my-personal-workspace-2026-07-02T20-30-25.tar.gz (secrets excluded)</code></pre>
+operatoros export --bundle tar.gz
+# → personal-workspace-2026-07-02T21-30.tar.gz (secrets excluded)
 
-<p style="font-size:13px;color:var(--fg-dim)">v0.2.0-alpha ships a working CLI. v1.0 will add `operatoros apply` (apply preset), `operatoros run <module-command>` (dispatch), and a built-in module registry.</p>
+# 6. version
+operatoros version</code></pre>
+
+<p style="font-size:13px;color:var(--fg-dim)">v0.3.0-alpha ships 6 commands: init / validate / add / apply / run / export. 18 tests passing. ~746 KB single-file binary via <code>ncc</code>. v1.0 will add a built-in module registry and a one-line install for the binary.</p>
 
   <h2>What it is NOT for</h2>
 
@@ -318,15 +326,15 @@ node ../core/dist/cli.js export --bundle tar.gz
   </p>
 
   <div class="cta">
-    <h3>Try v0.2.0-alpha</h3>
-    <p>OperatorOS Core v0.2.0-alpha ships a working CLI: init, validate, add, export. 13 tests passing on Node 20.x and 22.x. Real JSON-Schema validation, deny-list-aware export, MIT licensed.</p>
+    <h3>Try v0.3.0-alpha</h3>
+    <p>OperatorOS Core v0.3.0-alpha ships 6 commands: init / validate / add / apply / run / export. 18 tests passing on Node 20.x and 22.x. ~746 KB single-file binary via ncc + scripts/install.sh one-liner. MIT licensed.</p>
     <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
     <a class="btn btn--ghost" href="#">Read the proposal</a>
   </div>
 
   <div class="footer">
     <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
-    <div>Phase 1.8 · v0.2.0-alpha · Core CLI ships</div>
+    <div>Phase 1.9 · v0.3.0-alpha · apply + run + binary</div>
   </div>
 
 </div>

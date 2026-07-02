@@ -14,6 +14,8 @@ import { Command } from "commander";
 import { initCommand } from "./commands/init";
 import { validateCommand } from "./commands/validate";
 import { addCommand } from "./commands/add";
+import { applyCommand } from "./commands/apply";
+import { runCommand } from "./commands/run";
 import { exportCommand } from "./commands/export";
 import { versionCommand } from "./commands/version";
 
@@ -22,7 +24,7 @@ const program = new Command();
 program
   .name("operatoros")
   .description("OperatorOS Core — CLI runtime for personal operating systems")
-  .version("0.2.0-alpha");
+  .version("0.3.0-alpha");
 
 program
   .command("init")
@@ -45,6 +47,16 @@ program
   .option("-n, --name <name>", "override module name")
   .option("--pin <ref>", "git ref (branch/tag/sha) when source is a git URL")
   .action(addCommand);
+
+program
+  .command("apply [preset]")
+  .description("Apply a preset — install all modules declared in the preset's preset.yaml")
+  .action(applyCommand);
+
+program
+  .command("run <module> <command> [args...]")
+  .description("Execute a command from an installed module")
+  .action(runCommand);
 
 program
   .command("export")

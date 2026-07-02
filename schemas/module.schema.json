@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/taras-polishchuk/operatoros-framework/schemas/module.schema.json",
+  "title": "OperatorOS Module Manifest",
+  "description": "Contract for an OperatorOS module (module.yaml).",
+  "type": "object",
+  "required": ["version", "name"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "author": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 16
+    },
+    "commands": {
+      "type": "object",
+      "description": "Subcommands this module exposes under `operatoros <module-name> ...`",
+      "patternProperties": {
+        "^[a-z][a-z0-9_-]*$": {
+          "type": "object",
+          "required": ["run"],
+          "properties": {
+            "run": { "type": "string" },
+            "description": { "type": "string" },
+            "args": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "requires": {
+      "type": "object",
+      "properties": {
+        "modules": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "core_version": { "type": "string" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

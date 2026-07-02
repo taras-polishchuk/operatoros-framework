@@ -18,7 +18,32 @@ const ajv = new Ajv({
 });
 addFormats(ajv);
 
-const SCHEMA_DIR = path.resolve(__dirname, "..", "..", "..", "schemas");
+// Resolve schemas directory robustly across:
+// 1. dev:  /<repo>/core/src/lib/schema.ts  →  /<repo>/schemas
+// 2. dev compiled:  /<repo>/core/dist/lib/schema.js  →  /<repo>/schemas
+// 3. bundled (ncc):  /<repo>/core/dist-bin/index.js  →  /<repo>/schemas (the cli.js is at /<repo>/core/, schemas are at /<repo>/schemas/)
+function resolveSchemaDir(): string {
+  // Allow override via env (useful for tests and single-file distribution).
+  if (process.env.OPERATOROS_SCHEMAS_DIR) {
+    return process.env.OPERATOROS_SCHEMAS_DIR;
+  }
+  // Walk up from this file looking for a `schemas/workspace.schema.json`.
+  const path = require("path");
+  let dir = __dirname;
+  for (let i = 0; i < 6; i++) {
+    const candidate = path.join(dir, "schemas", "workspace.schema.json");
+    if (require("fs").existsSync(candidate)) {
+      return path.join(dir, "schemas");
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  // Fallback to the historical relative path (works in dev).
+  return path.resolve(__dirname, "..", "..", "..", "schemas");
+}
+
+const SCHEMA_DIR = resolveSchemaDir();
 const cache = new Map<string, ValidateFunction>();
 
 /**

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/taras-polishchuk/operatoros-framework/schemas/preset.schema.json",
+  "title": "OperatorOS Preset",
+  "description": "A preset bundles modules + settings into a reusable workspace template.",
+  "type": "object",
+  "required": ["version", "name"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "description": { "type": "string", "maxLength": 500 },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "source": { "type": "string" },
+          "pin": { "type": "string" }
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "vault_path": { "type": "string" },
+        "state_path": { "type": "string" },
+        "export": {
+          "type": "object",
+          "properties": {
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

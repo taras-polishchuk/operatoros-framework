@@ -53,3 +53,10 @@ id_rsa*
 oci/
 terraform.tfstate*
 .terraform/
+
+# Core build artefacts
+core/dist/
+core/dist-bin/
+core/node_modules/
+core/coverage/
+core/*.log

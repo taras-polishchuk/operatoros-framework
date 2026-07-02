@@ -1,20 +1,20 @@
 # OperatorOS
 
-> **Status:** Phase 1.8 · v0.2.0-alpha · Core CLI ships. 13 tests passing on Node 20.x and 22.x.
+> **Status:** Phase 1.9 · v0.3.0-alpha · apply + run + single-file binary. 18 tests passing on Node 20.x and 22.x.
 
 **OperatorOS is a personal operating-system framework.** Modules are npm packages. Presets are Helm charts. OperatorOS is the runtime that ships both — for one human, and their agents.
 
 ```bash
-# v0.2.0-alpha — install
-git clone https://github.com/taras-polishchuk/operatoros-framework.git
-cd operatoros-framework/core
-npm install && npm run build
+# v0.3.0-alpha — install (single-file binary, ~746KB)
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
-# use the CLI
-node dist/cli.js init --personal      # scaffold a workspace
-node dist/cli.js validate operatoros.yaml
-node dist/cli.js add ../examples/journal
-node dist/cli.js export --bundle tar.gz
+# use the CLI (now on PATH)
+operatoros init --personal      # scaffold a workspace
+operatoros apply                # install preset's modules
+operatoros run journal add "..." # dispatch to module command
+operatoros validate operatoros.yaml
+operatoros export --bundle tar.gz
+operatoros version
 ```
 
 ---
