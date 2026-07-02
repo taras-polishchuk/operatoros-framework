@@ -1,0 +1,36 @@
+# Placeholder; Phase 1 implements.
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run yamllint
+        run: |
+          echo "yaml-lint placeholder"
+      - name: Validate JSON Schemas
+        run: |
+          echo "schema-validate placeholder"
+
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run markdownlint
+        run: |
+          echo "md-lint placeholder"
+
+  doctype-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify every docs page declares Diataxis quadrant in frontmatter
+        run: |
+          echo "missing: implement in Phase 1"

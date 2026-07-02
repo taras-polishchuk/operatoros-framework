@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OperatorOS — the operating layer for the single-operator era</title>
+<meta name="description" content="OperatorOS is an open-source framework for personal operating systems. AI-native, composable, MIT-licensed.">
+<meta name="theme-color" content="#0a0a0a">
+<style>
+  :root{
+    --bg:#0a0a0a;--bg-elev:#121212;--bg-elev-2:#1a1a1a;
+    --fg:#fafafa;--fg-muted:#a0a0a0;--fg-dim:#6a6a6a;
+    --accent:#7c3aed;--accent-2:#a78bfa;--accent-dim:#3b2966;
+    --border:#262626;--border-bright:#404040;
+    --good:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --code-bg:#0d0d0d;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{min-height:100vh}
+  a{color:var(--accent-2);text-decoration:none;border-bottom:1px dotted var(--accent-dim)}
+  a:hover{border-bottom-color:var(--accent-2)}
+  .wrap{max-width:880px;margin:0 auto;padding:64px 24px 96px}
+  .badge{display:inline-block;padding:4px 10px;border:1px solid var(--border-bright);border-radius:999px;font-size:12px;color:var(--fg-muted);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+  .badge--accent{border-color:var(--accent);color:var(--accent-2)}
+  h1{font-size:48px;line-height:1.1;letter-spacing:-0.02em;margin:32px 0 16px;font-weight:600}
+  h2{font-size:28px;line-height:1.25;letter-spacing:-0.01em;margin:64px 0 16px;font-weight:600;padding-top:24px;border-top:1px solid var(--border)}
+  h3{font-size:18px;line-height:1.4;margin:24px 0 8px;font-weight:600;color:var(--fg)}
+  p{margin:12px 0;color:var(--fg-muted)}
+  p strong,p b{color:var(--fg)}
+  .lede{font-size:20px;line-height:1.5;color:var(--fg);margin:24px 0 32px;font-weight:400}
+  .hero-grid{display:grid;grid-template-columns:1fr;gap:24px;margin:32px 0}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+  .pill{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
+  .pill--accent{background:var(--accent-dim);border-color:var(--accent);color:var(--accent-2)}
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0}
+  .principle{padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elev)}
+  .principle h3{margin:0 0 8px;color:var(--accent-2);font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+  .principle p{margin:0;font-size:14px;color:var(--fg-muted)}
+  .principle p b{color:var(--fg)}
+  table{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px}
+  th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--fg);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  td{color:var(--fg-muted)}
+  td:first-child{color:var(--fg);font-weight:500}
+  .check{color:var(--good);font-family:var(--mono)}
+  .cross{color:var(--bad);font-family:var(--mono)}
+  .dash{color:var(--fg-dim);font-family:var(--mono)}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:16px 0}
+  code{font-family:var(--mono);font-size:.92em;background:var(--bg-elev-2);padding:1px 6px;border-radius:4px;color:var(--accent-2)}
+  pre code{background:none;padding:0;color:var(--fg)}
+  .arch{margin:32px 0;padding:24px;background:var(--bg-elev);border:1px solid var(--border);border-radius:12px}
+  .arch svg{width:100%;height:auto;display:block}
+  .meta{display:flex;flex-wrap:wrap;gap:16px;margin:32px 0;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
+  .meta span{display:inline-flex;align-items:center;gap:6px}
+  .meta .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+  .meta .dot--warn{background:var(--warn)}
+  .cta{margin:48px 0;padding:24px;background:linear-gradient(135deg,var(--accent-dim),transparent);border:1px solid var(--accent);border-radius:12px}
+  .cta h3{margin:0 0 8px;color:var(--fg)}
+  .cta p{margin:0 0 16px;color:var(--fg)}
+  .btn{display:inline-block;padding:10px 20px;background:var(--accent);color:#fff;border-radius:8px;border:none;font-weight:600;font-size:14px;margin-right:8px}
+  .btn:hover{background:var(--accent-2);color:#000;border-bottom:none}
+  .btn--ghost{background:transparent;border:1px solid var(--border-bright);color:var(--fg)}
+  .footer{margin-top:96px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--fg-dim);display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+  @media(max-width:600px){
+    .wrap{padding:32px 16px}
+    h1{font-size:32px}
+    h2{font-size:22px}
+    .lede{font-size:17px}
+    pre{font-size:12px}
+  }
+  @media print{
+    body{background:#fff;color:#000}
+    a{color:#000;border:none}
+    .btn{border:1px solid #000;background:#fff;color:#000}
+    .principle,.arch,.cta{border-color:#aaa;background:#f5f5f5}
+    pre{background:#f5f5f5;border-color:#aaa}
+    h2{border-top-color:#aaa}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="badge badge--accent">Phase 1.6 · v0.1.0-alpha · MIT</div>
+
+  <h1>OperatorOS</h1>
+  <p class="lede">
+    The operating layer for the <b>single-operator era</b> — a typed substrate where one
+    human composes their tools, knowledge, and agents into a durable personal system.
+  </p>
+
+  <div class="pill-row">
+    <span class="pill pill--accent">AI-native</span>
+    <span class="pill">Composable Modules</span>
+    <span class="pill">Single Authority</span>
+    <span class="pill">Everything Replaceable</span>
+    <span class="pill">Profile-portable</span>
+    <span class="pill">MIT</span>
+  </div>
+
+  <div class="meta">
+    <span><i class="dot"></i> Incubating — design proposal open for review</span>
+    <span><i class="dot dot--warn"></i> v0.1.0-alpha target: TBD</span>
+  </div>
+
+  <h2>The problem</h2>
+
+  <p>You are <b>one operator</b>. You run a workspace that is supposed to be yours — files,
+  scripts, notes, tools, AI agents, scheduled jobs, integrations. In practice it has
+  fragmented into:</p>
+
+  <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
+    <li>A <code>~/projects/</code> tree that has drifted since 2023</li>
+    <li>Three different note systems, none of which the others can read</li>
+    <li>AI agents that each invented their own conventions</li>
+    <li>A bash history that is the actual source of truth for 40% of your workflows</li>
+    <li>Secrets scattered across <code>.env</code>, gpg, and that one Notion page</li>
+  </ul>
+
+  <p>None of this is a single system. None of it is replaceable. None of it composes.</p>
+
+  <h2>The hypothesis</h2>
+
+  <p>If <b>DevOps</b> was the discipline of running production software at the team level,
+  then the missing discipline for the next decade is the operating layer for the
+  <b>single-operator level</b> — one human, their tools, their agents, their data.</p>
+
+  <p>OperatorOS is that discipline, captured as a framework.</p>
+
+  <h2>Six principles</h2>
+
+  <div class="principles">
+    <div class="principle">
+      <h3>01 · Single Authority</h3>
+      <p>Every concept has <b>one</b> canonical owner file. No dual sources. If two files
+      disagree, one is wrong.</p>
+    </div>
+    <div class="principle">
+      <h3>02 · Everything Replaceable</h3>
+      <p>Modules, presets, tools, even Core itself — all replaceable. <b>Framework first,
+      implementation last.</b></p>
+    </div>
+    <div class="principle">
+      <h3>03 · Typed Substrate</h3>
+      <p>Every artifact validated against a JSON Schema at the boundary. Invalid state
+      cannot exist.</p>
+    </div>
+    <div class="principle">
+      <h3>04 · AI-native</h3>
+      <p>Core ships ≥1 of: agent-loop primitive, structured-output validation, prompt-template
+      versioning, LLM-provider abstraction.</p>
+    </div>
+    <div class="principle">
+      <h3>05 · Composable Modules</h3>
+      <p>A module is one composable extension. It declares a contract (<code>module.yaml</code>),
+      runs in isolation, exposes one CLI surface.</p>
+    </div>
+    <div class="principle">
+      <h3>06 · Profile-portable</h3>
+      <p>Your <b>whole</b> workspace exports to a single bundle. Move to a new machine in
+      10 minutes. Publish, fork, or archive at will.</p>
+    </div>
+  </div>
+
+  <h2>Architecture</h2>
+
+  <div class="arch">
+    <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" aria-label="OperatorOS architecture diagram">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1">
+          <stop offset="0" stop-color="#7c3aed"/>
+          <stop offset="1" stop-color="#a78bfa"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Operator (top) -->
+      <rect x="320" y="10" width="160" height="48" rx="8" fill="url(#g1)" opacity="0.18" stroke="#7c3aed"/>
+      <text x="400" y="40" text-anchor="middle" fill="#fafafa" font-family="ui-monospace" font-size="14" font-weight="600">Operator</text>
+
+      <!-- Workspace (center) -->
+      <rect x="220" y="90" width="360" height="56" rx="10" fill="#1a1a1a" stroke="#404040"/>
+      <text x="400" y="115" text-anchor="middle" fill="#fafafa" font-family="ui-monospace" font-size="15" font-weight="600">Workspace</text>
+      <text x="400" y="135" text-anchor="middle" fill="#a0a0a0" font-family="ui-monospace" font-size="11">operatoros.yaml + modules/ + presets/ + state/</text>
+
+      <!-- Modules row -->
+      <rect x="40" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
+      <text x="120" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Modules</text>
+      <text x="120" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">composable extensions</text>
+
+      <rect x="220" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
+      <text x="300" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Presets</text>
+      <text x="300" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">instantiation values</text>
+
+      <rect x="400" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
+      <text x="480" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Tools</text>
+      <text x="480" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">concrete binaries</text>
+
+      <rect x="580" y="180" width="180" height="50" rx="8" fill="#121212" stroke="#262626"/>
+      <text x="670" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Vault</text>
+      <text x="670" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">encrypted secrets</text>
+
+      <!-- Arrows -->
+      <line x1="400" y1="58" x2="400" y2="90" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
+        </marker>
+      </defs>
+      <line x1="120" y1="180" x2="280" y2="146" stroke="#404040" stroke-width="1"/>
+      <line x1="300" y1="180" x2="380" y2="146" stroke="#404040" stroke-width="1"/>
+      <line x1="480" y1="180" x2="420" y2="146" stroke="#404040" stroke-width="1"/>
+      <line x1="670" y1="180" x2="520" y2="146" stroke="#404040" stroke-width="1"/>
+
+      <!-- Core label bottom -->
+      <text x="400" y="262" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="11">Core: operatoros binary · JSON-Schema validation · CLI surface</text>
+    </svg>
+  </div>
+
+  <h2>How it compares</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>&nbsp;</th>
+        <th>OperatorOS</th>
+        <th>DIY<br><span style="font-weight:400;text-transform:none">Makefile + CLAUDE.md</span></th>
+        <th>Backstage</th>
+        <th>Homebrew</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>First-project setup</td>
+        <td><code>operatoros init --personal</code></td>
+        <td>~3 days</td>
+        <td>~2 weeks</td>
+        <td>~1 day</td>
+      </tr>
+      <tr>
+        <td>Reusable modules</td>
+        <td><span class="check">✓</span> typed contract</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="check">✓</span> plugin system</td>
+        <td><span class="check">✓</span> formulae</td>
+      </tr>
+      <tr>
+        <td>AI-native primitives</td>
+        <td><span class="check">✓</span> built-in</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="dash">—</span></td>
+        <td><span class="cross">✗</span></td>
+      </tr>
+      <tr>
+        <td>Profile portability</td>
+        <td><span class="check">✓</span> one bundle</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+      </tr>
+      <tr>
+        <td>Designed for</td>
+        <td>1 operator</td>
+        <td>1 operator</td>
+        <td>teams</td>
+        <td>macOS users</td>
+      </tr>
+      <tr>
+        <td>License</td>
+        <td>MIT</td>
+        <td>n/a</td>
+        <td>Apache-2.0</td>
+        <td>BSD-2</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Quickstart (target v0.1.0)</h2>
+
+<pre><code># install
+curl -fsSL https://operatoros.dev/install.sh | sh
+
+# initialize a personal workspace
+operatoros init --personal
+
+# add a module
+operatoros add github.com/operatoros-modules/journal
+
+# apply the personal preset
+operatoros apply preset/personal
+
+# export the whole workspace as a single bundle
+operatoros export --bundle tar.gz</code></pre>
+
+  <h2>What it is NOT for</h2>
+
+  <p>
+    OperatorOS is not for teams — Backstage is. It is not for SaaS deployment — Kubernetes
+    is. It is not for hosting websites — Vercel is. It is not a graph database, a static
+    site generator, a chat framework, or an agent runtime — those are <i>modules</i> you
+    install on top of OperatorOS.
+  </p>
+
+  <p>
+    OperatorOS is for <b>one operator</b>: the human (and their AI agents) who want their
+    workspace to be a system, not a folder.
+  </p>
+
+  <div class="cta">
+    <h3>Try it (alpha)</h3>
+    <p>v0.1.0 not yet released. The repository is scaffolded at the Phase 0 evidence-based shape — docs first, code second.</p>
+    <a class="btn" href="https://github.com/operatoros/operatoros">View repository</a>
+    <a class="btn btn--ghost" href="#">Read the proposal</a>
+  </div>
+
+  <div class="footer">
+    <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
+    <div>Phase 1.6 · proposal open for review</div>
+  </div>
+
+</div>
+</body>
+</html>
