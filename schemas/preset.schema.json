@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/taras-polishchuk/operatoros-framework/schemas/preset.schema.json",
   "title": "OperatorOS Preset",
-  "description": "A preset bundles modules + settings into a reusable workspace template.",
+  "description": "A preset bundles modules + settings + hooks into a reusable workspace template.",
   "type": "object",
   "required": ["version", "name"],
   "properties": {
@@ -34,6 +34,19 @@
       "properties": {
         "vault_path": { "type": "string" },
         "state_path": { "type": "string" },
+        "hooks": {
+          "type": "object",
+          "description": "Shell commands to run at lifecycle events. Each value is an array of command strings.",
+          "properties": {
+            "pre-init": { "type": "array", "items": { "type": "string" } },
+            "post-init": { "type": "array", "items": { "type": "string" } },
+            "pre-apply": { "type": "array", "items": { "type": "string" } },
+            "post-apply": { "type": "array", "items": { "type": "string" } },
+            "pre-export": { "type": "array", "items": { "type": "string" } },
+            "post-export": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
         "export": {
           "type": "object",
           "properties": {

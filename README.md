@@ -1,17 +1,20 @@
 # OperatorOS
 
-> **Status:** Phase 1.9 · v0.3.0-alpha · apply + run + single-file binary. 18 tests passing on Node 20.x and 22.x.
+> **Status:** Phase 2 · v0.4.0-alpha · registry + hooks + multi-preset. 32 tests passing on Node 20.x and 22.x.
 
 **OperatorOS is a personal operating-system framework.** Modules are npm packages. Presets are Helm charts. OperatorOS is the runtime that ships both — for one human, and their agents.
 
 ```bash
-# v0.3.0-alpha — install (single-file binary, ~746KB)
+# v0.4.0-alpha — install (single-file binary, ~768KB)
 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # use the CLI (now on PATH)
-operatoros init --personal      # scaffold a workspace
-operatoros apply                # install preset's modules
-operatoros run journal add "..." # dispatch to module command
+operatoros init --preset personal      # scaffold a workspace (4 presets available)
+operatoros apply                        # install preset's modules
+operatoros search journal               # search the public registry
+operatoros install journal              # install by registry name
+operatoros run journal add "..."        # dispatch to module command
+operatoros upgrade journal              # re-fetch module, preserve .bak
 operatoros validate operatoros.yaml
 operatoros export --bundle tar.gz
 operatoros version

@@ -1,0 +1,18 @@
+version: "0.2"
+name: dev-machine
+description: |
+  Opinionated development environment — journal for daily notes, hooks for tmux session restore.
+modules:
+  - name: journal
+    source: ./examples/journal
+settings:
+  vault_path: vault/
+  state_path: state/
+  hooks:
+    pre-export:
+      - "echo 'snapshotting state before export...'"
+  export:
+    deny:
+      - "vault/**"
+      - "**/.env"
+      - "**/*.sqlite"

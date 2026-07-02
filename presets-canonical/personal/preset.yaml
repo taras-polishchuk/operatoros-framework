@@ -1,0 +1,15 @@
+version: "0.2"
+name: personal
+description: |
+  Single-operator default. Includes the journal example module to demonstrate the contract.
+modules:
+  - name: journal
+    source: ./examples/journal
+settings:
+  vault_path: vault/
+  state_path: state/
+  export:
+    deny:
+      - "vault/**"
+      - "**/.env"
+      - "**/*.sqlite"

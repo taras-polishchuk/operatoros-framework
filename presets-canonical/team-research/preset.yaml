@@ -1,0 +1,18 @@
+version: "0.2"
+name: team-research
+description: |
+  Collaboration-oriented. Includes ai-context for LLM-friendly context bundles and a metadata scaffold for team handoffs.
+modules:
+  - name: journal
+    source: ./examples/journal
+settings:
+  vault_path: vault/
+  state_path: state/
+  hooks:
+    post-apply:
+      - "echo 'team-research preset applied — review presets/team-research/preset.yaml for collaboration hooks'"
+  export:
+    deny:
+      - "vault/**"
+      - "**/.env"
+      - "**/*.sqlite"

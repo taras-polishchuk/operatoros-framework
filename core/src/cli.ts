@@ -14,8 +14,11 @@ import { Command } from "commander";
 import { initCommand } from "./commands/init";
 import { validateCommand } from "./commands/validate";
 import { addCommand } from "./commands/add";
+import { installCommand } from "./commands/install";
+import { searchCommand } from "./commands/search";
 import { applyCommand } from "./commands/apply";
 import { runCommand } from "./commands/run";
+import { upgradeCommand } from "./commands/upgrade";
 import { exportCommand } from "./commands/export";
 import { versionCommand } from "./commands/version";
 
@@ -24,7 +27,7 @@ const program = new Command();
 program
   .name("operatoros")
   .description("OperatorOS Core — CLI runtime for personal operating systems")
-  .version("0.3.0-alpha");
+  .version("0.4.0-alpha");
 
 program
   .command("init")
@@ -57,6 +60,21 @@ program
   .command("run <module> <command> [args...]")
   .description("Execute a command from an installed module")
   .action(runCommand);
+
+program
+  .command("search [query]")
+  .description("Search the public OperatorOS module registry")
+  .action(searchCommand);
+
+program
+  .command("install <name>")
+  .description("Install a module by registry name (resolves via fetchRegistry then delegates to add)")
+  .action(installCommand);
+
+program
+  .command("upgrade <module>")
+  .description("Re-fetch an installed module from its original source (preserves a .bak of the old version)")
+  .action(upgradeCommand);
 
 program
   .command("export")

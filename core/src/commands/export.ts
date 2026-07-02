@@ -12,6 +12,7 @@ import * as tar from "tar";
 import { pipeline } from "stream/promises";
 import { heading, ok, info, fail } from "../lib/print";
 import { findWorkspaceRoot, loadWorkspace } from "../lib/workspace";
+import { runHooks } from "../lib/hooks";
 
 interface ExportOptions {
   bundle: string;
@@ -57,6 +58,10 @@ export async function exportCommand(opts: ExportOptions): Promise<void> {
 
   const manifest = await loadWorkspace(root);
   info(`workspace name: ${manifest.name}`);
+
+  // Hooks: pre-export (these can snapshot state, run checks, etc.)
+  const hooks = (manifest as { settings?: { hooks?: Record<string, string[]> } }).settings?.hooks;
+  await runHooks("pre-export", hooks, root);
 
   // Build deny list
   const deny: string[] = [...DEFAULT_DENY];
@@ -137,6 +142,9 @@ export async function exportCommand(opts: ExportOptions): Promise<void> {
 
   const stat = await fs.stat(outPath);
   ok(`wrote ${outPath} (${(stat.size / 1024).toFixed(1)} KB)`);
+
+  // Hooks: post-export (these can upload, notify, etc.)
+  await runHooks("post-export", hooks, root);
 }
 
 function warn(msg: string) {

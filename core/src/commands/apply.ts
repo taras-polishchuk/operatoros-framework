@@ -9,6 +9,7 @@ import * as path from "path";
 import { heading, ok, info, fail } from "../lib/print";
 import { findWorkspaceRoot, loadWorkspace } from "../lib/workspace";
 import { validateYaml } from "../lib/schema";
+import { extractHooks, runHooks } from "../lib/hooks";
 
 interface ApplyOptions {}
 
@@ -58,36 +59,43 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
   const { load: yamlLoad } = await import("js-yaml");
   const preset = yamlLoad(raw) as {
     modules?: Array<{ name: string; source?: string; pin?: string }>;
+    settings?: { hooks?: Record<string, string[]> };
   };
+
+  // Hooks: pre-apply
+  await runHooks("pre-apply", extractHooks({ settings: preset.settings }), root);
 
   const modules = preset.modules ?? [];
   if (modules.length === 0) {
     info(`preset has no modules to install`);
-    ok(`apply complete (no-op)`);
-    return;
+  } else {
+    info(`modules to install: ${modules.length}`);
+
+    let installed = 0;
+    for (const mod of modules) {
+      if (!mod.source) {
+        info(`skipping ${mod.name} — no source`);
+        continue;
+      }
+      // Resolve relative sources against workspace root (not cwd).
+      // Convention: `./foo` is relative to workspace root.
+      let resolvedSource = mod.source;
+      if (resolvedSource.startsWith("./")) {
+        resolvedSource = path.join(root, resolvedSource.slice(2));
+      }
+      info(`installing ${mod.name} from ${resolvedSource}`);
+      try {
+        const { addCommand } = await import("./add");
+        await addCommand(resolvedSource, { name: mod.name, pin: mod.pin });
+        installed += 1;
+      } catch (e) {
+        fail(`failed to install ${mod.name}: ${(e as Error).message}`);
+        process.exit(1);
+      }
+    }
+    ok(`installed ${installed}/${modules.length} modules from preset "${presetName}"`);
   }
 
-  info(`modules to install: ${modules.length}`);
-
-  // Install each module by reusing add's logic.
-  // To avoid spawning a subprocess per module, we replicate the add flow.
-  let installed = 0;
-  for (const mod of modules) {
-    if (!mod.source) {
-      info(`skipping ${mod.name} — no source`);
-      continue;
-    }
-    info(`installing ${mod.name} from ${mod.source}`);
-    try {
-      // Inline the add steps (validate + copy + register).
-      const { addCommand } = await import("./add");
-      await addCommand(mod.source, { name: mod.name, pin: mod.pin });
-      installed += 1;
-    } catch (e) {
-      fail(`failed to install ${mod.name}: ${(e as Error).message}`);
-      process.exit(1);
-    }
-  }
-
-  ok(`installed ${installed}/${modules.length} modules from preset "${presetName}"`);
+  // Hooks: post-apply
+  await runHooks("post-apply", extractHooks({ settings: preset.settings }), root);
 }
