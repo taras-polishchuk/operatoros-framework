@@ -3,6 +3,9 @@
  *
  * v0.5.0-alpha: --preset picks from canonical presets in presets-canonical/.
  * Currently only `personal` exists. Falls back to `personal` if no flag given.
+ *
+ * Canonical presets ship embedded in the ncc bundle (see src/embedded-assets.ts).
+ * Dev mode falls back to filesystem lookup.
  */
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -16,16 +19,18 @@ interface InitOptions {
   force?: boolean;
 }
 
-/**
- * Locate the operatoros-framework checkout (the canonical presets ship with it).
- * Used to copy presets-canonical/<name>/preset.yaml into the new workspace.
- */
-function findCanonicalPresetsRoot(): string | null {
-  // Walk up from the bundled binary location looking for presets-canonical/.
+function readCanonicalPreset(name: string): string | null {
+  // 1. Embedded (ncc bundle)
+  const embedded = (globalThis as { __embeddedPresets?: Record<string, string> })
+    .__embeddedPresets;
+  if (embedded && embedded[name]) {
+    return embedded[name];
+  }
+  // 2. Filesystem (dev mode)
   let dir = __dirname;
   for (let i = 0; i < 6; i++) {
-    const candidate = path.join(dir, "presets-canonical");
-    if (require("fs").existsSync(candidate)) return dir;
+    const candidate = path.join(dir, "presets-canonical", name, "preset.yaml");
+    if (fs.existsSync(candidate)) return fs.readFileSync(candidate, "utf8");
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -37,8 +42,6 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   heading("OperatorOS init");
 
   const target = path.resolve(opts.target ?? process.cwd());
-  // Only `personal` preset exists today. --personal and bare `init` both = personal.
-  // The --preset flag is reserved for future presets.
   const preset = opts.preset ?? "personal";
 
   if (await fs.pathExists(path.join(target, WORKSPACE_FILENAME))) {
@@ -51,68 +54,54 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   info(`target: ${target}`);
   info(`preset: ${preset}`);
 
-  // Create layout
   for (const folder of WORKSPACE_LAYOUT) {
     await fs.ensureDir(path.join(target, folder));
   }
   ok(`created layout: ${WORKSPACE_LAYOUT.join(", ")}/`);
 
-  // Resolve canonical preset
-  const canonicalRoot = findCanonicalPresetsRoot();
-  let presetContent: string | null = null;
-  if (canonicalRoot) {
-    const canonical = path.join(canonicalRoot, "presets-canonical", preset, "preset.yaml");
-    if (await fs.pathExists(canonical)) {
-      presetContent = await fs.readFile(canonical, "utf8");
-      ok(`using canonical preset: presets-canonical/${preset}/preset.yaml`);
-    }
-  }
+  const presetContent = readCanonicalPreset(preset);
   if (!presetContent) {
-    fail(`preset "${preset}" not found in presets-canonical/`);
-    info(`available presets: personal (the only one for now)`);
+    fail(`preset "${preset}" not found`);
+    info(`available: ${Object.keys(
+      (globalThis as { __embeddedPresets?: Record<string, string> }).__embeddedPresets ?? {}
+    ).join(", ") || "(none — install issue)"}`);
     process.exit(1);
   }
+  ok(`using canonical preset: ${preset} (${presetContent.length} bytes)`);
 
-  // operatoros.yaml
   const manifest = renderManifest(preset);
   await fs.writeFile(path.join(target, WORKSPACE_FILENAME), manifest);
   ok(`created ${WORKSPACE_FILENAME}`);
 
-  // presets/<name>/preset.yaml (copy of canonical)
   const presetDir = path.join(target, "presets", preset);
   await fs.ensureDir(presetDir);
   await fs.writeFile(path.join(presetDir, "preset.yaml"), presetContent);
   ok(`created presets/${preset}/preset.yaml`);
 
-  // presets/README — index of installed presets
   await fs.writeFile(
     path.join(target, "presets", "README.md"),
     `# presets/\n\nThis workspace's active preset is **${preset}** (declared in \`operatoros.yaml\`).\n\nOnly the \`personal\` preset ships with OperatorOS today. Add more by editing \`operatoros.yaml\` and running \`operatoros apply <name>\`.\n`
   );
   ok(`created presets/README.md`);
 
-  // schemas/README
   await fs.writeFile(
     path.join(target, "schemas", "README.md"),
-    `# schemas/\n\nSchemas for this workspace are validated against the OperatorOS Core schemas shipped in the framework repo:\n\n- https://github.com/taras-polishchuk/operatoros-framework/tree/main/schemas\n\nRun \`operatoros validate <path>\` to check any workspace/module/preset against its schema.\n`
+    `# schemas/\n\nSchemas for this workspace are validated against the OperatorOS Core schemas. The Core binary bundles them internally; see the framework repo at https://github.com/taras-polishchuk/operatoros-framework/tree/main/schemas.\n\nRun \`operatoros validate <path>\` to check any workspace/module/preset against its schema.\n`
   );
   ok(`created schemas/README.md`);
 
-  // state/README
   await fs.writeFile(
     path.join(target, "state", "README.md"),
     `# state/\n\nMutable runtime state for this workspace. Should be in \`.gitignore\`.\n`
   );
   ok(`created state/README.md`);
 
-  // vault/README
   await fs.writeFile(
     path.join(target, "vault", "README.md"),
     `# vault/\n\nEncrypted secrets storage. Never commit this directory.\n\nOperatorOS Core's \`export\` command will deny-list this folder by default.\n`
   );
   ok(`created vault/README.md`);
 
-  // modules/README
   await fs.writeFile(
     path.join(target, "modules", "README.md"),
     `# modules/\n\nModules extend your workspace. Install one with:\n\n    operatoros add <path-or-url>   # from local path or git URL\n\nModules declare their contract via \`module.yaml\` at the root.\n`
@@ -131,8 +120,6 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   console.log("  or write your own module: see examples/README.md");
 }
 
-
-
 function renderManifest(preset: string): string {
   return `# operatoros.yaml — workspace manifest
 # generated by operatoros-core v0.5.0-alpha
@@ -142,6 +129,6 @@ preset: ${preset}
 modules: []
 module_sources: {}
 created_at: "${new Date().toISOString()}"
-operatoros_version: "0.5.0-alpha"
+operatoros_version: "0.5.0-alpha.2"
 `;
 }

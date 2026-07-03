@@ -19,11 +19,26 @@ const ajv = new Ajv({
 addFormats(ajv);
 
 // Resolve schemas directory robustly across:
-// 1. dev:  /<repo>/core/src/lib/schema.ts  →  /<repo>/schemas
-// 2. dev compiled:  /<repo>/core/dist/lib/schema.js  →  /<repo>/schemas
-// 3. bundled (ncc):  /<repo>/core/dist-bin/index.js  →  /<repo>/schemas (the cli.js is at /<repo>/core/, schemas are at /<repo>/schemas/)
+// 1. Embedded in the ncc bundle (production): __embeddedSchemas global
+// 2. Dev: walk-up from this file looking for a `schemas/workspace.schema.json`
 function resolveSchemaDir(): string {
-  // Allow override via env (useful for tests and single-file distribution).
+  // Embedded schemas available — return a synthetic path (must satisfy ajv)
+  // by storing them on globalThis for getValidator to read.
+  const embedded = (globalThis as { __embeddedSchemas?: Record<string, object> })
+    .__embeddedSchemas;
+  if (process.env.OPERATOROS_DEBUG) {
+    process.stderr.write(
+      `DEBUG resolveSchemaDir: __embeddedSchemas=${typeof embedded} keys=${
+        embedded ? Object.keys(embedded).join(",") : "n/a"
+      }\n`
+    );
+  }
+  if (embedded && embedded.workspace) {
+    (globalThis as { __embeddedSchemaCache?: Record<string, object> }).__embeddedSchemaCache =
+      embedded;
+    return "__EMBEDDED__";
+  }
+  // Allow override via env (useful for tests and non-standard layouts).
   if (process.env.OPERATOROS_SCHEMAS_DIR) {
     return process.env.OPERATOROS_SCHEMAS_DIR;
   }
@@ -47,11 +62,23 @@ const SCHEMA_DIR = resolveSchemaDir();
 const cache = new Map<string, ValidateFunction>();
 
 /**
- * Load a named schema from this repo's schemas/ directory.
- * Names: "workspace", "module", "preset" — file mapping: <name>.schema.json
+ * Load a named schema. Tries (in order):
+ * 1. Embedded cache (ncc bundle)
+ * 2. Filesystem path under SCHEMA_DIR
  */
 export async function getValidator(name: string): Promise<ValidateFunction> {
   if (cache.has(name)) return cache.get(name)!;
+
+  // 1. Embedded cache (ncc bundle)
+  const embeddedCache = (globalThis as { __embeddedSchemaCache?: Record<string, object> })
+    .__embeddedSchemaCache;
+  if (embeddedCache && embeddedCache[name]) {
+    const validate = ajv.compile(embeddedCache[name]);
+    cache.set(name, validate);
+    return validate;
+  }
+
+  // 2. Filesystem
   const file = path.join(SCHEMA_DIR, `${name}.schema.json`);
   if (!(await fs.pathExists(file))) {
     throw new Error(`schema not found: ${file}`);
