@@ -1,21 +1,41 @@
 # OperatorOS — JSON Schemas
 
-> **Status:** Phase 0 — schemas not yet authored. This README is the contract for how they're authored.
+Source-of-truth contracts for every manifest in an OperatorOS workspace. The Core CLI validates every YAML file against these schemas at every boundary (init, validate, add, apply).
 
-Each schema file in this directory is the **single source of truth** for one contract. Where TypeScript or Python SDKs exist, they derive their types from these schemas (e.g. `zod-to-json-schema`, `datamodel-code-generator`).
+## Draft
 
-## Files (planned for Phase 1)
+All schemas use **JSON Schema 2020-12** ([draft spec](https://json-schema.org/draft/2020-12/schema)).
 
-- `module.schema.json` — JSON Schema 2020-12 for `module.yaml`.
-- `preset.schema.json` — JSON Schema 2020-12 for `preset.yaml`.
-- `workspace.schema.json` — JSON Schema 2020-12 for `operatoros.toml`.
+## Files
 
-## Validation policy
+| File | Validates | Used by |
+|---|---|---|
+| `workspace.schema.json` | `operatoros.yaml` | `init`, `validate`, `apply`, `export` |
+| `module.schema.json` | `module.yaml` | `add`, `validate`, `apply` |
+| `preset.schema.json` | `preset.yaml` | `init` (copies canonical preset), `apply`, `validate` |
 
-- Adapters and Core parsers MUST validate against these schemas on every load.
-- A schema change is a **breaking change** unless the change is purely additive (new optional field with safe default).
-- Schema changes require a BDFL PR review at v0.x and lazy-consensus approval at v1.0+.
+## Validation
 
-## Compatibility target
+The Core CLI validates silently during normal operation. To run validation explicitly:
 
-JSON Schema 2020-12 ([https://json-schema.org/draft/2020-12](https://json-schema.org/draft/2020-12)). Avoid newer drafts until ecosystem catches up.
+```bash
+operatoros validate operatoros.yaml         # workspace
+operatoros validate modules/<name>/module.yaml  # module
+operatoros validate presets/<name>/preset.yaml  # preset
+```
+
+A failed validation exits with code 1 and prints the specific errors:
+
+```text
+✗ /path/to/operatoros.yaml — INVALID against "workspace" schema
+    /name must match pattern "^[a-z0-9][a-z0-9_-]*$"
+    /version must match pattern "^[0-9]+\.[0-9]+$"
+```
+
+## Schema evolution
+
+Until v1.0, schemas are alpha. Changes may happen in minor versions.
+
+At v1.0, the schemas become stable. Breaking changes (field removals, regex tightening, structural shifts) will require a major version bump and a migration guide.
+
+Additive changes (new optional fields, new top-level keys) are NOT breaking and can ship in minor versions.

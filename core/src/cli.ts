@@ -3,22 +3,21 @@
  * OperatorOS Core CLI — main entry point.
  *
  * Implements the OperatorOS framework spec defined in this repo's schemas/ directory.
- * CLI surface:
- *   operatoros init [--personal | --preset <name>] [--target <path>]
- *   operatoros validate <path>
- *   operatoros add <module-path-or-url>
- *   operatoros export --bundle tar.gz [--out <path>]
+ * CLI surface (7 commands):
+ *   operatoros init [--preset <name>] [--target <path>] [--force]
+ *   operatoros validate <path> [--schema <name>]
+ *   operatoros add <module-path-or-url> [--name <name>] [--pin <ref>]
+ *   operatoros apply [preset]
+ *   operatoros run <module> <command> [args...]
+ *   operatoros export [--bundle tar.gz] [--out <path>] [--include-secrets]
  *   operatoros version
  */
 import { Command } from "commander";
 import { initCommand } from "./commands/init";
 import { validateCommand } from "./commands/validate";
 import { addCommand } from "./commands/add";
-import { installCommand } from "./commands/install";
-import { searchCommand } from "./commands/search";
 import { applyCommand } from "./commands/apply";
 import { runCommand } from "./commands/run";
-import { upgradeCommand } from "./commands/upgrade";
 import { exportCommand } from "./commands/export";
 import { versionCommand } from "./commands/version";
 
@@ -27,13 +26,13 @@ const program = new Command();
 program
   .name("operatoros")
   .description("OperatorOS Core — CLI runtime for personal operating systems")
-  .version("0.4.0-alpha");
+  .version("0.5.0-alpha");
 
 program
   .command("init")
   .description("Initialize a new OperatorOS workspace")
   .option("-p, --personal", "scaffold a personal workspace (default preset)")
-  .option("--preset <name>", "use a specific preset (e.g., personal, team)")
+  .option("--preset <name>", "use a specific preset (e.g., personal, minimal, team-research, dev-machine)")
   .option("-t, --target <path>", "target directory (default: current dir)")
   .option("-f, --force", "overwrite existing files")
   .action(initCommand);
@@ -62,23 +61,8 @@ program
   .action(runCommand);
 
 program
-  .command("search [query]")
-  .description("Search the public OperatorOS module registry")
-  .action(searchCommand);
-
-program
-  .command("install <name>")
-  .description("Install a module by registry name (resolves via fetchRegistry then delegates to add)")
-  .action(installCommand);
-
-program
-  .command("upgrade <module>")
-  .description("Re-fetch an installed module from its original source (preserves a .bak of the old version)")
-  .action(upgradeCommand);
-
-program
   .command("export")
-  .description("Export the current workspace")
+  .description("Export the current workspace as a portable bundle")
   .option("-b, --bundle <format>", "bundle format (tar.gz, zip)", "tar.gz")
   .option("-o, --out <path>", "output file path")
   .option("--include-secrets", "include secret files (default: deny-list)")

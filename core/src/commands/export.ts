@@ -132,8 +132,7 @@ export async function exportCommand(opts: ExportOptions): Promise<void> {
       finalList
     );
   } else if (opts.bundle === "zip") {
-    // simple zip via tar (Node has no built-in zip; placeholder)
-    fail(`zip bundle not implemented in v0.2.0-alpha — use tar.gz`);
+    fail(`zip bundle not implemented — use --bundle tar.gz`);
     process.exit(1);
   } else {
     fail(`unknown bundle format: ${opts.bundle}`);

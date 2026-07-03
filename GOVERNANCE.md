@@ -1,36 +1,51 @@
 # Governance
 
-> **Phase 0 status:** BDFL for v0.x. Transition plan documented but not yet active.
+> **Status:** v0.5.0-alpha. BDFL model for v0.x.
 
-## v0.x (currently active)
+## Current model (v0.x)
 
 - **BDFL:** Taras Polishchuk.
-- **Core maintainers:** to be decided; up to 2 additional co-maintainers as Phase 1 begins.
-- **Module / preset authors:** own their respective artifacts. PRs to a module require the author's approval (or 1 core maintainer if author is unreachable for 14 days).
-- **Core PRs:** require 1 core maintainer approval + passing CI.
-- **Breaking-change discipline:** any change to `operatoros.core`, `operatoros.module.contract`, or `operatoros.preset.contract` is breaking. Major SemVer bump required. Posted to `#releases` Discord and CHANGELOG.md.
+- **CODEOWNERS:** all files require BDFL review (`@taras-polishchuk`).
+- **Module / preset authors:** own their respective artifacts. PRs to a module require the author's approval (or the BDFL if the author is unreachable for 14 days).
+- **Core PRs:** require BDFL approval + passing CI on Node 20.x + 22.x.
 
-## v1.0 transition plan (target ~9 months from v0.1.0)
+## What the BDFL decides
 
-- **Lazy consensus.** No veto-based governance; decisions by silence + objection.
-- **Steering committee** of 3 (Taras + 2 to be elected by contributors).
-- **Module ecosystem oversight.** A dedicated curator (or rotation of 2) reviews incoming modules for security + quality.
+- Feature additions (which features, in which order)
+- Breaking changes (what counts as breaking, when to bump major)
+- Release timing
+- Anything else not delegated below
 
-## Conflict resolution
+## What the BDFL does NOT decide alone
 
-1. **Within scope:** module / preset authors have final say over their artifact.
-2. **Cross-cutting issues** (Core API, security policy, governance itself): discussion → proposal → lazy-consensus vote if no consensus after 14 days.
-3. **Code of Conduct violations:** documented in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md); escalation path in §Enforcement.
+- Security disclosures — see [SECURITY.md](SECURITY.md) for the private reporting path.
+- Code of Conduct violations — handled per the [Contributor Covenant](CODE_OF_CONDUCT.md) escalation process.
+
+## Transition plan (target: v1.0)
+
+At v1.0, governance moves from BDFL to a steering committee:
+
+- **Steering committee:** 3 members (Taras + 2 to be elected by contributors at v1.0).
+- **Decision-making:** lazy consensus. Decisions by silence + objection.
+- **Module curation:** a dedicated curator (or rotation of 2) reviews incoming modules for security + quality.
+
+Until v1.0, the BDFL model is the entire governance model. No transition is in progress.
+
+## Breaking changes
+
+Any change to the following is breaking and requires a major version bump:
+
+- `schemas/workspace.schema.json` (removing or renaming fields, tightening regexes)
+- `schemas/module.schema.json` (same)
+- `schemas/preset.schema.json` (same)
+- The `operatoros` CLI command surface (removing or renaming commands)
+- The deny-list behavior in `export` (changing default patterns)
+- The hook event names (`pre-init`, `post-apply`, etc.)
+
+Additive changes (new optional fields, new commands, new presets, new modules) are NOT breaking and can ship in minor versions.
 
 ## Licensing
 
-- **Code:** MIT.
-- **Documentation:** CC-BY-4.0 (proposed; not yet enforced).
-- **Trademark:** "OperatorOS" name and logo are reserved; community use permitted under the Linux Foundation trademark policy (when applicable).
-
-## Adding governance changes
-
-A PR to this file requires:
-- One core maintainer approval.
-- 14-day public comment period (issues or discussions).
-- Zero unaddressed objections.
+- **Code:** MIT (see [LICENSE](LICENSE)).
+- **Documentation:** MIT (same).
+- **Trademark:** "OperatorOS" is the project name. No trademark registered. Use freely with attribution.

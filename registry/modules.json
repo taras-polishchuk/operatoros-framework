@@ -1,54 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "OperatorOS Module Registry",
-  "description": "Curated list of public OperatorOS modules. Fetched by `operatoros search` and `operatoros install`.",
-  "version": "0.2",
+  "description": "Public registry of OperatorOS modules. Currently empty by design — modules come from canonical presets (see `operatoros apply`) or local paths (see `operatoros add`). The registry will grow as community modules land. To propose a module, see .github/ISSUE_TEMPLATE/module_proposal.md.",
+  "version": "0.4",
   "updated": "2026-07-02",
-  "modules": [
-    {
-      "name": "journal",
-      "version": "0.2.0",
-      "description": "Append-only timestamped journal entries. The simplest possible OperatorOS module — 1 YAML file, 0 deps.",
-      "author": "Taras Polishchuk",
-      "license": "MIT",
-      "source": "./examples/journal",
-      "tags": ["example", "journal", "notes", "starter"]
-    },
-    {
-      "name": "vault",
-      "version": "0.1.0",
-      "description": "Encrypted secret storage backed by gpg + age. See SECURITY.md for threat model.",
-      "author": "Taras Polishchuk",
-      "license": "MIT",
-      "source": "https://github.com/taras-polishchuk/operatoros-vault",
-      "tags": ["secrets", "crypto", "security"]
-    },
-    {
-      "name": "git-automation",
-      "version": "0.1.0",
-      "description": "Pre-commit hooks, auto-format, conventional commits enforcement.",
-      "author": "Taras Polishchuk",
-      "license": "MIT",
-      "source": "https://github.com/taras-polishchuk/operatoros-git-automation",
-      "tags": ["git", "automation", "dx"]
-    },
-    {
-      "name": "tmux-sessions",
-      "version": "0.1.0",
-      "description": "Declarative tmux session definitions — `operatoros run tmux start` brings up your full dev layout.",
-      "author": "Taras Polishchuk",
-      "license": "MIT",
-      "source": "https://github.com/taras-polishchuk/operatoros-tmux",
-      "tags": ["tmux", "dev", "sessions"]
-    },
-    {
-      "name": "ai-context",
-      "version": "0.1.0",
-      "description": "Bundles your workspace into a single LLM-friendly context block. Output respects the export deny-list.",
-      "author": "Taras Polishchuk",
-      "license": "MIT",
-      "source": "https://github.com/taras-polishchuk/operatoros-ai-context",
-      "tags": ["ai", "llm", "context", "export"]
-    }
-  ]
+  "modules": []
 }

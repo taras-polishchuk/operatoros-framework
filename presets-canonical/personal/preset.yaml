@@ -1,10 +1,10 @@
 version: "0.2"
 name: personal
 description: |
-  Single-operator default. Includes the journal example module to demonstrate the contract.
-modules:
-  - name: journal
-    source: ./examples/journal
+  Default OperatorOS workspace. Bare layout — no modules installed. Add modules
+  with `operatoros add <path-or-url>`. This is the only preset for now; more will
+  be added as real needs emerge.
+modules: []
 settings:
   vault_path: vault/
   state_path: state/
@@ -12,4 +12,10 @@ settings:
     deny:
       - "vault/**"
       - "**/.env"
+      - "**/.env.*"
       - "**/*.sqlite"
+      - "**/*.sqlite-wal"
+      - "**/*.sqlite-shm"
+      - "**/id_rsa"
+      - "**/id_rsa.pub"
+      - "**/secrets.yaml"

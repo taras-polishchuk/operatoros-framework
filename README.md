@@ -1,118 +1,150 @@
 # OperatorOS
 
-> **Status:** Phase 2 · v0.4.0-alpha · registry + hooks + multi-preset. 32 tests passing on Node 20.x and 22.x.
+> **Status:** v0.5.0-alpha · 24 tests passing on Node 20.x and 22.x · MIT licensed
 
-**OperatorOS is a personal operating-system framework.** Modules are npm packages. Presets are Helm charts. OperatorOS is the runtime that ships both — for one human, and their agents.
+OperatorOS is a CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools, organized into a typed, composable, version-controlled structure you can back up, share, and extend.
+
+The framework extracts the universal architecture behind Taras Polishchuk's production Workspace OS into a reusable runtime.
+
+## Install
+
+**Recommended — single-file binary (Node 20+ required):**
 
 ```bash
-# v0.4.0-alpha — install (single-file binary, ~768KB)
 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+```
 
-# use the CLI (now on PATH)
-operatoros init --preset personal      # scaffold a workspace (4 presets available)
-operatoros apply                        # install preset's modules
-operatoros search journal               # search the public registry
-operatoros install journal              # install by registry name
-operatoros run journal add "..."        # dispatch to module command
-operatoros upgrade journal              # re-fetch module, preserve .bak
+**Windows (PowerShell):**
+
+```powershell
+iwr https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.ps1 | iex
+```
+
+**From source:**
+
+```bash
+git clone https://github.com/taras-polishchuk/operatoros-framework
+cd operatoros-framework/core
+npm install && npm run build
+node dist/cli.js version
+```
+
+## Quickstart
+
+```bash
+# 1. Initialize a workspace (uses the `personal` preset by default)
+mkdir ~/my-workspace && cd ~/my-workspace
+operatoros init
+
+# 2. Validate the workspace against its JSON-Schema
 operatoros validate operatoros.yaml
+
+# 3. Add a module from a local path (the journal example ships with OperatorOS)
+operatoros add /path/to/operatoros-framework/examples/journal
+
+# 4. Run a module command
+operatoros run journal add "shipped v0.5.0-alpha"
+
+# 5. Export the workspace as a portable bundle (secrets excluded by default)
 operatoros export --bundle tar.gz
-operatoros version
+# → ~/my-workspace-2026-07-02T23-50-00.tar.gz
 ```
 
----
+## Commands
 
-## What this is
+| Command | Purpose |
+|---|---|
+| `operatoros init` | Scaffold a new workspace |
+| `operatoros validate <path>` | Validate YAML against JSON-Schema |
+| `operatoros add <source>` | Install a module from a local path or git URL |
+| `operatoros apply [preset]` | Install all modules declared in a preset |
+| `operatoros run <module> <cmd>` | Execute a module's declared command |
+| `operatoros export` | Pack workspace into a portable bundle |
+| `operatoros version` | Print version + git info |
 
-OperatorOS extracts the universal architecture behind [Workspace OS](../CLAUDE.md) and turns it into a reusable, composable, AI-native framework that any individual (and their agents) can adopt, fork, and ship.
+7 commands. Each one does one thing. Run `operatoros --help` for the full surface.
 
-Workspace OS remains the production environment for the author (Taras Polishchuk). OperatorOS becomes the contract that other workspaces can claim.
-
-**Why now.** The personal-workspace-tools landscape (Raycast, Obsidian, Cursor, Hermes, OpenHands, Pi, Omnigent) has exploded — with no unifying framework. OperatorOS aims to be the kernel.
-
----
-
-## Architecture (one-screen)
+## Architecture
 
 ```
-┌───────────────────────────────────────────────────┐
-│                YOUR WORKSPACE                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────┐ │
-│  │  Preset      │  │  Preset      │  │  Preset │ │  ← frozen compositions
-│  │  personal    │  │  team-research│  │  minimal│ │
-│  └──────────────┘  └──────────────┘  └─────────┘ │
-│         │                │                │       │
-│  ┌──────┴────────────────┴────────────────┘      │
-│  │           Module Loader (Core)                │  ← typed, validated
-│  │     operatoros-core ≤ 5k LoC, ≤ 20 symbols       │     (inputs, outputs, schema)
-│  └─────────────────────┬─────────────────────────┘
-│        ┌───────────────┼──────────────────┐
-│        ▼               ▼                  ▼
-│   mod-github       mod-journal       mod-discord
-│   mod-export-static mod-export-llm-bundle mod-export-docker
-│         ↓               ↓                  ↓
-│     dist/, oci://,      single-file LLM context, terraform
-└───────────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│              Workspace                     │
+│  ┌─────────┐  ┌─────────┐  ┌───────────┐  │
+│  │ Module  │  │ Module  │  │ Preset    │  │
+│  │ journal │  │ (yours) │  │ personal  │  │
+│  └─────────┘  └─────────┘  └───────────┘  │
+│         \         |          /            │
+│  ┌─────────────────────────────────────┐  │
+│  │   Core (operatoros-core v0.5.0)     │  │
+│  │   - JSON-Schema validation (ajv)    │  │
+│  │   - Hook runner                     │  │
+│  │   - Export with deny-list           │  │
+│  └─────────────────────────────────────┘  │
+│         |                                 │
+│  ┌─────────────────────────────────────┐  │
+│  │   Persistence                       │  │
+│  │   operatoros.yaml, module.yaml,    │  │
+│  │   preset.yaml, tar.gz exports       │  │
+│  └─────────────────────────────────────┘  │
+└────────────────────────────────────────────┘
 ```
 
-**Core principles (pinned, not aspirational):**
+Every manifest is validated against a JSON Schema (2020-12) at every CLI boundary. Modules declare their contract in `module.yaml`. Presets compose modules + settings + lifecycle hooks. Export packs everything except what you told it to deny.
 
-1. **Small Core.** ≤ 5k LoC, ≤ 20 public symbols, ≤ 8 CLI subcommands in v1.
-2. **Composable Modules.** Forced contract: `(inputs, outputs, schema)` only — no shared state.
-3. **AI Native.** Typed schemas · structured `operatoros doctor` · `operatoros export --llm-bundle`.
-4. **One authority per thing.** Explicit `authority.toml` names the canonical source per subsystem.
-5. **Replaceable.** Modules and presets are replaceable; Core API is the contract.
-6. **Paired.** Ship Core + canonical `personal` preset in the same v0.1.0 release.
+## Six principles
 
----
+1. **Single Authority** — one canonical owner per concept. No dual sources.
+2. **Everything Replaceable** — modules, presets, even Core. Nothing is sacred.
+3. **Typed Substrate** — JSON-Schema validation at every boundary. Invalid state cannot exist.
+4. **AI-Native** — Core ships structured-output primitives, prompt-aware hooks, and module-based LLM integration.
+5. **Composable Modules** — one directory, one `module.yaml`, isolated commands.
+6. **Profile-portable** — the entire workspace exports to one tarball.
+
+## Project layout
+
+```
+operatoros-framework/
+├── core/                 # OperatorOS Core CLI (TypeScript)
+├── schemas/              # JSON Schema 2020-12 definitions
+├── presets-canonical/    # Canonical presets (personal)
+├── examples/             # Example modules (journal)
+├── registry/             # Public module registry (currently empty)
+├── scripts/              # Install scripts (Unix + Windows)
+├── operatoros.html       # Single-file landing page
+├── README.md             # This file
+├── ROADMAP.md            # Roadmap (current state)
+├── CHANGELOG.md          # Version history
+├── CONTRIBUTING.md       # How to contribute
+├── GOVERNANCE.md         # Decision-making
+└── SECURITY.md           # Vulnerability disclosure
+```
+
+## Documentation
+
+- **[Quickstart](#quickstart)** (above) — install + first 5 commands
+- **[ROADMAP.md](ROADMAP.md)** — what's been built and what's next
+- **[CHANGELOG.md](CHANGELOG.md)** — release history
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to add a module, file a PR, report a bug
+- **[GOVERNANCE.md](GOVERNANCE.md)** — BDFL model + transition plan
+- **[SECURITY.md](SECURITY.md)** — vulnerability disclosure
+- **[schemas/](schemas/)** — the contracts for `operatoros.yaml`, `module.yaml`, `preset.yaml`
 
 ## Status
 
 | | |
 |---|---|
-| Phase | 0 (incubation kickoff) |
-| License | MIT (proposed) |
-| GitHub org | TBD (reserved: `operatoros-framework`) |
-| Domain | `operatoros.dev` (proposed) |
-| v0.1.0 | Not yet released — see [PROPOSAL-v0.1.md](../.project-state/operatoros-incubation-kickoff/PROPOSAL-v0.1.md) |
-| Docs engine | MkDocs Material (proposed) |
-
----
-
-## Read more
-
-- [PROPOSAL-v0.1.md](../.project-state/operatoros-incubation-kickoff/PROPOSAL-v0.1.md) — full first proposal (vision, layout, module system, presets, export, OSS strategy, docs, landing, roadmap).
-- [RESEARCH-SYNTHESIS.md](../.project-state/operatoros-incubation-kickoff/research/RESEARCH-SYNTHESIS.md) — synthesis of 3 background research reports.
-- [contracts/module.md](contracts/module.md) — module contract (when written, Phase 1).
-- [contracts/preset.md](contracts/preset.md) — preset contract (when written, Phase 1).
-
----
+| Phase | v0.5.0-alpha (post-hardening) |
+| License | MIT (Copyright 2026 Taras Polishchuk) |
+| GitHub | github.com/taras-polishchuk/operatoros-framework |
+| GH Pages | taras-polishchuk.github.io/operatoros-framework |
+| Tests | 24 passing, ~825ms |
+| Binary | 768 KB single-file, Node 20+ |
+| Registry | empty by design (modules ship via presets + local paths) |
 
 ## Contributing
 
-This is an early-phase framework; expectations are still being set. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or PR.
+This is an early-phase framework. Process is being established. Open an issue before opening a non-trivial PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
-
-## Code of Conduct
-
-OperatorOS has adopted the Contributor Covenant v2.1. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
-
----
-
-## Naming
-
-**OperatorOS** is the canonical name (locked 2026-06-30). All previous collision concerns around the legacy `AdaptOS` name have been resolved by the rename. The name `OperatorOS` was probed across:
-
-- GitHub repos: `operatoros/operatoros` slot free (404)
-- Package registries: PyPI / npm / crates all clear
-- Domains: `operatoros.dev` / `.com` / `.io` / `.ai` all free (DNS status 0 NOERROR)
-- Active competitors: none in the same vertical
-
-See `.project-state/operatoros-phase16-confirm-rename/decisions.md` for the full probe matrix and rationale.
+MIT — see [LICENSE](LICENSE). Copyright 2026 Taras Polishchuk.

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OperatorOS — the operating layer for the single-operator era</title>
-<meta name="description" content="OperatorOS is an open-source framework for personal operating systems. AI-native, composable, MIT-licensed.">
+<meta name="description" content="OperatorOS is an open-source CLI for managing personal operating-system workspaces. Typed substrate, composable modules, MIT-licensed.">
 <meta name="theme-color" content="#0a0a0a">
 <style>
   :root{
@@ -31,7 +31,6 @@
   p{margin:12px 0;color:var(--fg-muted)}
   p strong,p b{color:var(--fg)}
   .lede{font-size:20px;line-height:1.5;color:var(--fg);margin:24px 0 32px;font-weight:400}
-  .hero-grid{display:grid;grid-template-columns:1fr;gap:24px;margin:32px 0}
   .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
   .pill{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
   .pill--accent{background:var(--accent-dim);border-color:var(--accent);color:var(--accent-2)}
@@ -40,23 +39,12 @@
   .principle h3{margin:0 0 8px;color:var(--accent-2);font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
   .principle p{margin:0;font-size:14px;color:var(--fg-muted)}
   .principle p b{color:var(--fg)}
-  table{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px}
-  th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--border);vertical-align:top}
-  th{color:var(--fg);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
-  td{color:var(--fg-muted)}
-  td:first-child{color:var(--fg);font-weight:500}
-  .check{color:var(--good);font-family:var(--mono)}
-  .cross{color:var(--bad);font-family:var(--mono)}
-  .dash{color:var(--fg-dim);font-family:var(--mono)}
   pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:16px 0}
   code{font-family:var(--mono);font-size:.92em;background:var(--bg-elev-2);padding:1px 6px;border-radius:4px;color:var(--accent-2)}
   pre code{background:none;padding:0;color:var(--fg)}
-  .arch{margin:32px 0;padding:24px;background:var(--bg-elev);border:1px solid var(--border);border-radius:12px}
-  .arch svg{width:100%;height:auto;display:block}
   .meta{display:flex;flex-wrap:wrap;gap:16px;margin:32px 0;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
   .meta span{display:inline-flex;align-items:center;gap:6px}
   .meta .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
-  .meta .dot--warn{background:var(--warn)}
   .cta{margin:48px 0;padding:24px;background:linear-gradient(135deg,var(--accent-dim),transparent);border:1px solid var(--accent);border-radius:12px}
   .cta h3{margin:0 0 8px;color:var(--fg)}
   .cta p{margin:0 0 16px;color:var(--fg)}
@@ -84,32 +72,31 @@
 <body>
 <div class="wrap">
 
-  <div class="badge badge--accent">Phase 1.6 · v0.1.0-alpha · MIT</div>
+  <div class="badge badge--accent">v0.5.0-alpha · MIT · Node 20+</div>
 
   <h1>OperatorOS</h1>
   <p class="lede">
-    The operating layer for the <b>single-operator era</b> — a typed substrate where one
-    human composes their tools, knowledge, and agents into a durable personal system.
+    A CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools,
+    organized into a typed, composable, version-controlled structure you can back up, share, and extend.
   </p>
 
   <div class="pill-row">
-    <span class="pill pill--accent">AI-native</span>
-    <span class="pill">Composable Modules</span>
-    <span class="pill">Single Authority</span>
-    <span class="pill">Everything Replaceable</span>
-    <span class="pill">Profile-portable</span>
-    <span class="pill">MIT</span>
+    <span class="pill pill--accent">MIT licensed</span>
+    <span class="pill">7 commands</span>
+    <span class="pill">Single binary</span>
+    <span class="pill">Node 20+</span>
+    <span class="pill">JSON Schema validated</span>
   </div>
 
   <div class="meta">
-    <span><i class="dot"></i> Phase 2 — registry + hooks + multi-preset</span>
-    <span><i class="dot"></i> v0.4.0-alpha available</span>
+    <span><i class="dot"></i> 24 tests passing on Node 20.x and 22.x</span>
+    <span><i class="dot"></i> ~768 KB single-file binary</span>
   </div>
 
   <h2>The problem</h2>
 
   <p>You are <b>one operator</b>. You run a workspace that is supposed to be yours — files,
-  scripts, notes, tools, AI agents, scheduled jobs, integrations. In practice it has
+  scripts, notes, tools, agents, scheduled jobs, integrations. In practice it has
   fragmented into:</p>
 
   <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
@@ -122,14 +109,6 @@
 
   <p>None of this is a single system. None of it is replaceable. None of it composes.</p>
 
-  <h2>The hypothesis</h2>
-
-  <p>If <b>DevOps</b> was the discipline of running production software at the team level,
-  then the missing discipline for the next decade is the operating layer for the
-  <b>single-operator level</b> — one human, their tools, their agents, their data.</p>
-
-  <p>OperatorOS is that discipline, captured as a framework.</p>
-
   <h2>Six principles</h2>
 
   <div class="principles">
@@ -140,7 +119,7 @@
     </div>
     <div class="principle">
       <h3>02 · Everything Replaceable</h3>
-      <p>Modules, presets, tools, even Core itself — all replaceable. <b>Framework first,
+      <p>Modules, presets, even Core itself — all replaceable. <b>Framework first,
       implementation last.</b></p>
     </div>
     <div class="principle">
@@ -165,165 +144,51 @@
     </div>
   </div>
 
-  <h2>Architecture</h2>
+  <h2>Quickstart (v0.5.0-alpha)</h2>
 
-  <div class="arch">
-    <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" aria-label="OperatorOS architecture diagram">
-      <defs>
-        <linearGradient id="g1" x1="0" x2="1">
-          <stop offset="0" stop-color="#7c3aed"/>
-          <stop offset="1" stop-color="#a78bfa"/>
-        </linearGradient>
-      </defs>
-
-      <!-- Operator (top) -->
-      <rect x="320" y="10" width="160" height="48" rx="8" fill="url(#g1)" opacity="0.18" stroke="#7c3aed"/>
-      <text x="400" y="40" text-anchor="middle" fill="#fafafa" font-family="ui-monospace" font-size="14" font-weight="600">Operator</text>
-
-      <!-- Workspace (center) -->
-      <rect x="220" y="90" width="360" height="56" rx="10" fill="#1a1a1a" stroke="#404040"/>
-      <text x="400" y="115" text-anchor="middle" fill="#fafafa" font-family="ui-monospace" font-size="15" font-weight="600">Workspace</text>
-      <text x="400" y="135" text-anchor="middle" fill="#a0a0a0" font-family="ui-monospace" font-size="11">operatoros.yaml + modules/ + presets/ + state/</text>
-
-      <!-- Modules row -->
-      <rect x="40" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
-      <text x="120" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Modules</text>
-      <text x="120" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">composable extensions</text>
-
-      <rect x="220" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
-      <text x="300" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Presets</text>
-      <text x="300" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">instantiation values</text>
-
-      <rect x="400" y="180" width="160" height="50" rx="8" fill="#121212" stroke="#262626"/>
-      <text x="480" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Tools</text>
-      <text x="480" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">concrete binaries</text>
-
-      <rect x="580" y="180" width="180" height="50" rx="8" fill="#121212" stroke="#262626"/>
-      <text x="670" y="202" text-anchor="middle" fill="#a78bfa" font-family="ui-monospace" font-size="12" font-weight="600">Vault</text>
-      <text x="670" y="220" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="10">encrypted secrets</text>
-
-      <!-- Arrows -->
-      <line x1="400" y1="58" x2="400" y2="90" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow)"/>
-      <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
-        </marker>
-      </defs>
-      <line x1="120" y1="180" x2="280" y2="146" stroke="#404040" stroke-width="1"/>
-      <line x1="300" y1="180" x2="380" y2="146" stroke="#404040" stroke-width="1"/>
-      <line x1="480" y1="180" x2="420" y2="146" stroke="#404040" stroke-width="1"/>
-      <line x1="670" y1="180" x2="520" y2="146" stroke="#404040" stroke-width="1"/>
-
-      <!-- Core label bottom -->
-      <text x="400" y="262" text-anchor="middle" fill="#6a6a6a" font-family="ui-monospace" font-size="11">Core: operatoros binary · JSON-Schema validation · CLI surface</text>
-    </svg>
-  </div>
-
-  <h2>How it compares</h2>
-
-  <table>
-    <thead>
-      <tr>
-        <th>&nbsp;</th>
-        <th>OperatorOS</th>
-        <th>DIY<br><span style="font-weight:400;text-transform:none">Makefile + CLAUDE.md</span></th>
-        <th>Backstage</th>
-        <th>Homebrew</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>First-project setup</td>
-        <td><code>operatoros init --personal</code></td>
-        <td>~3 days</td>
-        <td>~2 weeks</td>
-        <td>~1 day</td>
-      </tr>
-      <tr>
-        <td>Reusable modules</td>
-        <td><span class="check">✓</span> typed contract</td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="check">✓</span> plugin system</td>
-        <td><span class="check">✓</span> formulae</td>
-      </tr>
-      <tr>
-        <td>AI-native primitives</td>
-        <td><span class="check">✓</span> built-in</td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="dash">—</span></td>
-        <td><span class="cross">✗</span></td>
-      </tr>
-      <tr>
-        <td>Profile portability</td>
-        <td><span class="check">✓</span> one bundle</td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
-        <td><span class="cross">✗</span></td>
-      </tr>
-      <tr>
-        <td>Designed for</td>
-        <td>1 operator</td>
-        <td>1 operator</td>
-        <td>teams</td>
-        <td>macOS users</td>
-      </tr>
-      <tr>
-        <td>License</td>
-        <td>MIT</td>
-        <td>n/a</td>
-        <td>Apache-2.0</td>
-        <td>BSD-2</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>Quickstart (v0.4.0-alpha)</h2>
-
-<pre><code># Option A — install the single-file binary (recommended)
+<pre><code># Install the single-file binary (Node 20+ required)
 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
-# Option B — clone + build from source
-git clone https://github.com/taras-polishchuk/operatoros-framework.git
-cd operatoros-framework/core
-npm install && npm run build
+# Initialize a workspace
+mkdir ~/my-workspace && cd ~/my-workspace
+operatoros init
 
-# 1. initialize — pick a preset (personal|minimal|team-research|dev-machine)
-operatoros init --preset personal
-cd personal-workspace
-
-# 2. validate
+# Validate against the JSON Schema
 operatoros validate operatoros.yaml
 
-# 3. apply the preset — installs declared modules, fires post-apply hooks
-operatoros apply
+# Add a module — the journal example ships with OperatorOS
+# (run from the operatoros-framework repo root)
+operatoros add &lt;repo-root&gt;/examples/journal
 
-# 4. search the public module registry
-operatoros search journal
-# → journal 0.2.0 — Append-only journal entries
-#   install with: operatoros install journal
+# Run a module command
+operatoros run journal add "shipped v0.5.0-alpha"
 
-# 5. install a module by name (resolves source via registry)
-operatoros install journal
-operatoros run journal add "shipped v0.4.0-alpha — registry + hooks"
-
-# 6. export (deny-list excludes vault/, .env, *.sqlite; hooks can pre/post-process)
+# Export the workspace as a portable bundle
 operatoros export --bundle tar.gz
+# → ~/my-workspace-2026-07-02T23-50-00.tar.gz (secrets excluded)</code></pre>
 
-# 7. upgrade a module — preserves a .bak
-operatoros upgrade journal
+<h2>Commands</h2>
 
-# 8. version
-operatoros version</code></pre>
-
-<p style="font-size:13px;color:var(--fg-dim)">v0.4.0-alpha ships 10 commands: init / validate / add / apply / run / search / install / upgrade / export / version. 32 tests passing. Hooks system fires at 6 lifecycle events. 4 canonical presets. ~768 KB single-file binary.</p>
+<table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px">
+  <thead><tr><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Command</th><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Purpose</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>init</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Scaffold a new workspace</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>validate &lt;path&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Validate YAML against JSON Schema</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>add &lt;source&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install a module from local path or git URL</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>apply [preset]</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install all modules declared in a preset</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>run &lt;m&gt; &lt;cmd&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Execute a module's declared command</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>export</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Pack workspace into a portable bundle</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>version</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Print version + git info</td></tr>
+  </tbody>
+</table>
 
   <h2>What it is NOT for</h2>
 
   <p>
-    OperatorOS is not for teams — Backstage is. It is not for SaaS deployment — Kubernetes
-    is. It is not for hosting websites — Vercel is. It is not a graph database, a static
-    site generator, a chat framework, or an agent runtime — those are <i>modules</i> you
-    install on top of OperatorOS.
+    OperatorOS is not for teams — pick a team-OS if you have one. It is not a SaaS — there's
+    no hosted OperatorOS, it runs locally. It is not a graph database, static site generator,
+    chat framework, or agent runtime — those are <i>modules</i> you install on top of
+    OperatorOS, or you write them yourself.
   </p>
 
   <p>
@@ -332,15 +197,15 @@ operatoros version</code></pre>
   </p>
 
   <div class="cta">
-    <h3>Try v0.4.0-alpha</h3>
-    <p>OperatorOS Core v0.4.0-alpha ships 10 commands including a public module registry, lifecycle hooks, and 4 canonical presets (personal / minimal / team-research / dev-machine). 32 tests passing. ~768 KB single-file binary. MIT licensed.</p>
+    <h3>Try v0.5.0-alpha</h3>
+    <p>OperatorOS Core v0.5.0-alpha ships 7 commands. 24 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. One example module (<code>journal</code>) — enough to verify the contract end-to-end without pretending to be a marketplace.</p>
     <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
-    <a class="btn btn--ghost" href="#">Read the proposal</a>
+    <a class="btn btn--ghost" href="https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/README.md">Read the README</a>
   </div>
 
   <div class="footer">
     <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
-    <div>Phase 2 · v0.4.0-alpha · registry + hooks + multi-preset</div>
+    <div>v0.5.0-alpha · product hardening pass · 24 tests · 7 commands</div>
   </div>
 
 </div>

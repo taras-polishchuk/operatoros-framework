@@ -1,79 +1,73 @@
 # Roadmap
 
-> **Status:** Hypothesis. Each release date below is a **target**, not a commitment.
+> **Status:** v0.5.0-alpha. Phase 2 (product hardening) is the current focus. The roadmap below reflects what was actually shipped and what the next user-relevant milestone looks like.
 
-## v0.1.0 — alpha (target: T+0)
+## Shipped
 
-**Goal:** ship a `operatoros-core` binary that can parse `module.yaml`, validate against `module.schema.json`, and apply a single canonical preset (`personal`).
+### v0.1.0-alpha — Public scaffold (2026-07-02)
 
-Includes:
-- `operatoros-core` in Go/Rust (final language TBD).
-- TOML parser for `operatoros.toml`, YAML parser for `module.yaml` / `preset.yaml`.
-- Module loader, lockfile resolver (`.operatoros/lock.toml`).
-- Plan/apply split; append-only receipts (`.operatoros/receipts/*.jsonl`).
-- `operatoros init` (4-tier UX), `validate`, `plan`, `apply`, `doctor`, `version`.
-- `operatoros presets/personal.md` — the canonical preset (= distilled current Workspace OS).
-- `docs/` MkDocs site (Material theme).
-- 3 example modules: `hello-world`, `secrets`, `journal`.
-- CI: yamllint, markdownlint, JSON Schema lint, gitleaks.
-- MIT LICENSE.
+- Repository + LICENSE + governance + landing page
+- Decision: rename from `AdaptOS` to `OperatorOS`
 
-## v0.2.0 — beta (target: T+2 months)
+### v0.2.0-alpha — Working CLI (2026-07-02)
 
-**Goal:** presetable composition + 3 export targets + `authority.toml`.
+- `init`, `validate`, `add`, `export`, `version` commands
+- 3 JSON-Schema definitions
+- 1 example module (`journal`)
+- 13 tests passing
 
-- Preset composition (overlay rules, conflict policy per field).
-- `mod-export-static` (MkDocs → dist/).
-- `mod-export-docker` (OCI image).
-- `mod-export-llm-bundle` (single-file LLM context).
-- `authority.toml` per workspace.
-- `operatoros init` tier 2–4 expanded.
-- Init wizard + secrets scanning CI step.
+### v0.3.0-alpha — Apply + run + binary (2026-07-02)
 
-## v0.3.0 — RC (target: T+5 months)
+- `apply` and `run` commands
+- Single-file binary via ncc bundling (~750 KB)
+- Unix + Windows installer scripts
 
-**Goal:** registry foundation + remaining export targets + signature groundwork.
+### v0.4.0-alpha — Registry + hooks + multi-preset (2026-07-02)
 
-- `mod-export-hetzner`, `mod-export-github`.
-- `operatoros.yaml` annotation file (Artifact Hub style).
-- OCI distribution support.
-- cosign signature groundwork for v1.0 enforcement.
-- Lazy-consensus governance experiment (BDFL→committee transition prep).
+- Hooks system (6 lifecycle events)
+- Multi-preset support
+- Public registry (since trimmed in v0.5.0)
 
-## v1.0.0 — stable (target: T+9 months)
+### v0.5.0-alpha — Product hardening (2026-07-02)
 
-**Goal:** frozen `apiVersion: operatoros.dev/v1.0`, LTS promise 18 months, BDFL→committee handover.
+- Removed aspirational placeholders (registry entries, presets, empty dirs)
+- 7 commands (down from 10 after pruning dead code)
+- 24 tests passing
+- README, CHANGELOG, docs rewritten to reflect current state
+- CI cache path bug fixed
 
-- Frozen Core API; module/preset contracts stable.
-- Mandatory cosign signatures on Core-published modules.
-- GitHub Pages site live; community Discord promoted.
-- 5–10 community-published modules accepted.
-- 2+ real users running `operatoros-preset-personal` in production.
+## Next milestone — v0.6.0 (dogfooding-driven)
 
-## Post-1.0 themes (preview)
+The next release will not be a feature push. It will be whatever the first real-world use of OperatorOS reveals is missing.
 
-- **Workspace observability.** `mod-otel` first-class.
-- **Multi-workspace authority.** Cross-workspace secret sharing with provenance.
-- **Plugin marketplace UI.** Web UI for module browsing.
-- **Auto-curation.** AI-assisted PR review for community modules.
+The plan:
 
----
+1. **Use OperatorOS to manage Taras's own workspace** — install it on a real machine, scaffold a real workspace, run real `add`/`run`/`export` cycles against real files.
+2. **Track every friction point** — every confusing error message, every command that did the wrong thing, every time the docs didn't match reality.
+3. **Cut what isn't used.** If a command or flag wasn't touched during real use, remove it.
+4. **Harden what was touched.** Error messages become clearer. Edge cases get tested. Documentation gets aligned.
 
-## Decision log
+## Explicitly not planned
 
-| Decision | Status |
-|---|---|
-| License = MIT | proposed |
-| GitHub org = `operatoros-framework` (or `operatoros-core` alt) | blocked on Taras |
-| Domain = `operatoros.dev` | blocked on Taras |
-| MVP language for Core = Go (vs Rust) | TODO — open in research follow-up |
-| Repo initial visibility = public | blocked on Taras |
+Until the first external user runs OperatorOS for a non-trivial task and asks for a feature, the following will NOT be added:
 
----
+- Cloud features
+- Web UI / dashboards
+- Synchronization / multi-device
+- Marketplace
+- Telemetry
+- AI features that aren't required to satisfy the six principles
+- Module signing (premature for a single-user framework)
+- Native single-binary compilation (bun/deno compile) — Node binary is sufficient
+- A registry of community modules — modules ship via the personal preset and local paths until there's a real second contributor
 
-## Out of scope (deliberate)
+## Decision criteria for new features
 
-- **Cloud-specific first-class support.** OperatorOS is local-first; Hetzner export is the only first-party cloud target. (AWS/GCP exports are community modules.)
-- **Mobile app.** Desktop + CLI only at v1.0.
-- **Windows installer.** Linux + macOS CLI first; Windows via WSL2 in v1.0.
-- **Plugin sandboxing.** v1.0 trusts declared module contracts; runtime sandbox lands in v2.0.
+A proposed addition is worth doing if and only if:
+
+1. **At least one real user is asking for it.** Hypothetical users don't count.
+2. **It survives first contact with reality.** If the use case the user describes changes once they try it, it's not a real requirement.
+3. **It fits in one of the six principles.** If it requires a seventh principle, the principles need to be re-thought first.
+4. **It can be deleted later without breaking anything.** Avoid coupling that makes removal expensive.
+
+Anything that fails any of these gets either postponed or removed.

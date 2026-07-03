@@ -1,76 +1,101 @@
 # Contributing to OperatorOS
 
-> **Note:** This is a Phase-0 incubation. Process is being established. If anything here is unclear, open an issue — your confusion is signal.
+> **Status:** v0.5.0-alpha. Process is being established.
 
 ## Ground rules
 
-1. **Open an issue before opening a PR** for any non-trivial change. PRs against an unclear goal rarely land.
+1. **Open an issue before opening a PR** for any non-trivial change.
 2. **One concern per PR.** If your change touches Core, presets, and docs, split into three PRs.
 3. **No drive-by refactors.** A PR titled "drive-by cleanup" is grounds for close.
 4. **Tests are not optional.** If your change can be tested, it must be tested.
-5. **Diataxis on every doc change.** Every docs page declares its quadrant in frontmatter (`type: tutorial | how-to | reference | explanation`). CI fails on missing quadrant.
+5. **If a feature is not implemented, don't pretend it is.** Aspirational registry entries, empty example directories, and placeholder READMEs will be removed on sight.
 
-## Areas of contribution (in order of current need)
+## How to add a module
 
-| Area | What's needed | Where to start |
-|---|---|---|
-| **Research verification** | Re-confirm `[TRAINING-KNOWLEDGE — verify]` annotations in [PROPOSAL-v0.1.md](../.project-state/operatoros-incubation-kickoff/PROPOSAL-v0.1.md) | Open an issue with the citation link |
-| **Module authoring** | Write a `module.yaml` for a real module you use today | `examples/hello-world/` (Phase 1) |
-| **Doc additions** | New tutorials, how-tos, references in `docs/` | `docs/` (Diataxis-tagged) |
-| **Schema contributions** | Improve `schemas/module.schema.json` or `schemas/preset.schema.json` | `schemas/` |
-| **Export modules** | New `mod-export-*` plugins | Phase 2 |
-| **Core implementation** | Go/Rust implementation of `operatoros-core` | Phase 1 (no PRs accepted before RFC) |
+A module is a directory with a `module.yaml` at its root. The contract is defined by [schemas/module.schema.json](schemas/module.schema.json).
 
-## Module authoring (5 steps)
+```bash
+# 1. Create the module directory
+mkdir my-module && cd my-module
 
-> These are *stub* instructions for v0.1.0. Real documentation lands in Phase 1.
+# 2. Write module.yaml
+cat > module.yaml <<'EOF'
+version: "0.2"
+name: my-module
+description: "What this module does (one sentence)"
+author: "Your Name"
+license: MIT
+commands:
+  hello:
+    run: "echo hello $@"
+    description: "Says hello to the given name"
+EOF
 
-1. **Scaffold.** `operatoros new module my-mod --category knowledge` (after Core ships).
-2. **Declare contract.** Edit `module.yaml` (name, version, inputs, outputs, depends_on). Run `operatoros validate`.
-3. **Implement lifecycle.** Write `init.sh` (install/setup) and `destroy.sh` (cleanup). Idempotent. Log to stderr.
-4. **Test.** `operatoros test ./my-mod` runs the module in an ephemeral container with sample inputs; asserts healthcheck passes within `timeout`. Mirrors `helm test`.
-5. **Publish.** Tag `v1.0.0`, push to GitHub. CI validates schema + runs tests + signs commit with cosign.
+# 3. Validate against the schema
+operatoros validate module.yaml
 
-## Commit message format
+# 4. Install it into a workspace
+cd /path/to/workspace
+operatoros add /path/to/my-module
 
+# 5. Run it
+operatoros run my-module hello "world"
 ```
-<scope>(<area>): <one-line summary>
 
-[optional body, wrapping at 72 chars]
+Modules can declare multiple `commands`. Each command's `run` is a shell command line; `$1`, `$2`, ..., `$@` are positional args (shell-expanded). The command runs with `cwd` set to the module directory.
 
-[optional footer]
+## How to add a preset
+
+A preset is a YAML file in `presets/<name>/preset.yaml`. The contract is defined by [schemas/preset.schema.json](schemas/preset.schema.json).
+
+```yaml
+version: "0.2"
+name: my-preset
+description: "What this preset is for"
+modules: []   # currently empty by design — use `operatoros add` directly
+settings:
+  vault_path: vault/
+  state_path: state/
+  hooks:
+    post-apply:
+      - "echo 'my-preset applied'"
+  export:
+    deny:
+      - "vault/**"
+      - "**/.env"
+      - "**/*.sqlite"
 ```
 
-Scopes: `core`, `cli`, `schema`, `module`, `preset`, `docs`, `infra`, `examples`, `meta`.
+Currently only the `personal` preset ships with OperatorOS. Add more by editing `operatoros.yaml` and pointing it at your preset's directory.
 
-Areas (in parens) for the affected package. Examples:
+## How to file a bug
 
-- `module(core): enforce 5k LoC ceiling in CI`
-- `docs(explanation): add why-modules explanation page`
-- `feat(module): add healthcheck retry policy`
+Use the [bug report issue template](.github/ISSUE_TEMPLATE/bug_report.md). Include:
 
-## Code review
+- `operatoros version` output
+- Steps to reproduce
+- Expected vs actual behavior
+- Relevant logs (with secrets redacted)
 
-- Two core maintainer approvals required for Core changes (one is enough for Phase 0).
-- One approval required for module and preset additions.
-- Docs and `examples/` changes require one approval.
+## How to file a security issue
 
-## Reporting bugs
+**Do not file security issues publicly.** See [SECURITY.md](SECURITY.md) for the private reporting path.
 
-See [SECURITY.md](SECURITY.md) for *security* issues. For ordinary bugs, open an issue with:
+## Code style
 
-1. **Expected behaviour.** What you wanted.
-2. **Actual behaviour.** What happened.
-3. **Reproduction.** Minimum viable command(s) to reproduce.
-4. **Environment.** OS, OperatorOS version (`operatoros version`), commit SHA.
+- TypeScript for Core. `tsc --noEmit` must be clean.
+- Test with `vitest`. New commands must have at least one smoke test.
+- Schemas are JSON Schema 2020-12 draft. Validate them with `ajv` before committing.
 
-## Discussions vs Issues
+## What NOT to contribute
 
-| | Use |
-|---|---|
-| **Issues** | Concrete bugs, feature requests with PRs attached, schema disputes. |
-| **Discussions** | Architecture debates, roadmap questions, "how should we do X". |
+Until the project has real external users, please don't propose:
 
-## License
+- Cloud features
+- Marketplace / registry population (the registry is empty by design)
+- Telemetry
+- Web UI
+- Native binary compilation
+- Module signing
 
-By contributing, you agree your contributions are licensed under MIT.
+These may be added later. For now, they're explicitly out of scope. See [ROADMAP.md](ROADMAP.md) for the criteria new features must meet.

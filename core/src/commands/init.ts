@@ -1,8 +1,8 @@
 /**
  * operatoros init — scaffold a new workspace.
  *
- * v0.4.0-alpha: --preset picks from canonical presets in presets-canonical/.
- * Falls back to "personal" if no flag given.
+ * v0.5.0-alpha: --preset picks from canonical presets in presets-canonical/.
+ * Currently only `personal` exists. Falls back to `personal` if no flag given.
  */
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -37,7 +37,9 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   heading("OperatorOS init");
 
   const target = path.resolve(opts.target ?? process.cwd());
-  const preset = opts.preset ?? (opts.personal ? "personal" : "personal");
+  // Only `personal` preset exists today. --personal and bare `init` both = personal.
+  // The --preset flag is reserved for future presets.
+  const preset = opts.preset ?? "personal";
 
   if (await fs.pathExists(path.join(target, WORKSPACE_FILENAME))) {
     if (!opts.force) {
@@ -66,21 +68,10 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     }
   }
   if (!presetContent) {
-    fail(`preset "${preset}" not found`);
-    if (canonicalRoot) {
-      info(`available: ${await listPresets(canonicalRoot)}`);
-    }
-    info(`hint: --preset <name> from {minimal, personal, team-research, dev-machine}`);
+    fail(`preset "${preset}" not found in presets-canonical/`);
+    info(`available presets: personal (the only one for now)`);
     process.exit(1);
   }
-
-  // Parse canonical preset to get modules list
-  const { load: yamlLoad } = await import("js-yaml");
-  const canonical = yamlLoad(presetContent) as {
-    name: string;
-    modules?: Array<{ name: string; source?: string; pin?: string }>;
-    settings?: Record<string, unknown>;
-  };
 
   // operatoros.yaml
   const manifest = renderManifest(preset);
@@ -93,17 +84,10 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   await fs.writeFile(path.join(presetDir, "preset.yaml"), presetContent);
   ok(`created presets/${preset}/preset.yaml`);
 
-  // Note about modules in canonical (NOT installed by init — that's `apply`'s job)
-  const modules = canonical.modules ?? [];
-  if (modules.length > 0) {
-    info(`preset declares ${modules.length} module(s): ${modules.map((m) => m.name).join(", ")}`);
-    info(`run 'operatoros apply' to install them`);
-  }
-
-  // presets/README — index of installed vs canonical presets
+  // presets/README — index of installed presets
   await fs.writeFile(
     path.join(target, "presets", "README.md"),
-    `# presets/\n\nThis workspace's active preset is **${preset}** (declared in \`operatoros.yaml\`).\n\nCanonical presets shipped with OperatorOS:\n- minimal — bare workspace\n- personal — single-operator default (with journal example)\n- team-research — collaboration-oriented (with hooks example)\n- dev-machine — opinionated dev setup\n\nTo switch presets: edit \`operatoros.yaml\` preset field, then run \`operatoros apply\`.\n`
+    `# presets/\n\nThis workspace's active preset is **${preset}** (declared in \`operatoros.yaml\`).\n\nOnly the \`personal\` preset ships with OperatorOS today. Add more by editing \`operatoros.yaml\` and running \`operatoros apply <name>\`.\n`
   );
   ok(`created presets/README.md`);
 
@@ -131,35 +115,33 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   // modules/README
   await fs.writeFile(
     path.join(target, "modules", "README.md"),
-    `# modules/\n\nModules extend your workspace. Install one with:\n\n    operatoros install <name>     # from public registry\n    operatoros add <path-or-url>  # from local or git\n\nModules declare their contract via \`module.yaml\` at the root.\n`
+    `# modules/\n\nModules extend your workspace. Install one with:\n\n    operatoros add <path-or-url>   # from local path or git URL\n\nModules declare their contract via \`module.yaml\` at the root.\n`
   );
   ok(`created modules/README.md`);
 
-  console.log("\n  next: cd into your workspace and run:");
-  console.log("    $ operatoros apply                # install preset modules");
+  console.log("\n  next steps:");
   console.log("    $ operatoros validate operatoros.yaml");
-  console.log("    $ operatoros run <module> <cmd>\n");
+  console.log("    $ operatoros add <module-path-or-url>");
+  console.log("    $ operatoros run <module> <cmd>");
+  console.log("");
+  console.log("  to try the bundled journal example, run from the operatoros-framework repo root:");
+  console.log("    $ operatoros add <repo-root>/examples/journal");
+  console.log(`    $ operatoros run journal add 'first entry'`);
+  console.log("");
+  console.log("  or write your own module: see examples/README.md");
 }
 
-async function listPresets(root: string): Promise<string> {
-  const dir = path.join(root, "presets-canonical");
-  try {
-    const entries = await fs.readdir(dir);
-    return entries.filter((e) => !e.startsWith(".")).join(", ");
-  } catch {
-    return "(unreadable)";
-  }
-}
+
 
 function renderManifest(preset: string): string {
   return `# operatoros.yaml — workspace manifest
-# generated by operatoros-core v0.4.0-alpha
+# generated by operatoros-core v0.5.0-alpha
 version: "0.2"
 name: personal-workspace
 preset: ${preset}
 modules: []
 module_sources: {}
 created_at: "${new Date().toISOString()}"
-operatoros_version: "0.4.0-alpha"
+operatoros_version: "0.5.0-alpha"
 `;
 }
