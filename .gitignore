@@ -17,8 +17,9 @@ Thumbs.db
 *.swo
 
 # Node (if any module authors use JS tooling)
+# package-lock.json is INTENTIONALLY tracked so CI can run `npm ci` for reproducible installs.
+# Per OperatorOS maintainer policy (2026-07-04): lockfile is a build artifact, not user-data.
 node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
