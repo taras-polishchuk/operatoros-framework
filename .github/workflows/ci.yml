@@ -15,6 +15,9 @@ jobs:
         node-version: [20.x, 22.x]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history — needed for tooling that introspects git history.
+          fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -41,7 +44,13 @@ jobs:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
+      # Full history fetch — gitleaks needs parent SHAs for proper --first-parent
+      # history scanning. With fetch-depth: 1 (default), the diff between
+      # b591bb6^..HEAD fails with 'unknown revision' because b591bb6 is the
+      # first commit and has no parent in the shallow clone.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
