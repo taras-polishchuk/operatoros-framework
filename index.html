@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OperatorOS — the operating layer for the single-operator era</title>
+<meta name="description" content="OperatorOS is an open-source CLI for managing personal operating-system workspaces. Typed substrate, composable modules, MIT-licensed.">
+<meta name="theme-color" content="#0a0a0a">
+<style>
+  :root{
+    --bg:#0a0a0a;--bg-elev:#121212;--bg-elev-2:#1a1a1a;
+    --fg:#fafafa;--fg-muted:#a0a0a0;--fg-dim:#6a6a6a;
+    --accent:#7c3aed;--accent-2:#a78bfa;--accent-dim:#3b2966;
+    --border:#262626;--border-bright:#404040;
+    --good:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+    --code-bg:#0d0d0d;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{min-height:100vh}
+  a{color:var(--accent-2);text-decoration:none;border-bottom:1px dotted var(--accent-dim)}
+  a:hover{border-bottom-color:var(--accent-2)}
+  .wrap{max-width:880px;margin:0 auto;padding:64px 24px 96px}
+  .badge{display:inline-block;padding:4px 10px;border:1px solid var(--border-bright);border-radius:999px;font-size:12px;color:var(--fg-muted);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+  .badge--accent{border-color:var(--accent);color:var(--accent-2)}
+  h1{font-size:48px;line-height:1.1;letter-spacing:-0.02em;margin:32px 0 16px;font-weight:600}
+  h2{font-size:28px;line-height:1.25;letter-spacing:-0.01em;margin:64px 0 16px;font-weight:600;padding-top:24px;border-top:1px solid var(--border)}
+  h3{font-size:18px;line-height:1.4;margin:24px 0 8px;font-weight:600;color:var(--fg)}
+  p{margin:12px 0;color:var(--fg-muted)}
+  p strong,p b{color:var(--fg)}
+  .lede{font-size:20px;line-height:1.5;color:var(--fg);margin:24px 0 32px;font-weight:400}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+  .pill{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
+  .pill--accent{background:var(--accent-dim);border-color:var(--accent);color:var(--accent-2)}
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0}
+  .principle{padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elev)}
+  .principle h3{margin:0 0 8px;color:var(--accent-2);font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+  .principle p{margin:0;font-size:14px;color:var(--fg-muted)}
+  .principle p b{color:var(--fg)}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:16px 0}
+  code{font-family:var(--mono);font-size:.92em;background:var(--bg-elev-2);padding:1px 6px;border-radius:4px;color:var(--accent-2)}
+  pre code{background:none;padding:0;color:var(--fg)}
+  .meta{display:flex;flex-wrap:wrap;gap:16px;margin:32px 0;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
+  .meta span{display:inline-flex;align-items:center;gap:6px}
+  .meta .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+  .cta{margin:48px 0;padding:24px;background:linear-gradient(135deg,var(--accent-dim),transparent);border:1px solid var(--accent);border-radius:12px}
+  .cta h3{margin:0 0 8px;color:var(--fg)}
+  .cta p{margin:0 0 16px;color:var(--fg)}
+  .btn{display:inline-block;padding:10px 20px;background:var(--accent);color:#fff;border-radius:8px;border:none;font-weight:600;font-size:14px;margin-right:8px}
+  .btn:hover{background:var(--accent-2);color:#000;border-bottom:none}
+  .btn--ghost{background:transparent;border:1px solid var(--border-bright);color:var(--fg)}
+  .footer{margin-top:96px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--fg-dim);display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+  @media(max-width:600px){
+    .wrap{padding:32px 16px}
+    h1{font-size:32px}
+    h2{font-size:22px}
+    .lede{font-size:17px}
+    pre{font-size:12px}
+  }
+  @media print{
+    body{background:#fff;color:#000}
+    a{color:#000;border:none}
+    .btn{border:1px solid #000;background:#fff;color:#000}
+    .principle,.arch,.cta{border-color:#aaa;background:#f5f5f5}
+    pre{background:#f5f5f5;border-color:#aaa}
+    h2{border-top-color:#aaa}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="badge badge--accent">v0.5.0-alpha · MIT · Node 20+</div>
+
+  <h1>OperatorOS</h1>
+  <p class="lede">
+    A CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools,
+    organized into a typed, composable, version-controlled structure you can back up, share, and extend.
+  </p>
+
+  <div class="pill-row">
+    <span class="pill pill--accent">MIT licensed</span>
+    <span class="pill">7 commands</span>
+    <span class="pill">Single binary</span>
+    <span class="pill">Node 20+</span>
+    <span class="pill">JSON Schema validated</span>
+  </div>
+
+  <div class="meta">
+    <span><i class="dot"></i> 24 tests passing on Node 20.x and 22.x</span>
+    <span><i class="dot"></i> ~768 KB single-file binary</span>
+  </div>
+
+  <h2>The problem</h2>
+
+  <p>You are <b>one operator</b>. You run a workspace that is supposed to be yours — files,
+  scripts, notes, tools, agents, scheduled jobs, integrations. In practice it has
+  fragmented into:</p>
+
+  <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
+    <li>A <code>~/projects/</code> tree that has drifted since 2023</li>
+    <li>Three different note systems, none of which the others can read</li>
+    <li>AI agents that each invented their own conventions</li>
+    <li>A bash history that is the actual source of truth for 40% of your workflows</li>
+    <li>Secrets scattered across <code>.env</code>, gpg, and that one Notion page</li>
+  </ul>
+
+  <p>None of this is a single system. None of it is replaceable. None of it composes.</p>
+
+  <h2>Six principles</h2>
+
+  <div class="principles">
+    <div class="principle">
+      <h3>01 · Single Authority</h3>
+      <p>Every concept has <b>one</b> canonical owner file. No dual sources. If two files
+      disagree, one is wrong.</p>
+    </div>
+    <div class="principle">
+      <h3>02 · Everything Replaceable</h3>
+      <p>Modules, presets, even Core itself — all replaceable. <b>Framework first,
+      implementation last.</b></p>
+    </div>
+    <div class="principle">
+      <h3>03 · Typed Substrate</h3>
+      <p>Every artifact validated against a JSON Schema at the boundary. Invalid state
+      cannot exist.</p>
+    </div>
+    <div class="principle">
+      <h3>04 · AI-native</h3>
+      <p>Core ships ≥1 of: agent-loop primitive, structured-output validation, prompt-template
+      versioning, LLM-provider abstraction.</p>
+    </div>
+    <div class="principle">
+      <h3>05 · Composable Modules</h3>
+      <p>A module is one composable extension. It declares a contract (<code>module.yaml</code>),
+      runs in isolation, exposes one CLI surface.</p>
+    </div>
+    <div class="principle">
+      <h3>06 · Profile-portable</h3>
+      <p>Your <b>whole</b> workspace exports to a single bundle. Move to a new machine in
+      10 minutes. Publish, fork, or archive at will.</p>
+    </div>
+  </div>
+
+  <h2>Quickstart (v0.5.0-alpha)</h2>
+
+<pre><code># Install the single-file binary (Node 20+ required)
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+
+# Initialize a workspace
+mkdir ~/my-workspace && cd ~/my-workspace
+operatoros init
+
+# Validate against the JSON Schema
+operatoros validate operatoros.yaml
+
+# Add a module — the journal example ships with OperatorOS
+# (run from the operatoros-framework repo root)
+operatoros add &lt;repo-root&gt;/examples/journal
+
+# Run a module command
+operatoros run journal add "shipped v0.5.0-alpha"
+
+# Export the workspace as a portable bundle
+operatoros export --bundle tar.gz
+# → ~/my-workspace-2026-07-02T23-50-00.tar.gz (secrets excluded)</code></pre>
+
+<h2>Commands</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px">
+  <thead><tr><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Command</th><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Purpose</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>init</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Scaffold a new workspace</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>validate &lt;path&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Validate YAML against JSON Schema</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>add &lt;source&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install a module from local path or git URL</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>apply [preset]</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install all modules declared in a preset</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>run &lt;m&gt; &lt;cmd&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Execute a module's declared command</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>export</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Pack workspace into a portable bundle</td></tr>
+    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>version</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Print version + git info</td></tr>
+  </tbody>
+</table>
+
+  <h2>What it is NOT for</h2>
+
+  <p>
+    OperatorOS is not for teams — pick a team-OS if you have one. It is not a SaaS — there's
+    no hosted OperatorOS, it runs locally. It is not a graph database, static site generator,
+    chat framework, or agent runtime — those are <i>modules</i> you install on top of
+    OperatorOS, or you write them yourself.
+  </p>
+
+  <p>
+    OperatorOS is for <b>one operator</b>: the human (and their AI agents) who want their
+    workspace to be a system, not a folder.
+  </p>
+
+  <div class="cta">
+    <h3>Try v0.5.0-alpha</h3>
+    <p>OperatorOS Core v0.5.0-alpha ships 7 commands. 24 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. One example module (<code>journal</code>) — enough to verify the contract end-to-end without pretending to be a marketplace.</p>
+    <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
+    <a class="btn btn--ghost" href="https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/README.md">Read the README</a>
+  </div>
+
+  <div class="footer">
+    <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
+    <div>v0.5.0-alpha · product hardening pass · 24 tests · 7 commands</div>
+  </div>
+
+</div>
+</body>
+</html>
