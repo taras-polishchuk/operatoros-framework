@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO="taras-polishchuk/operatoros-framework"
-VERSION="${OPERATOROS_VERSION:-v0.5.0-alpha.2}"
+VERSION="${OPERATOROS_VERSION:-v0.5.1-alpha.2}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
 
