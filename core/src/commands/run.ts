@@ -56,6 +56,7 @@ export async function runCommand(
   const { load: yamlLoad } = await import("js-yaml");
   const mod = yamlLoad(raw) as {
     commands?: Record<string, { run: string; description?: string }>;
+    settings?: Record<string, unknown>;
   };
 
   const cmd = mod.commands?.[command];
@@ -87,11 +88,27 @@ export async function runCommand(
   }
   info(`exec: ${cmdLine}`);
 
+  // Build env: parent env + module settings (uppercased + SCREAMING_SNAKE).
+  // Settings declared in module.yaml are injected as env vars so `run`
+  // templates can reference them like shell vars (e.g. `$DEFAULT_MINUTES`).
+  // Scalars only — non-scalar values (objects/arrays) are stringified via
+  // JSON for transparency rather than silently dropped.
+  const baseEnv = { ...process.env };
+  const moduleEnv: Record<string, string> = {};
+  if (mod.settings && typeof mod.settings === "object") {
+    for (const [k, v] of Object.entries(mod.settings)) {
+      const envKey = k.replace(/[^A-Za-z0-9]+/g, "_").toUpperCase();
+      if (envKey.length === 0) continue;
+      moduleEnv[envKey] = typeof v === "string" ? v : JSON.stringify(v);
+    }
+  }
+
   // Spawn shell
   const child = spawn(cmdLine, {
     cwd: moduleDir,
     shell: true,
     stdio: "inherit",
+    env: { ...baseEnv, ...moduleEnv },
   });
 
   return new Promise<void>((resolve, reject) => {

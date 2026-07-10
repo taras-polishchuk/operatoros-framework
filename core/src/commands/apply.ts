@@ -6,6 +6,7 @@
  */
 import * as fs from "fs-extra";
 import * as path from "path";
+import { load as yamlLoad, dump as yamlDump } from "js-yaml";
 import { heading, ok, info, fail } from "../lib/print";
 import { findWorkspaceRoot, loadWorkspace } from "../lib/workspace";
 import { validateYaml } from "../lib/schema";
@@ -54,9 +55,49 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
   }
   ok(`preset.yaml is valid`);
 
+  // Load preset YAML
+  let raw = await fs.readFile(presetYaml, "utf8");
+
+  // The preset YAML we read from the workspace may carry relative
+  // `source:` paths (e.g. `../../examples/journal`) that resolve correctly
+  // only against the canonical preset's location. Rewrite those to absolute
+  // paths pointing at the canonical examples dir so `apply` keeps working
+  // when the workspace has been moved, copied, or lives outside the repo.
+  // If rewriting fails, fall back to the on-disk YAML as-is.
+  info(`rewriting relative source paths (if any) to absolute`);
+  let canonPresetYaml: string | null = null;
+  let dir = __dirname;
+  for (let i = 0; i < 6; i++) {
+    const candidate = path.join(dir, "presets-canonical", presetName, "preset.yaml");
+    if (fs.existsSync(candidate)) { canonPresetYaml = candidate; break; }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  if (canonPresetYaml) {
+    const parsed = yamlLoad(raw) as {
+      modules?: Array<{ name: string; source?: string; pin?: string }>;
+    };
+    if (Array.isArray(parsed.modules)) {
+      let rewritten = 0;
+      for (const m of parsed.modules) {
+        if (m.source && (m.source.startsWith("./") || m.source.startsWith("../"))) {
+          // Resolve relative to the canonical preset.yaml's directory, not
+          // to presets-canonical/ root — this is what the path was authored
+          // against in presets-canonical/<name>/preset.yaml.
+          m.source = path.resolve(path.dirname(canonPresetYaml), m.source);
+          rewritten += 1;
+        }
+      }
+      if (rewritten > 0) {
+        raw = yamlDump(parsed);
+        await fs.writeFile(presetYaml, raw);
+        ok(`rewrote ${rewritten} module source(s) to absolute paths`);
+      }
+    }
+  }
+
   // Load modules list
-  const raw = await fs.readFile(presetYaml, "utf8");
-  const { load: yamlLoad } = await import("js-yaml");
   const preset = yamlLoad(raw) as {
     modules?: Array<{ name: string; source?: string; pin?: string }>;
     settings?: { hooks?: Record<string, string[]> };
@@ -77,11 +118,14 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
         info(`skipping ${mod.name} — no source`);
         continue;
       }
-      // Resolve relative sources against workspace root (not cwd).
-      // Convention: `./foo` is relative to workspace root.
+      // Resolve relative sources against the preset.yaml file's directory
+      // (not cwd, not workspace root). Convention: `./foo` and `../foo`
+      // are relative to where the preset lives; absolute paths and git
+      // URLs are passed through verbatim. This makes `../../examples/journal`
+      // resolve correctly when the preset sits in presets-canonical/<name>/.
       let resolvedSource = mod.source;
-      if (resolvedSource.startsWith("./")) {
-        resolvedSource = path.join(root, resolvedSource.slice(2));
+      if (resolvedSource.startsWith("./") || resolvedSource.startsWith("../")) {
+        resolvedSource = path.resolve(presetDir, resolvedSource);
       }
       info(`installing ${mod.name} from ${resolvedSource}`);
       try {

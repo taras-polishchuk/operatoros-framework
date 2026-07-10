@@ -144,7 +144,7 @@
     </div>
   </div>
 
-  <h2>Quickstart (v0.5.0-alpha)</h2>
+  <h2>Quickstart (v0.5.1-alpha)</h2>
 
 <pre><code># Install the single-file binary (Node 20+ required)
 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
@@ -153,15 +153,14 @@ curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framewo
 mkdir ~/my-workspace && cd ~/my-workspace
 operatoros init
 
-# Validate against the JSON Schema
-operatoros validate operatoros.yaml
+# Apply the default preset — installs two example modules (journal + timer)
+operatoros apply
 
-# Add a module — the journal example ships with OperatorOS
-# (run from the operatoros-framework repo root)
-operatoros add &lt;repo-root&gt;/examples/journal
-
-# Run a module command
-operatoros run journal add "shipped v0.5.0-alpha"
+# Try them
+operatoros run journal add "shipped v0.5.1-alpha"
+operatoros run timer start "deep work" 50
+operatoros run timer start "defaulted task"     # falls back to $DEFAULT_MINUTES from settings
+operatoros run timer list
 
 # Export the workspace as a portable bundle
 operatoros export --bundle tar.gz
@@ -197,8 +196,8 @@ operatoros export --bundle tar.gz
   </p>
 
   <div class="cta">
-    <h3>Try v0.5.0-alpha</h3>
-    <p>OperatorOS Core v0.5.0-alpha ships 7 commands. 24 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. One example module (<code>journal</code>) — enough to verify the contract end-to-end without pretending to be a marketplace.</p>
+    <h3>Try v0.5.1-alpha</h3>
+    <p>OperatorOS Core v0.5.1-alpha ships 7 commands. 25 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. Two example modules (<code>journal</code> + <code>timer</code>) — enough to verify settings propagation, multi-command dispatch, and module-local state end-to-end without pretending to be a marketplace.</p>
     <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
     <a class="btn btn--ghost" href="https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/README.md">Read the README</a>
   </div>

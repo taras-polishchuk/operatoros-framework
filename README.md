@@ -1,6 +1,6 @@
 # OperatorOS
 
-> **Status:** v0.5.0-alpha · 24 tests passing on Node 20.x and 22.x · MIT licensed
+> **Status:** v0.5.1-alpha · 25 tests passing on Node 20.x and 22.x · MIT licensed
 
 OperatorOS is a CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools, organized into a typed, composable, version-controlled structure you can back up, share, and extend.
 
@@ -32,23 +32,30 @@ node dist/cli.js version
 ## Quickstart
 
 ```bash
-# 1. Initialize a workspace (uses the `personal` preset by default)
+# 1. Install (one line, single-file binary)
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+
+# 2. Scaffold a workspace
 mkdir ~/my-workspace && cd ~/my-workspace
 operatoros init
 
-# 2. Validate the workspace against its JSON-Schema
-operatoros validate operatoros.yaml
+# 3. Apply the default preset — installs two example modules (journal + timer)
+operatoros apply
 
-# 3. Add a module from a local path (the journal example ships with OperatorOS)
-operatoros add /path/to/operatoros-framework/examples/journal
+# 4. Try them
+operatoros run journal add "shipped v0.5.1-alpha"
+operatoros run timer start "deep work" 50
+operatoros run timer start "defaulted task"     # falls back to $DEFAULT_MINUTES from settings
+operatoros run timer list
 
-# 4. Run a module command
-operatoros run journal add "shipped v0.5.0-alpha"
-
-# 5. Export the workspace as a portable bundle (secrets excluded by default)
+# 5. Backup the whole thing (deny-list strips secrets automatically)
 operatoros export --bundle tar.gz
 # → ~/my-workspace-2026-07-02T23-50-00.tar.gz
 ```
+
+The `personal` preset that ships with OperatorOS installs two example modules
+(`journal` + `timer`) so step 3 produces a working state immediately. No
+`git clone` required — the example modules ship inside the binary.
 
 ## Commands
 
@@ -133,13 +140,14 @@ operatoros-framework/
 
 | | |
 |---|---|
-| Phase | v0.5.0-alpha (post-hardening) |
+| Phase | v0.5.1-alpha |
 | License | MIT (Copyright 2026 Taras Polishchuk) |
 | GitHub | github.com/taras-polishchuk/operatoros-framework |
 | GH Pages | taras-polishchuk.github.io/operatoros-framework |
-| Tests | 24 passing, ~825ms |
+| Tests | 25 passing, ~840ms |
 | Binary | 768 KB single-file, Node 20+ |
 | Registry | empty by design (modules ship via presets + local paths) |
+| Example modules | `journal` (single command, no state), `timer` (settings + 3 commands + state) |
 
 ## Contributing
 

@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 
 $Repo = "taras-polishchuk/operatoros-framework"
-$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.3.0-alpha" }
+$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.5.0-alpha.2" }
 $InstallDir = if ($env:OPERATOROS_INSTALL_DIR) { $env:OPERATOROS_INSTALL_DIR } else { "$HOME\.local\bin" }
 $BinName = "operatoros.cmd"
 

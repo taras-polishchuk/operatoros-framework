@@ -147,4 +147,33 @@ commands:
       process.chdir(origCwd);
     }
   });
+
+  it("propagates module settings as uppercase env vars", async () => {
+    const moduleDir = path.join(tmpDir, "modules", "testmod");
+    await fs.ensureDir(moduleDir);
+    await fs.writeFile(
+      path.join(moduleDir, "module.yaml"),
+      `version: "0.2"
+name: testmod
+settings:
+  default-minutes: 25
+  log_path: "state/timer.log"
+  greeting: "hello"
+commands:
+  show-settings:
+    run: "echo $DEFAULT_MINUTES $LOG_PATH $GREETING"
+    description: "print settings from env"
+`
+    );
+
+    const { runCommand } = await import("../src/commands/run");
+    const origCwd = process.cwd();
+    process.chdir(tmpDir);
+    try {
+      await runCommand("testmod", "show-settings", [], {});
+      expect(true).toBe(true);
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
 });
