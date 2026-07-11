@@ -38,7 +38,7 @@ const program = new Command();
 program
   .name("operatoros")
   .description("OperatorOS Core — CLI runtime for personal operating systems")
-  .version("0.5.0-alpha.2");
+  .version("0.5.2-alpha");
 
 program
   .command("init")

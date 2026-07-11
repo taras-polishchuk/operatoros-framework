@@ -2,6 +2,58 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 
+## [v0.5.2-alpha] — 2026-07-11
+
+### Changed
+
+- **Identity drift: "AI-Native" → "Local-First".** The Six Principles section
+  in README and the landing page no longer claims "AI-Native" as a principle.
+  Replaced with **Local-First** because (a) no AI primitives ever shipped in
+  Core and (b) Local-First is verifiable by code. The constitutional rule
+  (ESSENCE.md §10) is now codified as an invariant enforced by the test
+  suite. See the new `__tests__/local-first.test.ts`.
+
+- **`scripts/embed-assets.js` rewritten and made loudly-failing.** Previously
+  the script had a broken marker regex (`__EMBEDDED_RUNTIME__` was searched
+  but the actual markers were `__EMBEDDED_ASSETS__`/`__EMBEDDED_ASSETS_END__`
+  in cli.ts, with no markers at all in `embedded-assets.ts`) — so the ncc
+  bundle silently shipped with whatever manual literal happened to be in
+  `embedded-assets.ts`, which had drifted from the on-disk presets/schemas/
+  examples. The script now uses consistent markers (`__EMBEDDED_RUNTIME__` /
+  `__EMBEDDED_RUNTIME_END__` in `embedded-assets.ts`), errors out loudly when
+  they go missing, and is fully idempotent (re-runs are no-ops).
+
+- **`scripts/embed-assets.js`: 14 KB of stale manual JSON literals removed.**
+  `core/src/embedded-assets.ts` shrunk from 353 lines to 23 (markers only).
+  The bundled binary is now guaranteed to ship the same canonical assets
+  that the repo ships — no manual sync, no drift.
+
+### Added
+
+- **`__tests__/local-first.test.ts`** — constitutional invariant. Greps every
+  `core/src/**/*.ts` file for forbidden network-call primitives
+  (`fetch`, `http.request`, `https.get`, `net.connect`, `tls.connect`,
+  `dns.lookup`, `axios`, `got`, `node-fetch`, `XMLHttpRequest`,
+  `WebSocket`, `EventSource`, etc.). If any are found in Core source,
+  the test fails the build with a list of offending lines.
+
+### Fixed
+
+- **`init` command next-steps hint.** Previously told users to run
+  `operatoros add <repo-root>/examples/journal`, which assumes the user is
+  sitting inside the operatoros-framework checkout. Doesn't work for users
+  who `curl | sh` installed the binary. Now points at `operatoros apply`
+  (which uses the embedded examples baked into the binary).
+
+- **Landing page (`index.html` / `operatoros.html`): stale numbers.**
+  Bumped version 0.5.0 → 0.5.2, test count 24 → 27, "AI-native" → "Local-First",
+  references to "without pretending to be a marketplace" → "without pretending
+  to be an AI tool", quickstart heading v0.5.1 → v0.5.2.
+
+- **Install scripts (`install.sh` / `install.ps1`).** Default
+  `OPERATOROS_VERSION` bumped to `v0.5.2-alpha`. Users who `curl | sh`
+  no longer hit the v0.5.0 binary that doesn't match the README docs.
+
 ## [v0.5.1-alpha] — 2026-07-10
 
 ### Added

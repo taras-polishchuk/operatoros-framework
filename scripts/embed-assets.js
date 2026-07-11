@@ -1,19 +1,32 @@
 #!/usr/bin/env node
 /**
- * scripts/embed-assets.js — read all canonical assets (presets, schemas) and
- * inject them into src/embedded-assets.ts at build time.
+ * scripts/embed-assets.js — read all canonical assets (presets, schemas,
+ * example modules) and inject them into src/embedded-assets.ts at ncc-build time.
  *
  * The runtime file (src/embedded-assets.ts) is loaded eagerly from cli.ts via
- * `import { installEmbeddedAssets } from "./embedded-assets"; installEmbeddedAssets();`.
- * This guarantees the globals are set before any other code reads them, unlike
- * top-level statements in cli.ts which ncc/webpack wraps in IIFEs.
+ * `installEmbeddedAssets()`. This guarantees the globals are set before any
+ * other code reads them, unlike top-level statements in cli.ts which ncc/webpack
+ * wrap in IIFEs.
  *
- * Run before `ncc build`.
+ * Run before `ncc build`. Idempotent — re-running it is safe.
+ *
+ * Embedded at build time:
+ *   - presets: { name: yaml-content }
+ *   - schemas: { name: parsed-object }
+ *   - examples: { name: { "module.yaml": yaml-content, "README.md": md-content } }
+ *
+ * Invariant: src/embedded-assets.ts MUST contain the markers
+ *   // __EMBEDDED_RUNTIME__
+ *   // __EMBEDDED_RUNTIME_END__
+ * on adjacent lines. If they are absent, this script exits non-zero so the
+ * ncc build fails loudly. (Previously this script silently no-op'd when the
+ * markers were missing — see .project-state/operatoros-micromissions-2026-07-10.)
  */
 const fs = require("fs");
 const path = require("path");
 
 const root = path.resolve(__dirname, "..");
+const target = path.join(root, "core", "src", "embedded-assets.ts");
 
 // 1. Canonical presets — map { name: yaml-content }
 const presets = {};
@@ -33,18 +46,81 @@ for (const name of schemaNames) {
   if (fs.existsSync(file)) schemas[name] = JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-const target = path.join(root, "core", "src", "embedded-assets.ts");
-let body = fs.readFileSync(target, "utf8");
+// 3. Example modules — map { name: { filename: content, ... } }
+// Each example is a directory; we embed every regular file at its root
+// (not recursive — examples are intentionally flat: module.yaml + README.md).
+const examples = {};
+const examplesDir = path.join(root, "examples");
+if (fs.existsSync(examplesDir)) {
+  for (const name of fs.readdirSync(examplesDir)) {
+    const dir = path.join(examplesDir, name);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    const files = {};
+    for (const f of fs.readdirSync(dir)) {
+      const full = path.join(dir, f);
+      if (fs.statSync(full).isFile()) files[f] = fs.readFileSync(full, "utf8");
+    }
+    if (Object.keys(files).length > 0) examples[name] = files;
+  }
+}
 
-const replacement = `(globalThis as unknown as { __embeddedPresets: Record<string,string> }).__embeddedPresets = ${JSON.stringify(presets, null, 2)};
-(globalThis as unknown as { __embeddedSchemas: Record<string,object> }).__embeddedSchemas = ${JSON.stringify(schemas, null, 2)};`;
+const replacement = `
+  (globalThis as unknown as { __embeddedPresets: Record<string,string> }).__embeddedPresets = ${JSON.stringify(presets)};
+  (globalThis as unknown as { __embeddedSchemas: Record<string,object> }).__embeddedSchemas = ${JSON.stringify(schemas)};
+  (globalThis as unknown as { __embeddedExamples: Record<string,Record<string,string>> }).__embeddedExamples = ${JSON.stringify(examples)};
+`;
 
-body = body.replace(
-  /\/\/ __EMBEDDED_RUNTIME__\n[\s\S]*?\/\/ __EMBEDDED_RUNTIME_END__/,
-  replacement
-);
+const body = fs.readFileSync(target, "utf8");
+const markerOpen = "// __EMBEDDED_RUNTIME__";
+const markerClose = "// __EMBEDDED_RUNTIME_END__";
 
-fs.writeFileSync(target, body);
+if (!body.includes(markerOpen) || !body.includes(markerClose)) {
+  console.error(
+    `[embed-assets] FATAL: src/embedded-assets.ts is missing the runtime markers.\n` +
+    `              Expected both: ${markerOpen}  and  ${markerClose}\n` +
+    `              Restore them and re-run. (Do NOT hand-edit the body.)`
+  );
+  process.exit(1);
+}
+
+// Build the replacement body. Note: we strip each line first to avoid
+// double-indenting from the template literal's own leading whitespace.
+const indentedBody = replacement
+  .trim()
+  .split("\n")
+  .map((line) => line.trim())
+  .map((line, i) => (i === 0 ? line : `  ${line}`))
+  .join("\n");
+
+// Match exactly: `  ${markerOpen}` (preceded by anything) then any chars
+// (non-greedy, including newlines) then `  ${markerClose}` on its own line
+// (with leading 2-space indent). Tolerates empty body — `[\s\S]*?` allows
+// 0 chars between. Skips the docstring occurrence of `${markerOpen}`
+// because that occurrence is preceded by ` * \``, not by `  `.
+//
+// We use the FUNCTION form of `String.replace()` so `$&`, `$1`, etc. in
+// the replacement string (which appear legitimately in JSON Schemas like
+// `"$id": "..."`) are NOT treated as replacement patterns.
+const re = new RegExp(`  ${markerOpen}[\\s\\S]*?  ${markerClose}`);
+const replacementText = `  ${markerOpen}\n${indentedBody}\n  ${markerClose}`;
+const updated = body.replace(re, () => replacementText);
+
+// Idempotency check: if the replacement string equals the matched text
+// byte-for-byte, `String.replace` will (correctly, per ECMAScript) skip
+// substitution and return the original body unchanged. In that case the
+// file is already up to date — this is the normal re-run case after the
+// first successful inject.
+if (updated === body) {
+  console.log(
+    `[embed-assets] no-op: src/embedded-assets.ts already has current ` +
+      `preset+schema+example content (idempotent re-run).`
+  );
+  process.exit(0);
+}
+
+fs.writeFileSync(target, updated);
 console.log(
-  `injected ${Object.keys(presets).length} presets + ${Object.keys(schemas).length} schemas into src/embedded-assets.ts`
+  `[embed-assets] injected ${Object.keys(presets).length} presets + ` +
+    `${Object.keys(schemas).length} schemas + ${Object.keys(examples).length} examples ` +
+    `into src/embedded-assets.ts`
 );

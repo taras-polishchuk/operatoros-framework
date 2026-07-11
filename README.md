@@ -1,6 +1,6 @@
 # OperatorOS
 
-> **Status:** v0.5.1-alpha · 25 tests passing on Node 20.x and 22.x · MIT licensed
+> **Status:** v0.5.2-alpha · 27 tests passing on Node 20.x and 22.x · MIT licensed
 
 OperatorOS is a CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools, organized into a typed, composable, version-controlled structure you can back up, share, and extend.
 
@@ -98,14 +98,48 @@ The `personal` preset that ships with OperatorOS installs two example modules
 
 Every manifest is validated against a JSON Schema (2020-12) at every CLI boundary. Modules declare their contract in `module.yaml`. Presets compose modules + settings + lifecycle hooks. Export packs everything except what you told it to deny.
 
-## Six principles
+## Six invariants
 
-1. **Single Authority** — one canonical owner per concept. No dual sources.
-2. **Everything Replaceable** — modules, presets, even Core. Nothing is sacred.
-3. **Typed Substrate** — JSON-Schema validation at every boundary. Invalid state cannot exist.
-4. **AI-Native** — Core ships structured-output primitives, prompt-aware hooks, and module-based LLM integration.
-5. **Composable Modules** — one directory, one `module.yaml`, isolated commands.
-6. **Profile-portable** — the entire workspace exports to one tarball.
+OperatorOS is built on six invariants. Each is enforced by the test suite, not
+just declared in a doc. If you change one, the corresponding test fails and
+forces a re-evaluation of the principle.
+
+1. **Single Authority** — one canonical owner per concept. Drift between two
+   files defining the same thing is treated as a bug. (Enforced by
+   CI cross-link checks in `core/__tests__`.)
+2. **Everything Replaceable** — modules, presets, even Core. Nothing is
+   sacred. A user can replace the entire Core implementation by swapping
+   out the binary; the JSON Schema contracts and on-disk layout stay stable.
+3. **Typed Substrate** — every artifact (workspace, module, preset
+   manifests) is validated against a JSON Schema 2020-12 at every CLI
+   boundary. Invalid state cannot exist on disk.
+4. **Local-First** — OperatorOS Core runs entirely on the user's local
+   filesystem. **It never makes a network call.** Not for telemetry, not for
+   remote schema lookup, not for module fetch, not for auto-update. The
+   `__tests__/local-first.test.ts` suite greps the binary for forbidden
+   network APIs and fails the build if any are found.
+5. **Composable Modules** — a module is one directory, one `module.yaml`,
+   isolated commands, runs in its own shell process. Replace by overwriting
+   the directory.
+6. **Profile-portable** — the entire workspace exports to one tarball via
+   `operatoros export`, with an opt-out deny-list that excludes secrets,
+   key files, and SQLite databases by default.
+
+## Why "Local-First" instead of "AI-Native"
+
+Earlier versions of OperatorOS listed "AI-Native" as a principle, citing
+"agent-loop primitives, structured-output validation, and prompt-template
+versioning." In v0.5.2 we replaced that with **Local-First** because:
+
+- No actual AI primitives ever shipped in Core (the "AI-Native" claim was
+  aspirational and is the kind of marketing-without-anchored-source
+  drift that the ESSENCE audit of 2026-07-03 flagged as a category error).
+- Local-First is verifiable by a single grep test and is what we already
+  do — the rule was implicit; the v0.5.2 change makes it explicit.
+
+If/when OperatorOS ships an opt-in local LLM integration (Ollama-style,
+no cloud calls), the JSON Schema for `module.yaml` already supports
+declaring it as `requires.modules` — the principle doesn't need to change.
 
 ## Project layout
 
@@ -140,14 +174,15 @@ operatoros-framework/
 
 | | |
 |---|---|
-| Phase | v0.5.1-alpha |
+| Phase | v0.5.2-alpha |
 | License | MIT (Copyright 2026 Taras Polishchuk) |
 | GitHub | github.com/taras-polishchuk/operatoros-framework |
 | GH Pages | taras-polishchuk.github.io/operatoros-framework |
-| Tests | 25 passing, ~840ms |
+| Tests | 27 passing, ~900ms |
 | Binary | 768 KB single-file, Node 20+ |
 | Registry | empty by design (modules ship via presets + local paths) |
 | Example modules | `journal` (single command, no state), `timer` (settings + 3 commands + state) |
+| Local-First invariant | enforced by `__tests__/local-first.test.ts` (zero network calls) |
 
 ## Contributing
 

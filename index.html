@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OperatorOS — the operating layer for the single-operator era</title>
-<meta name="description" content="OperatorOS is an open-source CLI for managing personal operating-system workspaces. Typed substrate, composable modules, MIT-licensed.">
+<title>OperatorOS — local-first typed scaffold for personal workspaces</title>
+<meta name="description" content="OperatorOS is an open-source CLI for managing personal operating-system workspaces. Local-first, JSON-Schema validated, deny-list export. MIT licensed.">
 <meta name="theme-color" content="#0a0a0a">
 <style>
   :root{
@@ -72,7 +72,7 @@
 <body>
 <div class="wrap">
 
-  <div class="badge badge--accent">v0.5.0-alpha · MIT · Node 20+</div>
+  <div class="badge badge--accent">v0.5.2-alpha · MIT · Node 20+</div>
 
   <h1>OperatorOS</h1>
   <p class="lede">
@@ -86,11 +86,13 @@
     <span class="pill">Single binary</span>
     <span class="pill">Node 20+</span>
     <span class="pill">JSON Schema validated</span>
+    <span class="pill">Local-First</span>
   </div>
 
   <div class="meta">
-    <span><i class="dot"></i> 24 tests passing on Node 20.x and 22.x</span>
+    <span><i class="dot"></i> 27 tests passing on Node 20.x and 22.x</span>
     <span><i class="dot"></i> ~768 KB single-file binary</span>
+    <span><i class="dot"></i> zero network calls (enforced by test suite)</span>
   </div>
 
   <h2>The problem</h2>
@@ -109,7 +111,7 @@
 
   <p>None of this is a single system. None of it is replaceable. None of it composes.</p>
 
-  <h2>Six principles</h2>
+  <h2>Six invariants</h2>
 
   <div class="principles">
     <div class="principle">
@@ -125,12 +127,12 @@
     <div class="principle">
       <h3>03 · Typed Substrate</h3>
       <p>Every artifact validated against a JSON Schema at the boundary. Invalid state
-      cannot exist.</p>
+      cannot exist on disk.</p>
     </div>
     <div class="principle">
-      <h3>04 · AI-native</h3>
-      <p>Core ships ≥1 of: agent-loop primitive, structured-output validation, prompt-template
-      versioning, LLM-provider abstraction.</p>
+      <h3>04 · Local-First</h3>
+      <p>OperatorOS Core makes <b>zero network calls</b> — no telemetry, no remote
+      schema, no auto-update, no module fetch. Enforced by <code>__tests__/local-first.test.ts</code>.</p>
     </div>
     <div class="principle">
       <h3>05 · Composable Modules</h3>
@@ -140,11 +142,11 @@
     <div class="principle">
       <h3>06 · Profile-portable</h3>
       <p>Your <b>whole</b> workspace exports to a single bundle. Move to a new machine in
-      10 minutes. Publish, fork, or archive at will.</p>
+      10 minutes. Publish, fork, or archive at will — secrets stay out by default.</p>
     </div>
   </div>
 
-  <h2>Quickstart (v0.5.1-alpha)</h2>
+  <h2>Quickstart (v0.5.2-alpha)</h2>
 
 <pre><code># Install the single-file binary (Node 20+ required)
 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
@@ -196,15 +198,15 @@ operatoros export --bundle tar.gz
   </p>
 
   <div class="cta">
-    <h3>Try v0.5.1-alpha</h3>
-    <p>OperatorOS Core v0.5.1-alpha ships 7 commands. 25 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. Two example modules (<code>journal</code> + <code>timer</code>) — enough to verify settings propagation, multi-command dispatch, and module-local state end-to-end without pretending to be a marketplace.</p>
+    <h3>Try v0.5.2-alpha</h3>
+    <p>OperatorOS Core v0.5.2-alpha ships 7 commands. 27 tests passing on Node 20.x and 22.x. ~768 KB single-file binary. MIT licensed. Two example modules (<code>journal</code> + <code>timer</code>) — enough to verify settings propagation, multi-command dispatch, module-local state, and the Local-First invariant end-to-end without pretending to be an AI tool.</p>
     <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
     <a class="btn btn--ghost" href="https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/README.md">Read the README</a>
   </div>
 
   <div class="footer">
     <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
-    <div>v0.5.0-alpha · product hardening pass · 24 tests · 7 commands</div>
+    <div>v0.5.2-alpha · local-first invariant enforced · 27 tests · 7 commands</div>
   </div>
 
 </div>

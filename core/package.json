@@ -1,6 +1,6 @@
 {
   "name": "operatoros-core",
-  "version": "0.5.0-alpha.2",
+  "version": "0.5.2-alpha",
   "description": "OperatorOS Core — CLI runtime for personal operating systems. Implements the framework spec defined in this repo's schemas/ directory.",
   "main": "dist/cli.js",
   "bin": {
@@ -20,9 +20,10 @@
   "keywords": [
     "operatoros",
     "personal-os",
-    "framework",
-    "ai-native",
-    "typed-substrate"
+    "deny-list",
+    "export-bundler",
+    "local-first",
+    "json-schema"
   ],
   "license": "MIT",
   "author": "Taras Polishchuk",

@@ -6,6 +6,7 @@
  */
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as os from "os";
 import { load as yamlLoad, dump as yamlDump } from "js-yaml";
 import { heading, ok, info, fail } from "../lib/print";
 import { findWorkspaceRoot, loadWorkspace } from "../lib/workspace";
@@ -61,9 +62,14 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
   // The preset YAML we read from the workspace may carry relative
   // `source:` paths (e.g. `../../examples/journal`) that resolve correctly
   // only against the canonical preset's location. Rewrite those to absolute
-  // paths pointing at the canonical examples dir so `apply` keeps working
-  // when the workspace has been moved, copied, or lives outside the repo.
-  // If rewriting fails, fall back to the on-disk YAML as-is.
+  // paths so `apply` keeps working when the workspace has been moved,
+  // copied, or lives outside the repo. Resolution order:
+  //   1. Walk up from __dirname looking for presets-canonical/<name>/preset.yaml
+  //      (dev mode: source tree)
+  //   2. Materialize embedded examples to a temp dir and use that as anchor
+  //      (ncc bundle installed standalone, e.g. ~/.local/bin/operatoros)
+  // If both fail, leave sources as-is — the user can run `operatoros add`
+  // manually with absolute paths.
   info(`rewriting relative source paths (if any) to absolute`);
   let canonPresetYaml: string | null = null;
   let dir = __dirname;
@@ -74,6 +80,36 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
     if (parent === dir) break;
     dir = parent;
   }
+  // Fallback: ncc bundle mode. Materialize embedded examples (and the
+  // canonical preset) to a temp dir so we can resolve `../../examples/journal`
+  // and have a real on-disk source for `add` to copy from.
+  if (!canonPresetYaml) {
+    const embeddedPresets = (globalThis as {
+      __embeddedPresets?: Record<string, string>;
+    }).__embeddedPresets;
+    const embeddedExamples = (globalThis as {
+      __embeddedExamples?: Record<string, Record<string, string>>;
+    }).__embeddedExamples;
+    if (embeddedPresets && embeddedPresets[presetName] && embeddedExamples) {
+      const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "operatoros-embed-"));
+      // Write canonical preset to tmp/presets-canonical/<name>/preset.yaml
+      const presetDir = path.join(tmpRoot, "presets-canonical", presetName);
+      await fs.ensureDir(presetDir);
+      await fs.writeFile(path.join(presetDir, "preset.yaml"), embeddedPresets[presetName]);
+      // Write each embedded example to tmp/examples/<name>/...
+      const examplesDir = path.join(tmpRoot, "examples");
+      await fs.ensureDir(examplesDir);
+      for (const [exName, files] of Object.entries(embeddedExamples)) {
+        const exDir = path.join(examplesDir, exName);
+        await fs.ensureDir(exDir);
+        for (const [fname, content] of Object.entries(files)) {
+          await fs.writeFile(path.join(exDir, fname), content);
+        }
+      }
+      canonPresetYaml = path.join(presetDir, "preset.yaml");
+      ok(`materialized embedded examples to ${tmpRoot}`);
+    }
+  }
   if (canonPresetYaml) {
     const parsed = yamlLoad(raw) as {
       modules?: Array<{ name: string; source?: string; pin?: string }>;
@@ -82,9 +118,9 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
       let rewritten = 0;
       for (const m of parsed.modules) {
         if (m.source && (m.source.startsWith("./") || m.source.startsWith("../"))) {
-          // Resolve relative to the canonical preset.yaml's directory, not
-          // to presets-canonical/ root — this is what the path was authored
-          // against in presets-canonical/<name>/preset.yaml.
+          // Resolve relative to the canonical preset.yaml's directory. If
+          // the anchor is the virtual embedded root, we'll materialize the
+          // example module below before apply tries to read it.
           m.source = path.resolve(path.dirname(canonPresetYaml), m.source);
           rewritten += 1;
         }

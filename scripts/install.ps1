@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 
 $Repo = "taras-polishchuk/operatoros-framework"
-$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.5.1-alpha.2" }
+$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.5.2-alpha" }
 $InstallDir = if ($env:OPERATOROS_INSTALL_DIR) { $env:OPERATOROS_INSTALL_DIR } else { "$HOME\.local\bin" }
 $BinName = "operatoros.cmd"
 $BundleName = "operatoros.cmd.js"
