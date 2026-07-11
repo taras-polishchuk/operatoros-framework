@@ -4,7 +4,13 @@
 set -euo pipefail
 
 REPO="taras-polishchuk/operatoros-framework"
-VERSION="${OPERATOROS_VERSION:-v0.5.2-alpha}"
+# Default to the most recent published release that has binary assets
+# attached (v0.5.1-alpha.2). The v0.5.2-alpha source commit (Local-First
+# invariant, identity drift fix, embed-assets repair) is on `main` but its
+# binary release is a separate Hermes follow-up — see
+# https://github.com/taras-polishchuk/operatoros-framework/releases.
+# Override with OPERATOROS_VERSION=v0.5.2-alpha once that release exists.
+VERSION="${OPERATOROS_VERSION:-v0.5.1-alpha.2}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
 

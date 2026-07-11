@@ -2,7 +2,10 @@
 $ErrorActionPreference = "Stop"
 
 $Repo = "taras-polishchuk/operatoros-framework"
-$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.5.2-alpha" }
+# Default to the most recent published release with binary assets
+# attached (v0.5.1-alpha.2). v0.5.2-alpha source is on `main`; its
+# binary release is a separate follow-up. Override explicitly when ready.
+$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.5.1-alpha.2" }
 $InstallDir = if ($env:OPERATOROS_INSTALL_DIR) { $env:OPERATOROS_INSTALL_DIR } else { "$HOME\.local\bin" }
 $BinName = "operatoros.cmd"
 $BundleName = "operatoros.cmd.js"
