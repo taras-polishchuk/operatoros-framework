@@ -4,12 +4,12 @@
 set -euo pipefail
 
 REPO="taras-polishchuk/operatoros-framework"
-# Default to the most recent published release that has binary assets
-# attached (v0.5.1-alpha.2). The v0.5.2-alpha source commit (Local-First
-# invariant, identity drift fix, embed-assets repair) is on `main` but its
-# binary release is a separate Hermes follow-up — see
-# https://github.com/taras-polishchuk/operatoros-framework/releases.
-# Override with OPERATOROS_VERSION=v0.5.2-alpha once that release exists.
+# Stable install default = v0.5.1-alpha.2 (last release with binaries before
+# the v0.5.2-alpha source drop). v0.5.2-alpha IS NOW PUBLISHED with binary
+# assets at https://github.com/taras-polishchuk/operatoros-framework/releases/tag/v0.5.2-alpha
+# — opt into it explicitly: OPERATOROS_VERSION=v0.5.2-alpha ./install.sh
+# Defaulting to v0.5.1-alpha.2 avoids silently upgrading people who pinned to
+# the previous version.
 VERSION="${OPERATOROS_VERSION:-v0.5.1-alpha.2}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
