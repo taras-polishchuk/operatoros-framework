@@ -28,14 +28,14 @@ If you are an engineer, developer, technical founder, or technical researcher wh
 
 ## The methodology
 
-OperatorOS is built on six principles. These are not aspirational — they are constitutional rules, each enforced where the codebase allows it.
+OperatorOS is built on six principles. These are not aspirational — they are constitutional rules, each enforced where the codebase allows it. Each principle has an operational rule, an enforcement mechanism, and a failure mode — see [`methodology/01-six-principles.md`](./methodology/01-six-principles.md) for the canonical reference.
 
 1. **Single Authority.** Every concept has exactly one canonical location. Duplicates are drift.
 2. **Everything Replaceable.** Any component can be removed without breaking the others. No tight coupling.
 3. **Typed Substrate.** Configuration is validated against JSON-Schema before it is accepted. Invalid states cannot exist.
 4. **Composable.** A workspace is a set of named modules with explicit dependencies and declared lifecycles.
 5. **Evidence-Based.** Every change has a reason; every reason has a record. Speculation is rejected by convention.
-6. **Local-First.** The Core never reaches the network. (Replaces the abandoned "AI-Native" principle in v0.5.2.)
+6. **Local-First.** The Core never reaches the network. (Replaces the abandoned "AI-Native" principle in v0.5.2.) **Enforced by** `__tests__/local-first.test.ts`.
 
 A document explaining each principle in depth lives at `methodology/01-six-principles.md`.
 
@@ -71,27 +71,29 @@ You don't import someone else's life. You build your own.
 Located in `core/`. Seven commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`.
 
 ```bash
-# Install
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+# Install (pin to v0.5.2-alpha explicitly; the install script defaults to v0.5.1-alpha.2
+# for backward-compatibility with prior users — set OPERATOROS_VERSION to opt in)
+OPERATOROS_VERSION=v0.5.2-alpha \
+  curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # Scaffold a new workspace
 operatoros init my-os
 
-# Add a module
-operatoros add journal
+# Add a module (e.g., the bundled journal example)
+operatoros add ./examples/journal
 
 # Validate the workspace against its schema
-operatoros validate
+operatoros validate my-os/operatoros.yaml
 
-# Run a module's hooks
-operatoros run journal
+# Run a module's command
+operatoros run journal add "first entry"
 ```
 
 The CLI is **the carrier, not the product**. It is small, single-file (~787 KB), and quietly stays out of your way.
 
 ## The bootstrap protocol
 
-When you create a workspace with `operatoros init`, the CLI produces a `bootstrap.md` file. This is what an AI agent reads when it enters your workspace for the first time.
+When you create a workspace with `operatoros init`, the CLI produces a `bootstrap.md` file. This is what an AI agent reads when it enters your workspace for the first time. See [`examples/bootstrap-taras-workspace.md`](./examples/bootstrap-taras-workspace.md) for a worked example (Taras's Workspace OS) — your own workspace will have different paths.
 
 The bootstrap protocol tells the agent:
 
@@ -109,18 +111,39 @@ This is the part that makes OperatorOS **AI-usable without being AI-dependent**:
 You don't have to believe the methodology to try the scaffold.
 
 ```bash
-# Clone and look around
+# 1. Clone and look around
 git clone https://github.com/taras-polishchuk/operatoros-framework.git
 cd operatoros-framework
 
-# Read the methodology
+# 2. Read the methodology
 ls methodology/
 cat methodology/01-six-principles.md
 
-# Run the CLI in dry-run mode
+# 3. Run the CLI in dry-run mode (no install needed)
 ./core/dist-bin/operatoros init /tmp/test-workspace
-ls /tmp/test-workspace
+
+# 4. Inspect what was generated
+ls -la /tmp/test-workspace
+cat /tmp/test-workspace/operatoros.yaml
+
+# 5. Validate the scaffold against its schema
+./core/dist-bin/operatoros validate /tmp/test-workspace
+
+# 6. Run the bundled journal example
+cd /tmp/test-workspace
+/path/to/operatoros add /home/taras/projects/operatoros/examples/journal
+/path/to/operatoros run journal add "first entry"
+cat journal.txt
 ```
+
+### First 5 minutes — the canonical onboarding path
+
+1. **Read this README** (5 min) — get the framing.
+2. **Read `methodology/01-six-principles.md`** (5 min) — get the principles.
+3. **Read `methodology/05-onboarding-interview.md`** (3 min) — understand what questions an AI agent will ask if it joins your workspace.
+4. **Skim `methodology/03-token-economy.md`** (3 min) — understand the four reading tiers.
+5. **Run `operatoros init my-os`** (1 min) — see what the CLI generates.
+6. **Decide** — apply the methodology to your real work, or close the tab.
 
 If it resonates: read the rest of `methodology/`, then think about whether you want to apply it to your own work environment. If it doesn't: close the tab and forget about it.
 

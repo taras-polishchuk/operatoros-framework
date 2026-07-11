@@ -57,13 +57,23 @@
 
 The next release will not be a feature push. It will validate the methodology by using it.
 
-The plan:
+### Acceptance criteria — v0.7.0 ships when ALL of these are true
 
-1. **Apply OperatorOS to a fresh engineering workspace.** Create a new project (homelab-template, career-template, or similar), run `operatoros init`, run `operatoros apply`, populate it with one module, document the onboarding interview answers.
-2. **Track every friction point.** Every confusing error message, every doc that didn't match reality, every time the bootstrap was too heavy or too thin.
-3. **Tighten the methodology docs.** What worked, what didn't, what was missing. Update `methodology/*.md` based on real use.
-4. **Test the bootstrap protocol.** Have a fresh AI agent cold-start in the workspace. Verify the four-tier reading system works as designed.
-5. **Write a case study.** One engineer (the author) using the methodology for 4-6 weeks. What survived, what was abandoned, what was added.
+1. **Bootstrap regeneration works end-to-end.** `operatoros init` produces a `bootstrap.md` that follows the protocol in `methodology/04-agent-bootstrap.md` (four sections: Always read / Conditional / Discovery / Ignore, plus Onboarding).
+2. **All five methodology documents have at least one revision from real-use feedback.** Each document's `Last updated:` field shows a date later than 2026-07-11 AND each has a "Changes from real use" section at the bottom.
+3. **At least one external tester has run the tester-packet flow** and submitted feedback (via `.github/ISSUE_TEMPLATE/user_test_session.md` or equivalent).
+4. **At least one case study** documents 4+ weeks of OperatorOS methodology use by an engineer other than Taras.
+5. **Local-first invariant test** still passes AND covers the methodology/ directory (currently only `core/src/` is scanned).
+6. **No CRITICAL or HIGH drift findings** in any subsequent audit (per the audit checklist in `operatoros-v060-audit-2026-07-11/`).
+
+### Planned activities (in support of the acceptance criteria)
+
+1. Apply OperatorOS to a fresh engineering workspace — homelab-template, career-template, or similar. Run `operatoros init`, run `operatoros apply`, populate with one module, document onboarding interview answers.
+2. Track every friction point — confusing error messages, docs that didn't match reality, bootstrap too heavy or too thin.
+3. Tighten the methodology docs based on real use.
+4. Test the bootstrap protocol — have a fresh AI agent cold-start in the workspace. Verify the four-tier reading system works as designed.
+5. Write a case study — one engineer (the author) using the methodology for 4-6 weeks. What survived, what was abandoned, what was added.
+6. Extend the local-first test to scan `methodology/` for any forbidden patterns (currently scoped to `core/src/`).
 
 ## Explicitly not planned
 

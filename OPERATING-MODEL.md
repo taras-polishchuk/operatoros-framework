@@ -2,12 +2,21 @@
 
 > **Status:** Reference. This is the document that bridges OperatorOS (the methodology) and Workspace OS (one real-world instance).
 > **Audience:** Engineers evaluating whether OperatorOS is for them.
+> **Important:** This document shows ONE worked example (Taras's Workspace OS). It is not the canonical implementation of OperatorOS — it is one engineer's application of the six principles. Your workspace will look different.
 
-This document shows how the six principles of OperatorOS manifest in a real workspace, using Taras Polishchuk's Workspace OS as a worked example. It is not a tutorial — it is a snapshot of one implementation.
+This document maps each OperatorOS principle to its expression in **one specific workspace** — Taras Polishchuk's Workspace OS, which has been in daily use since early 2026. It is not a tutorial for building that workspace, and it is not a template. It is a snapshot showing how the six principles can be applied.
+
+**If you are evaluating whether OperatorOS is for you, this document answers the question: "What does a 4-month-old OperatorOS-style workspace actually look like?"**
+
+**If you want to build your own workspace, this document is NOT the place to start.** Start with `methodology/01-six-principles.md` (the principles), then `methodology/04-agent-bootstrap.md` (the agent entry protocol), then apply them to your own structure.
 
 ---
 
-## Workspace OS as a worked example
+## Workspace OS — one worked example, NOT the canonical implementation
+
+Workspace OS is Taras's personal operating system. It has been in daily use since early 2026. It implements the six principles of OperatorOS — sometimes consciously, sometimes by accident, often by hard-won lessons.
+
+This section maps each OperatorOS principle to its expression in Workspace OS. The paths and structures here are **Taras's specific implementation**, not the only way to apply OperatorOS methodology.
 
 Workspace OS is Taras's personal operating system. It has been in daily use since early 2026. It implements the six principles of OperatorOS — sometimes consciously, sometimes by accident, often by hard-won lessons.
 
