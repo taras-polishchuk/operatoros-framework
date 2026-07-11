@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OperatorOS — local-first typed scaffold for personal workspaces</title>
-<meta name="description" content="OperatorOS is an open-source CLI for managing personal operating-system workspaces. Local-first, JSON-Schema validated, deny-list export. MIT licensed.">
+<title>OperatorOS — methodology for engineers building their own personal OS</title>
+<meta name="description" content="OperatorOS is a methodology and seed for engineers who want to build their own personal operating system. Documents, empty scaffold, agent bootstrap protocol. MIT licensed.">
 <meta name="theme-color" content="#0a0a0a">
 <style>
   :root{
@@ -72,79 +72,83 @@
 <body>
 <div class="wrap">
 
-  <div class="badge badge--accent">v0.5.2-alpha · MIT · Node 20+</div>
+  <div class="badge badge--accent">v0.6.0 · MIT · Node 20+</div>
 
   <h1>OperatorOS</h1>
   <p class="lede">
-    A CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools,
-    organized into a typed, composable, version-controlled structure you can back up, share, and extend.
+    A methodology and seed for engineers who want to build their own personal operating system —
+    captured in documents, an empty scaffold, and an agent bootstrap protocol that any AI can read.
   </p>
 
   <div class="pill-row">
     <span class="pill pill--accent">MIT licensed</span>
-    <span class="pill">7 commands</span>
+    <span class="pill">6 principles</span>
+    <span class="pill">5 methodology docs</span>
     <span class="pill">Single binary</span>
-    <span class="pill">Node 20+</span>
     <span class="pill">JSON Schema validated</span>
     <span class="pill">Local-First</span>
   </div>
 
   <div class="meta">
     <span><i class="dot"></i> 27 tests passing on Node 20.x and 22.x</span>
-    <span><i class="dot"></i> ~768 KB single-file binary</span>
+    <span><i class="dot"></i> ~787 KB single-file binary</span>
     <span><i class="dot"></i> zero network calls (enforced by test suite)</span>
   </div>
 
-  <h2>The problem</h2>
+  <h2>What this is</h2>
 
-  <p>You are <b>one operator</b>. You run a workspace that is supposed to be yours — files,
-  scripts, notes, tools, agents, scheduled jobs, integrations. In practice it has
-  fragmented into:</p>
+  <p>OperatorOS is a <b>seed</b>, not a product. If you are an engineer who keeps notes in
+  four places, has a system that survives in your head but not on disk, and gives your AI
+  agent the same context every session — this is for you.</p>
 
-  <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
-    <li>A <code>~/projects/</code> tree that has drifted since 2023</li>
-    <li>Three different note systems, none of which the others can read</li>
-    <li>AI agents that each invented their own conventions</li>
-    <li>A bash history that is the actual source of truth for 40% of your workflows</li>
-    <li>Secrets scattered across <code>.env</code>, gpg, and that one Notion page</li>
-  </ul>
+  <p>The methodology has six principles. The CLI is a small carrier. The bootstrap protocol
+  is what makes it usable by any AI agent. None of the three are sufficient alone.</p>
 
-  <p>None of this is a single system. None of it is replaceable. None of it composes.</p>
-
-  <h2>Six invariants</h2>
+  <h2>The six principles</h2>
 
   <div class="principles">
     <div class="principle">
       <h3>01 · Single Authority</h3>
-      <p>Every concept has <b>one</b> canonical owner file. No dual sources. If two files
-      disagree, one is wrong.</p>
+      <p>Every concept has <b>one</b> canonical location. Duplicates are drift. References
+      are by path, never by copy.</p>
     </div>
     <div class="principle">
       <h3>02 · Everything Replaceable</h3>
-      <p>Modules, presets, even Core itself — all replaceable. <b>Framework first,
-      implementation last.</b></p>
+      <p>Any component can be removed without breaking the others. Loose coupling,
+      not tight integration.</p>
     </div>
     <div class="principle">
       <h3>03 · Typed Substrate</h3>
-      <p>Every artifact validated against a JSON Schema at the boundary. Invalid state
+      <p>Configuration validated against JSON-Schema at the boundary. Invalid state
       cannot exist on disk.</p>
     </div>
     <div class="principle">
-      <h3>04 · Local-First</h3>
-      <p>OperatorOS Core makes <b>zero network calls</b> — no telemetry, no remote
-      schema, no auto-update, no module fetch. Enforced by <code>__tests__/local-first.test.ts</code>.</p>
+      <h3>04 · Composable</h3>
+      <p>A workspace is a set of named modules with explicit dependencies. You assemble
+      your own — not someone else's life.</p>
     </div>
     <div class="principle">
-      <h3>05 · Composable Modules</h3>
-      <p>A module is one composable extension. It declares a contract (<code>module.yaml</code>),
-      runs in isolation, exposes one CLI surface.</p>
+      <h3>05 · Evidence-Based</h3>
+      <p>Every change has a reason. Every reason has a record. Mission artifacts live in
+      <code>.project-state/&lt;slug&gt;/</code>, not in your head.</p>
     </div>
     <div class="principle">
-      <h3>06 · Profile-portable</h3>
-      <p>Your <b>whole</b> workspace exports to a single bundle. Move to a new machine in
-      10 minutes. Publish, fork, or archive at will — secrets stay out by default.</p>
+      <h3>06 · Local-First</h3>
+      <p>OperatorOS Core makes <b>zero network calls</b> — no telemetry, no remote schema,
+      no auto-update. Enforced by <code>__tests__/local-first.test.ts</code>.</p>
     </div>
   </div>
+
+  <h2>What this is NOT</h2>
+
+  <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
+    <li>Not an AI-native runtime. The AI-Native principle was removed in v0.5.2 because no AI primitives shipped.</li>
+    <li>Not a SaaS, cloud service, or sync engine. Everything runs locally.</li>
+    <li>Not a replacement for Claude Code, Aider, or Hermes. Those are agent runtimes; OperatorOS is the workspace they work in.</li>
+    <li>Not a universal second brain. This is for engineers, not everyone.</li>
+    <li>Not a paid product. MIT-licensed. Donations are welcome and unmotivated.</li>
+    <li>Not a mass-adoption play. Realistic audience: 5-50 engineers like the author.</li>
+  </ul>
 
   <h2>Quickstart (v0.5.2-alpha)</h2>
 

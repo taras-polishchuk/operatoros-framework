@@ -1,193 +1,155 @@
 # OperatorOS
 
-> **Status:** v0.5.2-alpha · 27 tests passing on Node 20.x and 22.x · MIT licensed
+> **Status:** v0.6.0 · MIT licensed
+> **One sentence:** A methodology for engineers to build their own personal operating system — captured in code, documents, and a bootstrap protocol that an AI agent can run.
 
-OperatorOS is a CLI for managing personal operating-system workspaces — your scripts, notes, secrets, and tools, organized into a typed, composable, version-controlled structure you can back up, share, and extend.
+---
 
-The framework extracts the universal architecture behind Taras Polishchuk's production Workspace OS into a reusable runtime.
+## What this is
 
-## Install
+OperatorOS is **a way of structuring an engineer's working environment**, distilled from four months of daily practice into a set of documents, an empty scaffold, and a small CLI.
 
-**Recommended — single-file binary (Node 20+ required):**
+It is not an operating system you install. It is a **seed** you grow into one.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
-```
+If you are an engineer, developer, technical founder, or technical researcher who wants your work environment to behave the way your code does — typed, version-controlled, replaceable, and inspectable — this is for you.
 
-**Windows (PowerShell):**
+## What this is NOT
 
-```powershell
-iwr https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.ps1 | iex
-```
-
-**From source:**
-
-```bash
-git clone https://github.com/taras-polishchuk/operatoros-framework
-cd operatoros-framework/core
-npm install && npm run build
-node dist/cli.js version
-```
-
-## Quickstart
-
-```bash
-# 1. Install (one line, single-file binary)
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
-
-# 2. Scaffold a workspace
-mkdir ~/my-workspace && cd ~/my-workspace
-operatoros init
-
-# 3. Apply the default preset — installs two example modules (journal + timer)
-operatoros apply
-
-# 4. Try them
-operatoros run journal add "shipped v0.5.1-alpha"
-operatoros run timer start "deep work" 50
-operatoros run timer start "defaulted task"     # falls back to $DEFAULT_MINUTES from settings
-operatoros run timer list
-
-# 5. Backup the whole thing (deny-list strips secrets automatically)
-operatoros export --bundle tar.gz
-# → ~/my-workspace-2026-07-02T23-50-00.tar.gz
-```
-
-The `personal` preset that ships with OperatorOS installs two example modules
-(`journal` + `timer`) so step 3 produces a working state immediately. No
-`git clone` required — the example modules ship inside the binary.
-
-## Commands
-
-| Command | Purpose |
+| This is not | Why |
 |---|---|
-| `operatoros init` | Scaffold a new workspace |
-| `operatoros validate <path>` | Validate YAML against JSON-Schema |
-| `operatoros add <source>` | Install a module from a local path or git URL |
-| `operatoros apply [preset]` | Install all modules declared in a preset |
-| `operatoros run <module> <cmd>` | Execute a module's declared command |
-| `operatoros export` | Pack workspace into a portable bundle |
-| `operatoros version` | Print version + git info |
+| An AI-native runtime | There are no AI primitives in Core. The constitutional principle is now **Local-First** (enforced by a test). |
+| A SaaS, cloud service, or sync engine | Everything runs locally. There is no server. |
+| A multi-agent orchestration framework | OperatorOS doesn't run agents. It gives agents a structured environment to read. |
+| A replacement for Claude Code, Aider, or Hermes | Those are agent runtimes. OperatorOS is the workspace they work in. |
+| A universal second brain | This is not for students, managers, or non-technical users. It assumes comfort with terminal, git, and JSON-Schema. |
+| A paid product | MIT-licensed. No premium tier. No account. Donations are welcome and unmotivated. |
+| A mass-adoption play | Realistic audience: 5-50 engineers like Taras, not 100,000 users. |
+| A community OS | BDFL governance. Contributions welcome, but the methodology is one person's. |
 
-7 commands. Each one does one thing. Run `operatoros --help` for the full surface.
+## The methodology
 
-## Architecture
+OperatorOS is built on six principles. These are not aspirational — they are constitutional rules, each enforced where the codebase allows it.
 
-```
-┌────────────────────────────────────────────┐
-│              Workspace                     │
-│  ┌─────────┐  ┌─────────┐  ┌───────────┐  │
-│  │ Module  │  │ Module  │  │ Preset    │  │
-│  │ journal │  │ (yours) │  │ personal  │  │
-│  └─────────┘  └─────────┘  └───────────┘  │
-│         \         |          /            │
-│  ┌─────────────────────────────────────┐  │
-│  │   Core (operatoros-core v0.5.0)     │  │
-│  │   - JSON-Schema validation (ajv)    │  │
-│  │   - Hook runner                     │  │
-│  │   - Export with deny-list           │  │
-│  └─────────────────────────────────────┘  │
-│         |                                 │
-│  ┌─────────────────────────────────────┐  │
-│  │   Persistence                       │  │
-│  │   operatoros.yaml, module.yaml,    │  │
-│  │   preset.yaml, tar.gz exports       │  │
-│  └─────────────────────────────────────┘  │
-└────────────────────────────────────────────┘
-```
+1. **Single Authority.** Every concept has exactly one canonical location. Duplicates are drift.
+2. **Everything Replaceable.** Any component can be removed without breaking the others. No tight coupling.
+3. **Typed Substrate.** Configuration is validated against JSON-Schema before it is accepted. Invalid states cannot exist.
+4. **Composable.** A workspace is a set of named modules with explicit dependencies and declared lifecycles.
+5. **Evidence-Based.** Every change has a reason; every reason has a record. Speculation is rejected by convention.
+6. **Local-First.** The Core never reaches the network. (Replaces the abandoned "AI-Native" principle in v0.5.2.)
 
-Every manifest is validated against a JSON Schema (2020-12) at every CLI boundary. Modules declare their contract in `module.yaml`. Presets compose modules + settings + lifecycle hooks. Export packs everything except what you told it to deny.
+A document explaining each principle in depth lives at `methodology/01-six-principles.md`.
 
-## Six invariants
+## The artifact
 
-OperatorOS is built on six invariants. Each is enforced by the test suite, not
-just declared in a doc. If you change one, the corresponding test fails and
-forces a re-evaluation of the principle.
+OperatorOS ships three things:
 
-1. **Single Authority** — one canonical owner per concept. Drift between two
-   files defining the same thing is treated as a bug. (Enforced by
-   CI cross-link checks in `core/__tests__`.)
-2. **Everything Replaceable** — modules, presets, even Core. Nothing is
-   sacred. A user can replace the entire Core implementation by swapping
-   out the binary; the JSON Schema contracts and on-disk layout stay stable.
-3. **Typed Substrate** — every artifact (workspace, module, preset
-   manifests) is validated against a JSON Schema 2020-12 at every CLI
-   boundary. Invalid state cannot exist on disk.
-4. **Local-First** — OperatorOS Core runs entirely on the user's local
-   filesystem. **It never makes a network call.** Not for telemetry, not for
-   remote schema lookup, not for module fetch, not for auto-update. The
-   `__tests__/local-first.test.ts` suite greps the binary for forbidden
-   network APIs and fails the build if any are found.
-5. **Composable Modules** — a module is one directory, one `module.yaml`,
-   isolated commands, runs in its own shell process. Replace by overwriting
-   the directory.
-6. **Profile-portable** — the entire workspace exports to one tarball via
-   `operatoros export`, with an opt-out deny-list that excludes secrets,
-   key files, and SQLite databases by default.
+### 1. The methodology documents
 
-## Why "Local-First" instead of "AI-Native"
+Located in `methodology/`. These explain how an engineer can build their own personal OS using these principles.
 
-Earlier versions of OperatorOS listed "AI-Native" as a principle, citing
-"agent-loop primitives, structured-output validation, and prompt-template
-versioning." In v0.5.2 we replaced that with **Local-First** because:
+- `01-six-principles.md` — the six constitutional rules
+- `02-doc-lifecycle.md` — how documents live and die
+- `03-token-economy.md` — how an AI agent decides what to read
+- `04-agent-bootstrap.md` — how a new agent enters a workspace
+- `05-onboarding-interview.md` — five questions an agent should ask a new user
 
-- No actual AI primitives ever shipped in Core (the "AI-Native" claim was
-  aspirational and is the kind of marketing-without-anchored-source
-  drift that the ESSENCE audit of 2026-07-03 flagged as a category error).
-- Local-First is verifiable by a single grep test and is what we already
-  do — the rule was implicit; the v0.5.2 change makes it explicit.
+### 2. The empty workspace scaffold
 
-If/when OperatorOS ships an opt-in local LLM integration (Ollama-style,
-no cloud calls), the JSON Schema for `module.yaml` already supports
-declaring it as `requires.modules` — the principle doesn't need to change.
+Located in `presets-canonical/personal/`. This is what you start with. It contains folders, schemas, and example files — but no personal content.
 
-## Project layout
-
-```
-operatoros-framework/
-├── core/                 # OperatorOS Core CLI (TypeScript)
-├── schemas/              # JSON Schema 2020-12 definitions
-├── presets-canonical/    # Canonical presets (personal)
-├── examples/             # Example modules (journal)
-├── registry/             # Public module registry (currently empty)
-├── scripts/              # Install scripts (Unix + Windows)
-├── operatoros.html       # Single-file landing page
-├── README.md             # This file
-├── ROADMAP.md            # Roadmap (current state)
-├── CHANGELOG.md          # Version history
-├── CONTRIBUTING.md       # How to contribute
-├── GOVERNANCE.md         # Decision-making
-└── SECURITY.md           # Vulnerability disclosure
+```yaml
+# presets-canonical/personal/preset.yaml
+version: 1
+name: personal
+modules: []  # start empty. add what you need.
 ```
 
-## Documentation
+You don't import someone else's life. You build your own.
 
-- **[Quickstart](#quickstart)** (above) — install + first 5 commands
-- **[ROADMAP.md](ROADMAP.md)** — what's been built and what's next
-- **[CHANGELOG.md](CHANGELOG.md)** — release history
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to add a module, file a PR, report a bug
-- **[GOVERNANCE.md](GOVERNANCE.md)** — BDFL model + transition plan
-- **[SECURITY.md](SECURITY.md)** — vulnerability disclosure
-- **[schemas/](schemas/)** — the contracts for `operatoros.yaml`, `module.yaml`, `preset.yaml`
+### 3. The CLI
 
-## Status
+Located in `core/`. Seven commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`.
 
-| | |
-|---|---|
-| Phase | v0.5.2-alpha |
-| License | MIT (Copyright 2026 Taras Polishchuk) |
-| GitHub | github.com/taras-polishchuk/operatoros-framework |
-| GH Pages | taras-polishchuk.github.io/operatoros-framework |
-| Tests | 27 passing, ~900ms |
-| Binary | 768 KB single-file, Node 20+ |
-| Registry | empty by design (modules ship via presets + local paths) |
-| Example modules | `journal` (single command, no state), `timer` (settings + 3 commands + state) |
-| Local-First invariant | enforced by `__tests__/local-first.test.ts` (zero network calls) |
+```bash
+# Install
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
-## Contributing
+# Scaffold a new workspace
+operatoros init my-os
 
-This is an early-phase framework. Process is being established. Open an issue before opening a non-trivial PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+# Add a module
+operatoros add journal
+
+# Validate the workspace against its schema
+operatoros validate
+
+# Run a module's hooks
+operatoros run journal
+```
+
+The CLI is **the carrier, not the product**. It is small, single-file (~787 KB), and quietly stays out of your way.
+
+## The bootstrap protocol
+
+When you create a workspace with `operatoros init`, the CLI produces a `bootstrap.md` file. This is what an AI agent reads when it enters your workspace for the first time.
+
+The bootstrap protocol tells the agent:
+
+1. Which four files to read first (the entire bootstrap is ~12K tokens)
+2. Which files are conditional — read only if the task warrants it
+3. Which files to ignore entirely
+4. When to ask the user, and what to ask
+
+The agent then runs a five-question onboarding interview to learn what you actually do, what you care about, and what kind of work the workspace should optimize for. The interview is documented at `methodology/05-onboarding-interview.md`.
+
+This is the part that makes OperatorOS **AI-usable without being AI-dependent**: any agent — Claude, GPT, Hermes, Aider — can read `bootstrap.md` and behave correctly. None of them are required.
+
+## Try it
+
+You don't have to believe the methodology to try the scaffold.
+
+```bash
+# Clone and look around
+git clone https://github.com/taras-polishchuk/operatoros-framework.git
+cd operatoros-framework
+
+# Read the methodology
+ls methodology/
+cat methodology/01-six-principles.md
+
+# Run the CLI in dry-run mode
+./core/dist-bin/operatoros init /tmp/test-workspace
+ls /tmp/test-workspace
+```
+
+If it resonates: read the rest of `methodology/`, then think about whether you want to apply it to your own work environment. If it doesn't: close the tab and forget about it.
+
+## Who this is for
+
+You probably are, if:
+- You keep notes in 4 places and none of them work
+- You have a system that survives in your head but not on disk
+- You give your AI agent the same context every session and wish it would remember
+- You are willing to invest 2-3 months building something personal before it pays off
+
+You probably aren't, if:
+- You want a turnkey productivity app
+- You want AI to organize your life for you
+- You want results in 30 minutes
+- You are not comfortable editing YAML and JSON
+
+## Origin
+
+This project started in June 2026 as an attempt to build an "AI-native personal OS runtime". It failed at that ambition — honestly documented in CHANGELOG entries from v0.5.0 to v0.5.2.
+
+What survived is the **methodology**: the six principles, the lifecycle rules, the token economy, and the bootstrap protocol. They were extracted from the author's four months of daily practice running a personal operating system called Workspace OS.
+
+This repository is the seed of that extraction. You can plant it in your own soil.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Copyright 2026 Taras Polishchuk.
+MIT. See `LICENSE`. Contributions welcome via PR. The methodology is one person's (Taras Polishchuk), but the seed is everyone's.
+
+## Funding
+
+If this saved you time, [a donation](https://github.com/sponsors/taras-polishchuk) is welcome and unmotivated. There is no paid tier. There will never be a paid tier.

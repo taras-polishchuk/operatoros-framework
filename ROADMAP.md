@@ -1,6 +1,6 @@
 # Roadmap
 
-> **Status:** v0.5.0-alpha. Phase 2 (product hardening) is the current focus. The roadmap below reflects what was actually shipped and what the next user-relevant milestone looks like.
+> **Status:** v0.6.0 — methodology pivot complete. The roadmap below reflects what was shipped and what the next user-relevant milestone looks like.
 
 ## Shipped
 
@@ -28,28 +28,46 @@
 - Multi-preset support
 - Public registry (since trimmed in v0.5.0)
 
-### v0.5.0-alpha — Product hardening (2026-07-02)
+### v0.5.0-alpha — Prism (2026-07-02)
 
-- Removed aspirational placeholders (registry entries, presets, empty dirs)
-- 7 commands (down from 10 after pruning dead code)
+- 10 → 7 commands (after pruning dead code)
 - 24 tests passing
 - README, CHANGELOG, docs rewritten to reflect current state
 - CI cache path bug fixed
 
-## Next milestone — v0.6.0 (dogfooding-driven)
+### v0.5.2-alpha — Local-First invariant (2026-07-11)
 
-The next release will not be a feature push. It will be whatever the first real-world use of OperatorOS reveals is missing.
+- "AI-Native" principle removed (no AI primitives ever shipped)
+- "Local-First" principle added with constitutional test
+- `scripts/embed-assets.js` rewritten (was silently shipping stale literals)
+- 14 KB of stale manual JSON literals removed from `core/src/embedded-assets.ts`
+- New `__tests__/local-first.test.ts` enforces no-network-call invariant
+
+### v0.6.0 — Methodology pivot (2026-07-11)
+
+- Project reframed: from "AI-native personal OS runtime" to "methodology-as-artifact for engineers"
+- README rewrite with explicit "What this is NOT" anti-positioning
+- `methodology/` directory added with five documents (six principles, doc lifecycle, token economy, agent bootstrap, onboarding interview)
+- `bootstrap.md` added at repo root for AI agent entry-point
+- CHANGELOG v0.6.0 entry documents the pivot
+- Landing page (`operatoros.html`) updated to match new framing
+- No code changes; no schema changes; no CLI changes
+
+## Next milestone — v0.7.0 (dogfooding + methodology validation)
+
+The next release will not be a feature push. It will validate the methodology by using it.
 
 The plan:
 
-1. **Use OperatorOS to manage Taras's own workspace** — install it on a real machine, scaffold a real workspace, run real `add`/`run`/`export` cycles against real files.
-2. **Track every friction point** — every confusing error message, every command that did the wrong thing, every time the docs didn't match reality.
-3. **Cut what isn't used.** If a command or flag wasn't touched during real use, remove it.
-4. **Harden what was touched.** Error messages become clearer. Edge cases get tested. Documentation gets aligned.
+1. **Apply OperatorOS to a fresh engineering workspace.** Create a new project (homelab-template, career-template, or similar), run `operatoros init`, run `operatoros apply`, populate it with one module, document the onboarding interview answers.
+2. **Track every friction point.** Every confusing error message, every doc that didn't match reality, every time the bootstrap was too heavy or too thin.
+3. **Tighten the methodology docs.** What worked, what didn't, what was missing. Update `methodology/*.md` based on real use.
+4. **Test the bootstrap protocol.** Have a fresh AI agent cold-start in the workspace. Verify the four-tier reading system works as designed.
+5. **Write a case study.** One engineer (the author) using the methodology for 4-6 weeks. What survived, what was abandoned, what was added.
 
 ## Explicitly not planned
 
-Until the first external user runs OperatorOS for a non-trivial task and asks for a feature, the following will NOT be added:
+Until a second real engineer applies the methodology to a non-trivial workspace and asks for a change, the following will NOT be added:
 
 - Cloud features
 - Web UI / dashboards
@@ -57,17 +75,17 @@ Until the first external user runs OperatorOS for a non-trivial task and asks fo
 - Marketplace
 - Telemetry
 - AI features that aren't required to satisfy the six principles
-- Module signing (premature for a single-user framework)
+- Module signing (premature for a methodology artifact)
 - Native single-binary compilation (bun/deno compile) — Node binary is sufficient
 - A registry of community modules — modules ship via the personal preset and local paths until there's a real second contributor
 
-## Decision criteria for new features
+## Decision criteria for new methodology additions
 
-A proposed addition is worth doing if and only if:
+A proposed methodology document is worth writing if and only if:
 
-1. **At least one real user is asking for it.** Hypothetical users don't count.
+1. **At least one real engineer needed it.** Hypothetical users don't count.
 2. **It survives first contact with reality.** If the use case the user describes changes once they try it, it's not a real requirement.
 3. **It fits in one of the six principles.** If it requires a seventh principle, the principles need to be re-thought first.
-4. **It can be deleted later without breaking anything.** Avoid coupling that makes removal expensive.
+4. **It can be ignored later without breaking anything.** Avoid coupling that makes removal expensive.
 
-Anything that fails any of these gets either postponed or removed.
+Anything that fails any of these gets either postponed or not written.
