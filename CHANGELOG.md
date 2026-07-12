@@ -1,6 +1,8 @@
 # Changelog
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
+>
+> **Release-tag reality (read this first):** the only tagged, installable release in the `v0.6` line is **`v0.6.0`** — it is what `git tag`, `scripts/install.sh`, `core/package.json`, and `operatoros version` all report. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments.
 
 ## [v0.6.3] — 2026-07-11
 
