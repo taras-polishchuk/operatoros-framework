@@ -8,11 +8,11 @@ A personal workspace accumulates documents. Without rules, every agent that ente
 
 ## The problem
 
-Workspace OS, before this convention, cost ~12K tokens per cold-start session. Most of that cost was reading the same files over and over to rediscover structure that didn't change.
+Without a token economy, every agent that enters a workspace reads everything by default. That's expensive (because re-reading is wasteful) and worse (because it dilutes attention). A specific instance of this problem, observed in one OperatorOS-style workspace before this convention was adopted, was ~12K tokens per cold-start session — most of that cost was reading the same files over and over to rediscover structure that didn't change.
 
-After applying the token economy: ~2-4K tokens for cold-start. ~0.5K for a follow-up session that already knows the workspace.
+After applying the token economy in that same instance: ~2-4K tokens for cold-start, ~0.5K for a follow-up session that already knows the workspace.
 
-That's a 70-80% reduction. The methodology is the lever.
+That's roughly a 70-80% reduction. The methodology (the four reading tiers below) is the lever; the percentages above are illustrative of one engineer's observed outcome and are not guaranteed across all workspaces.
 
 ---
 
@@ -38,19 +38,19 @@ Total: ~2K tokens. Read this on every cold-start. Don't skip.
 
 ### Conditional (read when relevant)
 
-Most of the workspace. Examples:
+Most of the workspace. Concrete examples vary by engineer — the pattern is "a subsystem directory at the workspace root is read only when its topic matches the current task":
 
-- `homelab/` subsystem docs — only if the task involves homelab infrastructure.
-- `career-operating-system/` — only if the task involves career artifacts.
-- `CONTEXT/strategic-analyses/` — only if the user explicitly references them or asks for analysis.
+- Subsystem directory `<your-subsystem-a>/` — read only if the task involves that subsystem's domain.
+- Subsystem directory `<your-subsystem-b>/` — read only if the task involves that subsystem's artifacts.
+- A `strategic-analyses/` directory at the workspace root — read only when the user explicitly references it or asks for analysis.
 
-The agent should ask: "Is this document relevant to the current task?" If no, skip it.
+The agent should ask: "Is this document relevant to the current task?" If no, skip it. The concrete subsystem names in any given workspace are the engineer's choice — the framework does not specify which subsystems a workspace should have.
 
 ### Discovery (read on demand)
 
 When the agent encounters a concept it doesn't recognize (e.g., a project name, a tool, a person), it follows the cross-reference chain. This costs tokens but only when needed.
 
-Example: the task mentions "OperatorOS". The agent discovers `CONTEXT/operatoros/` and reads that, then decides whether to dive deeper.
+Example: the task mentions "OperatorOS" and the workspace contains a dedicated `CONTEXT/operatoros/` directory tracking OperatorOS-related notes. The agent discovers it and reads that, then decides whether to dive deeper.
 
 ### Ignore (never read)
 

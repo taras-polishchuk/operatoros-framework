@@ -98,3 +98,7 @@ Until the project has real external users, please don't propose:
 - Module signing
 
 These may be added later. For now, they're explicitly out of scope. See [ROADMAP.md](ROADMAP.md) for the criteria new features must meet.
+
+## Maintainer note — tester packet
+
+`docs/tester-packet.md` is the maintainer's personal runbook for inviting a specific tester to run the first-use flow and report back. It is **not** framework documentation; it lives at the framework repo for convenience only. If you fork OperatorOS and become the maintainer of your own instance, write your own runbook and either replace this one or leave it as-is. Do not treat the runbook's macOS-first scenario or specific tester-wording as canonical guidance for the project.

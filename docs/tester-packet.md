@@ -1,14 +1,14 @@
 # OperatorOS Tester Packet
 
-Use this packet when giving OperatorOS to a friend or early tester.
-
-Goal: collect real product data from a first-use session without turning the tester into a contributor on day one.
-
-## Rule Of Thumb
-
-- First session = usage data, not code contribution.
-- Ask for an issue, log, or screen recording before asking for a PR.
-- A PR only makes sense after the problem is reproduced and scoped.
+> **Status:** Maintainer-only tester-onboarding runbook.
+> **Boundary:** This document lives in OperatorOS for convenience only. It is
+> **not** framework documentation. The framework docs are `README.md`,
+> `methodology/`, `schemas/`, and `CONTRIBUTING.md`. This packet is the
+> maintainer's (Taras's) personal runbook for inviting a specific tester to try
+> OperatorOS and capture their first-use feedback. Other maintainers should
+> adapt it for their own context, not follow it verbatim. If you are looking
+> for how to use OperatorOS as a user, see the `README.md` §"Try it" section
+> and `methodology/05-onboarding-interview.md` instead.
 
 > **Version pin:** `OPERATOROS_VERSION=v0.6.0` — this is the current methodology-pivot release. The CLI is functionally identical to v0.5.2-alpha (no code changes), but v0.6.0 is the version that matches the README and CHANGELOG the tester will read.
 

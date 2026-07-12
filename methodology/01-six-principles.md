@@ -2,7 +2,7 @@
 
 > **Status:** Constitutional. These are not aspirational — they are enforced where the codebase allows it, and codified as invariant rules where it doesn't.
 
-The Workspace OS methodology is built on six principles. They were extracted from four months of daily practice and refined into the rules below. Each principle has a one-sentence statement, an explanation, an operational rule, and an enforcement mechanism.
+The OperatorOS methodology is built on six principles. They were extracted from a workspace in daily use since early 2026 and refined into the rules below. Each principle has a one-sentence statement, an explanation, an operational rule, and an enforcement mechanism. A worked example of one engineer applying these principles lives at `OPERATING-MODEL.md`; the canonical rules below are framework-neutral and apply to any OperatorOS-managed workspace.
 
 ---
 
@@ -91,13 +91,13 @@ The Workspace OS methodology is built on six principles. They were extracted fro
 **Explanation.** Decisions made without evidence accumulate. They become assumptions, then traditions, then myths. Evidence-Based means: when you change something, you write down why. The why is at least as important as the what.
 
 **Operational rule.**
-- Mission artifacts (per Workspace OS Article VII) live in the **workspace root** `<workspace-root>/.project-state/<mission-slug>/` — NOT inside any sub-project repository. Each OperatorOS-managed workspace has exactly one `.project-state/` root, owned by the workspace, not by any project inside it. In Taras's Workspace OS the canonical root resolves to `/home/taras/projects/.project-state/`; other OperatorOS users substitute their own workspace path.
+- Mission artifacts follow the 8-artifact Sprint Pattern (see `methodology/06-decisions-adr.md` — `How this maps to .project-state/<mission-slug>/`). They live in the **workspace root** under `.project-state/<mission-slug>/` — NOT inside any sub-project repository. Each OperatorOS-managed workspace has exactly one `.project-state/` root, owned by the workspace, not by any project inside it. The canonical root resolves to the workspace root; concrete OperatorOS users substitute their own workspace path.
 - Each mission produces a `final-report.md` that records decisions, evidence, and outcomes.
 - Code commits reference mission slugs. PR descriptions link to mission reports.
 - Speculative features ("maybe users will want X") are not built. Features are built when at least one real user describes a real need.
 
 **Enforcement.**
-- The Workspace OS Article VII (Sprint Pattern) is the canonical mission lifecycle.
+- The Sprint Pattern documented in `methodology/06-decisions-adr.md` is the canonical mission lifecycle for any OperatorOS-managed workspace that adopts missions.
 - A constitutional rule rejects speculative contributions: "If the use case changes once the user tries it, it's not a real requirement."
 
 **Failure mode.** "I added this feature six months ago and I don't remember why." — fix by writing a `final-report.md` and linking it to the commit.

@@ -55,7 +55,7 @@ When the user gives a task:
 3. Read those. Don't read unrelated conditional files.
 4. If a concept is unknown, run a discovery search.
 5. Do the task.
-6. Update mission artifacts if the task is non-trivial (see Workspace OS Article VII).
+6. Update mission artifacts if the task is non-trivial (see `methodology/02-doc-lifecycle.md` §"Mission artifacts" and `methodology/06-decisions-adr.md`).
 
 ### Step 6 — On session end
 
@@ -132,7 +132,7 @@ Each agent reads the shared `IDENTITY.md` and its own override. The overrides co
 
 - Agent name and version
 - Last session timestamp
-- Persistent context (e.g., "this agent works on the homelab subsystem")
+- Persistent context (e.g., "this agent works on the `<subsystem>` directory")
 - Onboarding answers (if onboarding is per-agent, not shared)
 
 ---

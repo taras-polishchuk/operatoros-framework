@@ -1,9 +1,9 @@
 /**
- * Local-First invariant — codifies the constitutional rule from
- * .project-state/operatoros-essence-v1/ESSENCE.md §10:
+ * Local-First invariant — codifies Principle 6 of
+ * methodology/01-six-principles.md:
  *
- *   "OperatorOS runs entirely on the user's local filesystem. It never
- *    makes a network call."
+ *   "The Core never reaches the network. The methodology works offline.
+ *    The user owns their data."
  *
  * These tests fail loudly if any future change introduces a network call
  * path into the OperatorOS Core source. CI gates on this.
@@ -91,8 +91,7 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
         .join("\n");
       throw new Error(
         `\n\nLocal-First invariant violated — OperatorOS Core MUST NOT make network calls.\n` +
-          `See ESSENCE.md §10 "OperatorOS runs entirely on the user's local filesystem.\n` +
-          `It never makes a network call." (the constitutional principle).\n\n` +
+          `See Principle 6 of methodology/01-six-principles.md "The Core never reaches the network. The methodology works offline. The user owns their data.".\n\n` +
           `Offending lines:\n${msg}\n\n` +
           `If this is a legitimate false-positive (e.g. URL inside a docstring), ` +
           `extract the example into a test fixture instead.\n`

@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "OperatorOS Module Registry",
-  "description": "Public registry of OperatorOS modules. Currently empty by design — modules come from canonical presets (see `operatoros apply`) or local paths (see `operatoros add`). The registry will grow as community modules land. To propose a module, see .github/ISSUE_TEMPLATE/module_proposal.md.",
-  "version": "0.4",
-  "updated": "2026-07-02",
-  "modules": []
-}

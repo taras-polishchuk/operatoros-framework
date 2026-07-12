@@ -68,7 +68,7 @@ The next release will not be a feature push. It will validate the methodology by
 
 ### Planned activities (in support of the acceptance criteria)
 
-1. Apply OperatorOS to a fresh engineering workspace — homelab-template, career-template, or similar. Run `operatoros init`, run `operatoros apply`, populate with one module, document onboarding interview answers.
+1. Apply OperatorOS to a fresh engineering workspace — for example a knowledge-worker template, an indie-dev template, or a research-lab template. Run `operatoros init`, run `operatoros apply`, populate with one module, document onboarding interview answers.
 2. Track every friction point — confusing error messages, docs that didn't match reality, bootstrap too heavy or too thin.
 3. Tighten the methodology docs based on real use.
 4. Test the bootstrap protocol — have a fresh AI agent cold-start in the workspace. Verify the four-tier reading system works as designed.
