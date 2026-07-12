@@ -76,8 +76,8 @@ Located in `core/`. Seven commands: `init`, `validate`, `add`, `apply`, `run`, `
 OPERATOROS_VERSION=v0.6.0 \
   curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
-# Scaffold a new workspace
-operatoros init my-os
+# Scaffold a new workspace (writes into ./my-os; omit --target to use the current dir)
+operatoros init --target my-os
 
 # Add a module — replace `<module-source>` with a local path or git URL.
 # OperatorOS ships no bundled modules (Decision 9, v0.6.3).
@@ -146,7 +146,7 @@ operatoros-core validate /tmp/test-workspace
 2. **Read `methodology/01-six-principles.md`** (5 min) — get the principles.
 3. **Read `methodology/05-onboarding-interview.md`** (3 min) — understand what questions an AI agent will ask if it joins your workspace.
 4. **Skim `methodology/03-token-economy.md`** (3 min) — understand the four reading tiers.
-5. **Run `operatoros init my-os`** (1 min) — see what the CLI generates.
+5. **Run `operatoros init --target my-os`** (1 min) — see what the CLI generates (folder layout, `operatoros.yaml`, and a default `bootstrap.md`).
 6. **Decide** — apply the methodology to your real work, or close the tab.
 
 If it resonates: read the rest of `methodology/`, then think about whether you want to apply it to your own work environment. If it doesn't: close the tab and forget about it.
