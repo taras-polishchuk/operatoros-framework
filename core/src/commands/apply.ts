@@ -143,8 +143,12 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
   await runHooks("pre-apply", extractHooks({ settings: preset.settings }), root);
 
   const modules = preset.modules ?? [];
+  // Decision 9 (v0.6.3): empty preset is the default. `apply` succeeds
+  // with a friendly hint pointing the user at `operatoros add <path>`.
+  // The for-loop is preserved so future presets that DO declare modules
+  // continue to work without code changes.
   if (modules.length === 0) {
-    info(`preset has no modules to install`);
+    info(`preset has no modules to install — add one with: operatoros add <path>`);
   } else {
     info(`modules to install: ${modules.length}`);
 
@@ -157,8 +161,7 @@ export async function applyCommand(presetArg: string | undefined, _opts: ApplyOp
       // Resolve relative sources against the preset.yaml file's directory
       // (not cwd, not workspace root). Convention: `./foo` and `../foo`
       // are relative to where the preset lives; absolute paths and git
-      // URLs are passed through verbatim. This makes `../../examples/journal`
-      // resolve correctly when the preset sits in presets-canonical/<name>/.
+      // URLs are passed through verbatim.
       let resolvedSource = mod.source;
       if (resolvedSource.startsWith("./") || resolvedSource.startsWith("../")) {
         resolvedSource = path.resolve(presetDir, resolvedSource);

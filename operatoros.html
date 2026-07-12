@@ -1,218 +1,957 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OperatorOS — methodology for engineers building their own personal OS</title>
-<meta name="description" content="OperatorOS is a methodology and seed for engineers who want to build their own personal operating system. Documents, empty scaffold, agent bootstrap protocol. MIT licensed.">
-<meta name="theme-color" content="#0a0a0a">
-<style>
-  :root{
-    --bg:#0a0a0a;--bg-elev:#121212;--bg-elev-2:#1a1a1a;
-    --fg:#fafafa;--fg-muted:#a0a0a0;--fg-dim:#6a6a6a;
-    --accent:#7c3aed;--accent-2:#a78bfa;--accent-dim:#3b2966;
-    --border:#262626;--border-bright:#404040;
-    --good:#22c55e;--warn:#f59e0b;--bad:#ef4444;
-    --code-bg:#0d0d0d;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-  body{min-height:100vh}
-  a{color:var(--accent-2);text-decoration:none;border-bottom:1px dotted var(--accent-dim)}
-  a:hover{border-bottom-color:var(--accent-2)}
-  .wrap{max-width:880px;margin:0 auto;padding:64px 24px 96px}
-  .badge{display:inline-block;padding:4px 10px;border:1px solid var(--border-bright);border-radius:999px;font-size:12px;color:var(--fg-muted);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
-  .badge--accent{border-color:var(--accent);color:var(--accent-2)}
-  h1{font-size:48px;line-height:1.1;letter-spacing:-0.02em;margin:32px 0 16px;font-weight:600}
-  h2{font-size:28px;line-height:1.25;letter-spacing:-0.01em;margin:64px 0 16px;font-weight:600;padding-top:24px;border-top:1px solid var(--border)}
-  h3{font-size:18px;line-height:1.4;margin:24px 0 8px;font-weight:600;color:var(--fg)}
-  p{margin:12px 0;color:var(--fg-muted)}
-  p strong,p b{color:var(--fg)}
-  .lede{font-size:20px;line-height:1.5;color:var(--fg);margin:24px 0 32px;font-weight:400}
-  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
-  .pill{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
-  .pill--accent{background:var(--accent-dim);border-color:var(--accent);color:var(--accent-2)}
-  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0}
-  .principle{padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elev)}
-  .principle h3{margin:0 0 8px;color:var(--accent-2);font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
-  .principle p{margin:0;font-size:14px;color:var(--fg-muted)}
-  .principle p b{color:var(--fg)}
-  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:16px 0}
-  code{font-family:var(--mono);font-size:.92em;background:var(--bg-elev-2);padding:1px 6px;border-radius:4px;color:var(--accent-2)}
-  pre code{background:none;padding:0;color:var(--fg)}
-  .meta{display:flex;flex-wrap:wrap;gap:16px;margin:32px 0;font-size:13px;color:var(--fg-muted);font-family:var(--mono)}
-  .meta span{display:inline-flex;align-items:center;gap:6px}
-  .meta .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
-  .cta{margin:48px 0;padding:24px;background:linear-gradient(135deg,var(--accent-dim),transparent);border:1px solid var(--accent);border-radius:12px}
-  .cta h3{margin:0 0 8px;color:var(--fg)}
-  .cta p{margin:0 0 16px;color:var(--fg)}
-  .btn{display:inline-block;padding:10px 20px;background:var(--accent);color:#fff;border-radius:8px;border:none;font-weight:600;font-size:14px;margin-right:8px}
-  .btn:hover{background:var(--accent-2);color:#000;border-bottom:none}
-  .btn--ghost{background:transparent;border:1px solid var(--border-bright);color:var(--fg)}
-  .footer{margin-top:96px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--fg-dim);display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
-  @media(max-width:600px){
-    .wrap{padding:32px 16px}
-    h1{font-size:32px}
-    h2{font-size:22px}
-    .lede{font-size:17px}
-    pre{font-size:12px}
-  }
-  @media print{
-    body{background:#fff;color:#000}
-    a{color:#000;border:none}
-    .btn{border:1px solid #000;background:#fff;color:#000}
-    .principle,.arch,.cta{border-color:#aaa;background:#f5f5f5}
-    pre{background:#f5f5f5;border-color:#aaa}
-    h2{border-top-color:#aaa}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OperatorOS is an engineering methodology for building declarative, reproducible, AI-ready workspaces. Local-first, evidence-based, MIT licensed.">
+    <meta name="author" content="Taras Polishchuk">
+    <meta name="license" content="MIT">
+    <link rel="canonical" href="https://taras-polishchuk.github.io/operatoros-framework/">
+    <link rel="license" href="https://github.com/taras-polishchuk/operatoros-framework/blob/main/LICENSE">
+    <title>OperatorOS | Engineering Methodology</title>
+    <style>
+        /* CSS Variables */
+        :root {
+            --bg-base: #050608;
+            --text-primary: #ffffff;
+            --text-secondary: #8b9bb4;
+            --text-muted: #4a5568;
+            --accent-cyan: rgba(0, 212, 255, 0.8);
+            --accent-blue: rgba(0, 102, 255, 0.6);
+            --glow-cyan: rgba(0, 212, 255, 0.15);
+            --glow-blue: rgba(0, 102, 255, 0.1);
+            --glass-bg: rgba(15, 20, 30, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-stack: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: 0.3s ease;
+        }
+
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Backgrounds */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            pointer-events: none;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--glass-border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .volumetric-light {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 80vh;
+            background: radial-gradient(circle, var(--glow-blue) 0%, transparent 60%);
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+
+        /* Layout & Typography */
+        section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 20px;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 500;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        p.subtitle {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem auto;
+            font-weight: 300;
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        /* Animations */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity var(--transition-slow), transform var(--transition-slow);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero Section */
+        #hero {
+            justify-content: flex-start;
+            padding-top: 15vh;
+        }
+
+        .hero-diagram {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .hero-diagram svg {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 20px var(--glow-cyan));
+            transition: transform 0.1s linear;
+        }
+
+        .node { fill: var(--glass-bg); stroke: var(--glass-border); stroke-width: 2; transition: all 0.3s; }
+        .node-text { fill: var(--text-primary); font-family: var(--font-stack); font-size: 14px; text-anchor: middle; font-weight: 500; }
+        .flow-line { fill: none; stroke: var(--accent-blue); stroke-width: 3; stroke-dasharray: 10 10; animation: flow 2s linear infinite; }
+        
+        @keyframes flow {
+            from { stroke-dashoffset: 20; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Principles Section */
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .principle-card {
+            padding: 2rem;
+            cursor: default;
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .principle-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px var(--glow-blue);
+        }
+
+        .principle-title {
+            font-size: 1.25rem;
+            margin: 1.5rem 0 0.5rem 0;
+            font-weight: 500;
+        }
+
+        .principle-icon {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        /* Interactive SVG CSS Animations for Principles */
+        /* 1. Single Authority */
+        .sa-circle { transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), fill 0.6s; fill: var(--text-secondary); }
+        .principle-card:hover .sa-circle-1 { transform: translateX(25px); fill: var(--accent-cyan); }
+        .principle-card:hover .sa-circle-2 { transform: translateX(-25px); fill: var(--accent-cyan); }
+
+        /* 2. Everything Replaceable */
+        .er-mod { transition: transform 0.6s ease, opacity 0.6s ease; }
+        .principle-card:hover .er-mod-old { transform: translateY(-40px); opacity: 0; }
+        .principle-card:hover .er-mod-new { transform: translateY(0); opacity: 1; }
+
+        /* 3. Typed Substrate */
+        .ts-shape { transition: transform 0.6s ease; }
+        .principle-card:hover .ts-bad { transform: translateY(-20px) rotate(15deg); stroke: #ef4444; }
+        .principle-card:hover .ts-good { stroke: var(--accent-cyan); }
+
+        /* 4. Composable */
+        .cp-part { transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .principle-card:hover .cp-part-1 { transform: translate(15px, 15px); }
+        .principle-card:hover .cp-part-2 { transform: translate(-15px, -15px); }
+
+        /* 5. Evidence-Based */
+        .eb-dot { opacity: 0; transition: opacity 0.3s; fill: var(--accent-cyan); }
+        .principle-card:hover .eb-dot-1 { opacity: 1; transition-delay: 0.1s; }
+        .principle-card:hover .eb-dot-2 { opacity: 1; transition-delay: 0.3s; }
+        .principle-card:hover .eb-dot-3 { opacity: 1; transition-delay: 0.5s; }
+
+        /* 6. Local-First */
+        .lf-cloud { transition: opacity 0.6s ease; fill: var(--text-secondary); }
+        .lf-local { transition: fill 0.6s ease, filter 0.6s ease; fill: var(--text-secondary); }
+        .principle-card:hover .lf-cloud { opacity: 0.2; }
+        .principle-card:hover .lf-local { fill: var(--accent-cyan); filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+
+        /* AI Bootstrap Section */
+        .bootstrap-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .bs-step {
+            width: 100%;
+            padding: 1.5rem;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            border-left: 2px solid transparent;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .bs-step::before {
+            content: '↓';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity var(--transition-slow);
+        }
+
+        .bs-step:first-child::before { display: none; }
+
+        .bs-step.active {
+            border-left-color: var(--accent-cyan);
+            color: var(--text-primary);
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .bs-step.active::before {
+            opacity: 1;
+            color: var(--accent-blue);
+        }
+
+        /* Workspace Virtual Filesystem */
+        .fs-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            font-family: monospace;
+        }
+
+        .fs-tree {
+            list-style: none;
+            padding-left: 20px;
+            border-left: 1px solid var(--glass-border);
+        }
+
+        .fs-item {
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .fs-item::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: -20px;
+            width: 15px;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .fs-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .fs-label:hover { color: var(--text-primary); }
+        .fs-label svg { width: 16px; height: 16px; fill: currentColor; }
+        
+        .fs-content {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.5s ease;
+            opacity: 0.5;
+        }
+
+        .fs-item.open > .fs-content {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .fs-item.open > .fs-label {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px var(--glow-cyan);
+        }
+
+        /* Comparison Section */
+        .comparison-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4rem;
+            justify-content: center;
+            margin-top: 3rem;
+            width: 100%;
+        }
+
+        .comp-col {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .comp-col h3 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .col-not h3 { color: var(--text-muted); }
+        .col-yes h3 { color: var(--text-primary); text-shadow: 0 0 15px var(--glow-cyan); }
+
+        .comp-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comp-list li {
+            font-size: 1.2rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .col-not .comp-list li {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            border: 1px solid transparent;
+        }
+
+        .col-yes .comp-list li {
+            color: var(--accent-cyan);
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px var(--glow-blue);
+            font-weight: 500;
+        }
+
+        /* Final Section */
+        #final {
+            text-align: center;
+            padding-bottom: 150px;
+        }
+
+        .final-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .final-link {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 300;
+            transition: color var(--transition-fast), transform var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .final-link:hover {
+            color: var(--text-primary);
+            transform: translateX(10px);
+            text-shadow: 0 0 20px var(--glow-cyan);
+        }
+
+        .final-link::before {
+            content: '→';
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all var(--transition-fast);
+            color: var(--accent-cyan);
+        }
+
+        .final-link:hover::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .final-separator {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        .final-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 4rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .final-meta a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .final-meta a:hover {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 8px var(--glow-cyan);
+        }
+
+        .final-meta-version {
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        .final-meta-sep {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            section { padding: 80px 20px; }
+            .fs-container { padding: 1.5rem; }
+            .comparison-wrapper { flex-direction: column; align-items: center; text-align: center; }
+        }
+    </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="badge badge--accent">v0.6.0 · MIT · Node 20+</div>
-
-  <h1>OperatorOS</h1>
-  <p class="lede">
-    A methodology and seed for engineers who want to build their own personal operating system —
-    captured in documents, an empty scaffold, and an agent bootstrap protocol that any AI can read.
-  </p>
-
-  <div class="pill-row">
-    <span class="pill pill--accent">MIT licensed</span>
-    <span class="pill">6 principles</span>
-    <span class="pill">5 methodology docs</span>
-    <span class="pill">Single binary</span>
-    <span class="pill">JSON Schema validated</span>
-    <span class="pill">Local-First</span>
-  </div>
-
-  <div class="meta">
-    <span><i class="dot"></i> 27 tests passing on Node 20.x and 22.x</span>
-    <span><i class="dot"></i> ~787 KB single-file binary</span>
-    <span><i class="dot"></i> zero network calls (enforced by test suite)</span>
-  </div>
-
-  <h2>What this is</h2>
-
-  <p>OperatorOS is a <b>seed</b>, not a product. If you are an engineer who keeps notes in
-  four places, has a system that survives in your head but not on disk, and gives your AI
-  agent the same context every session — this is for you.</p>
-
-  <p>The methodology has six principles. The CLI is a small carrier. The bootstrap protocol
-  is what makes it usable by any AI agent. None of the three are sufficient alone.</p>
-
-  <h2>The six principles</h2>
-
-  <div class="principles">
-    <div class="principle">
-      <h3>01 · Single Authority</h3>
-      <p>Every concept has <b>one</b> canonical location. Duplicates are drift. References
-      are by path, never by copy.</p>
+    <!-- Ambient Visuals -->
+    <div id="canvas-container">
+        <canvas id="bg-canvas"></canvas>
     </div>
-    <div class="principle">
-      <h3>02 · Everything Replaceable</h3>
-      <p>Any component can be removed without breaking the others. Loose coupling,
-      not tight integration.</p>
-    </div>
-    <div class="principle">
-      <h3>03 · Typed Substrate</h3>
-      <p>Configuration validated against JSON-Schema at the boundary. Invalid state
-      cannot exist on disk.</p>
-    </div>
-    <div class="principle">
-      <h3>04 · Composable</h3>
-      <p>A workspace is a set of named modules with explicit dependencies. You assemble
-      your own — not someone else's life.</p>
-    </div>
-    <div class="principle">
-      <h3>05 · Evidence-Based</h3>
-      <p>Every change has a reason. Every reason has a record. Mission artifacts live in
-      <code>.project-state/&lt;slug&gt;/</code>, not in your head.</p>
-    </div>
-    <div class="principle">
-      <h3>06 · Local-First</h3>
-      <p>OperatorOS Core makes <b>zero network calls</b> — no telemetry, no remote schema,
-      no auto-update. Enforced by <code>__tests__/local-first.test.ts</code>.</p>
-    </div>
-  </div>
+    <div class="bg-grid"></div>
+    <div class="volumetric-light"></div>
 
-  <h2>What this is NOT</h2>
+    <main>
+        <!-- Section 1: Hero -->
+        <section id="hero">
+            <div class="container fade-up">
+                <h1>Build your personal<br>operating system.</h1>
+                <p class="subtitle">OperatorOS is an engineering methodology for building declarative, reproducible, AI-ready workspaces.</p>
+                
+                <div class="hero-diagram" id="hero-diagram">
+                    <svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(0, 212, 255, 0.4)" />
+                                <stop offset="100%" stop-color="rgba(0, 102, 255, 0.1)" />
+                            </linearGradient>
+                            <filter id="blurGlow">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
 
-  <ul style="padding-left:20px;color:var(--fg-muted);margin:12px 0">
-    <li>Not an AI-native runtime. The AI-Native principle was removed in v0.5.2 because no AI primitives shipped.</li>
-    <li>Not a SaaS, cloud service, or sync engine. Everything runs locally.</li>
-    <li>Not a replacement for Claude Code, Aider, or Hermes. Those are agent runtimes; OperatorOS is the workspace they work in.</li>
-    <li>Not a universal second brain. This is for engineers, not everyone.</li>
-    <li>Not a paid product. MIT-licensed. Donations are welcome and unmotivated.</li>
-    <li>Not a mass-adoption play. Realistic audience: 5-50 engineers like the author.</li>
-  </ul>
+                        <!-- Flow Lines -->
+                        <path class="flow-line" d="M200,60 L200,140" />
+                        <path class="flow-line" d="M200,180 L200,260" />
+                        <path class="flow-line" d="M200,300 L200,380" />
+                        <path class="flow-line" d="M200,420 L200,500" />
 
-  <h2>Quickstart (v0.5.2-alpha)</h2>
+                        <!-- Nodes -->
+                        <g transform="translate(100, 20)">
+                            <rect class="node" x="0" y="0" width="200" height="40" rx="4" />
+                            <text class="node-text" x="100" y="25">Operator</text>
+                        </g>
+                        <g transform="translate(100, 140)">
+                            <rect class="node" x="0" y="0" width="200" height="40" rx="4" />
+                            <text class="node-text" x="100" y="25">Workspace</text>
+                        </g>
+                        <g transform="translate(100, 260)">
+                            <rect class="node" x="0" y="0" width="200" height="40" rx="4" />
+                            <text class="node-text" x="100" y="25">Runtime</text>
+                        </g>
+                        <g transform="translate(100, 380)">
+                            <rect class="node" x="0" y="0" width="200" height="40" rx="4" />
+                            <text class="node-text" x="100" y="25">Platform</text>
+                        </g>
+                        <g transform="translate(100, 500)">
+                            <rect class="node" x="0" y="0" width="200" height="40" rx="4" />
+                            <text class="node-text" x="100" y="25">Infrastructure</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
 
-<pre><code># Install the single-file binary (Node 20+ required)
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+        <!-- Section 2: Six Principles -->
+        <section id="principles">
+            <div class="container fade-up">
+                <h2>Six Principles</h2>
+                <div class="principles-grid">
+                    
+                    <!-- Principle 1 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <circle class="sa-circle sa-circle-1" cx="35" cy="50" r="15" />
+                            <circle class="sa-circle sa-circle-2" cx="65" cy="50" r="15" />
+                        </svg>
+                        <h3 class="principle-title">Single Authority</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Duplicate nodes merge into one source of truth.</p>
+                    </div>
 
-# Initialize a workspace
-mkdir ~/my-workspace && cd ~/my-workspace
-operatoros init
+                    <!-- Principle 2 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <rect class="er-mod er-mod-old" x="35" y="35" width="30" height="30" rx="4" fill="var(--text-secondary)" />
+                            <rect class="er-mod er-mod-new" x="35" y="75" width="30" height="30" rx="4" fill="var(--accent-cyan)" opacity="0" />
+                        </svg>
+                        <h3 class="principle-title">Everything Replaceable</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Modules swap out without breaking the system.</p>
+                    </div>
 
-# Apply the default preset — installs two example modules (journal + timer)
-operatoros apply
+                    <!-- Principle 3 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <rect x="20" y="40" width="60" height="40" rx="4" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="4 4"/>
+                            <rect class="ts-shape ts-bad" x="35" y="10" width="30" height="30" rx="4" fill="none" stroke="var(--text-secondary)" stroke-width="2" />
+                            <rect class="ts-shape ts-good" x="20" y="40" width="60" height="40" rx="4" fill="none" stroke="transparent" stroke-width="2" />
+                        </svg>
+                        <h3 class="principle-title">Typed Substrate</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Invalid configuration is rejected instantly.</p>
+                    </div>
 
-# Try them
-operatoros run journal add "shipped v0.5.1-alpha"
-operatoros run timer start "deep work" 50
-operatoros run timer start "defaulted task"     # falls back to $DEFAULT_MINUTES from settings
-operatoros run timer list
+                    <!-- Principle 4 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <path class="cp-part cp-part-1" d="M20,20 L50,20 L50,50 L20,50 Z" fill="none" stroke="var(--accent-cyan)" stroke-width="2"/>
+                            <path class="cp-part cp-part-2" d="M50,50 L80,50 L80,80 L50,80 Z" fill="none" stroke="var(--text-secondary)" stroke-width="2"/>
+                        </svg>
+                        <h3 class="principle-title">Composable</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Modules connect dynamically to form pipelines.</p>
+                    </div>
 
-# Export the workspace as a portable bundle
-operatoros export --bundle tar.gz
-# → ~/my-workspace-2026-07-02T23-50-00.tar.gz (secrets excluded)</code></pre>
+                    <!-- Principle 5 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <line x1="10" y1="50" x2="90" y2="50" stroke="var(--text-secondary)" stroke-width="2" />
+                            <circle class="eb-dot eb-dot-1" cx="30" cy="50" r="5" />
+                            <circle class="eb-dot eb-dot-2" cx="50" cy="50" r="5" />
+                            <circle class="eb-dot eb-dot-3" cx="70" cy="50" r="5" />
+                        </svg>
+                        <h3 class="principle-title">Evidence-Based</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Decisions accumulate into an auditable timeline.</p>
+                    </div>
 
-<h2>Commands</h2>
+                    <!-- Principle 6 -->
+                    <div class="glass principle-card">
+                        <svg class="principle-icon" viewBox="0 0 100 100">
+                            <circle class="lf-cloud" cx="20" cy="20" r="8" />
+                            <circle class="lf-cloud" cx="80" cy="30" r="6" />
+                            <circle class="lf-cloud" cx="70" cy="80" r="10" />
+                            <circle class="lf-local" cx="50" cy="50" r="12" />
+                            <line x1="50" y1="50" x2="20" y2="20" stroke="var(--glass-border)" stroke-width="1" stroke-dasharray="2 2"/>
+                            <line x1="50" y1="50" x2="80" y2="30" stroke="var(--glass-border)" stroke-width="1" stroke-dasharray="2 2"/>
+                            <line x1="50" y1="50" x2="70" y2="80" stroke="var(--glass-border)" stroke-width="1" stroke-dasharray="2 2"/>
+                        </svg>
+                        <h3 class="principle-title">Local-First</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Local node keeps operating independent of cloud.</p>
+                    </div>
 
-<table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px">
-  <thead><tr><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Command</th><th style="text-align:left;padding:12px 8px;border-bottom:1px solid var(--border)">Purpose</th></tr></thead>
-  <tbody>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>init</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Scaffold a new workspace</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>validate &lt;path&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Validate YAML against JSON Schema</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>add &lt;source&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install a module from local path or git URL</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>apply [preset]</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Install all modules declared in a preset</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>run &lt;m&gt; &lt;cmd&gt;</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Execute a module's declared command</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>export</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Pack workspace into a portable bundle</td></tr>
-    <tr><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg)"><code>version</code></td><td style="padding:12px 8px;border-bottom:1px solid var(--border);color:var(--fg-muted)">Print version + git info</td></tr>
-  </tbody>
-</table>
+                </div>
+            </div>
+        </section>
 
-  <h2>What it is NOT for</h2>
+        <!-- Section 3: AI Bootstrap -->
+        <section id="ai-bootstrap">
+            <div class="container fade-up">
+                <h2>AI Bootstrap Sequence</h2>
+                <div class="glass bootstrap-container" id="bs-container">
+                    <div class="bs-step">Agent</div>
+                    <div class="bs-step">bootstrap.md</div>
+                    <div class="bs-step">Identity</div>
+                    <div class="bs-step">Context</div>
+                    <div class="bs-step">Mission</div>
+                    <div class="bs-step" style="color: var(--accent-cyan); font-weight: bold; border-left-color: var(--accent-cyan);">Ready</div>
+                </div>
+            </div>
+        </section>
 
-  <p>
-    OperatorOS is not for teams — pick a team-OS if you have one. It is not a SaaS — there's
-    no hosted OperatorOS, it runs locally. It is not a graph database, static site generator,
-    chat framework, or agent runtime — those are <i>modules</i> you install on top of
-    OperatorOS, or you write them yourself.
-  </p>
+        <!-- Section 4: Workspace Visualization -->
+        <section id="workspace">
+            <div class="container fade-up">
+                <h2>Workspace Architecture</h2>
+                <div class="glass fs-container">
+                    <ul class="fs-tree">
+                        <li class="fs-item open">
+                            <div class="fs-label" onclick="toggleFolder(this)">
+                                <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                operatoros-workspace
+                            </div>
+                            <div class="fs-content">
+                                <ul class="fs-tree">
+                                    <li class="fs-item open">
+                                        <div class="fs-label" onclick="toggleFolder(this)">
+                                            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                            .config
+                                        </div>
+                                        <div class="fs-content">
+                                            <ul class="fs-tree">
+                                                <li class="fs-item">
+                                                    <div class="fs-label" style="color: var(--accent-cyan);">
+                                                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                                        bootstrap.md
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="fs-item">
+                                        <div class="fs-label" onclick="toggleFolder(this)">
+                                            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                            infrastructure
+                                        </div>
+                                        <div class="fs-content">
+                                            <ul class="fs-tree">
+                                                <li class="fs-item"><div class="fs-label">nix/</div></li>
+                                                <li class="fs-item"><div class="fs-label">terraform/</div></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="fs-item">
+                                        <div class="fs-label" onclick="toggleFolder(this)">
+                                            <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                            agents
+                                        </div>
+                                        <div class="fs-content">
+                                            <ul class="fs-tree">
+                                                <li class="fs-item"><div class="fs-label">system.md</div></li>
+                                                <li class="fs-item"><div class="fs-label">coder.md</div></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
-  <p>
-    OperatorOS is for <b>one operator</b>: the human (and their AI agents) who want their
-    workspace to be a system, not a folder.
-  </p>
+        <!-- Section 5: Comparison -->
+        <section id="comparison">
+            <div class="container fade-up">
+                <h2>Not another AI framework</h2>
+                <div class="comparison-wrapper">
+                    <div class="comp-col col-not">
+                        <h3>NOT</h3>
+                        <ul class="comp-list">
+                            <li>AI Runtime</li>
+                            <li>SaaS</li>
+                            <li>Cloud Platform</li>
+                            <li>Second Brain</li>
+                            <li>Agent Framework</li>
+                        </ul>
+                    </div>
+                    <div class="comp-col col-yes">
+                        <h3>YES</h3>
+                        <ul class="comp-list">
+                            <li class="glass">Engineering Workspace Methodology</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-  <div class="cta">
-    <h3>Try v0.5.2-alpha</h3>
-    <p>OperatorOS Core v0.5.2-alpha ships 7 commands. 27 tests passing on Node 20.x and 22.x. ~787 KB single-file binary. MIT licensed. Two example modules (<code>journal</code> + <code>timer</code>) — enough to verify settings propagation, multi-command dispatch, module-local state, and the Local-First invariant end-to-end without pretending to be an AI tool.</p>
-    <a class="btn" href="https://github.com/taras-polishchuk/operatoros-framework">View repository</a>
-    <a class="btn btn--ghost" href="https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/README.md">Read the README</a>
-  </div>
+        <!-- Section 6: Final -->
+        <section id="final">
+            <div class="container fade-up">
+                <div class="final-steps">
+                    <a href="https://github.com/taras-polishchuk/operatoros-framework/blob/main/methodology/01-six-principles.md" class="final-link" target="_blank" rel="noopener">Read the Methodology</a>
+                    <div class="final-separator">↓</div>
+                    <a href="https://github.com/taras-polishchuk/operatoros-framework/blob/main/README.md" class="final-link" target="_blank" rel="noopener">Build Your Workspace</a>
+                    <div class="final-separator">↓</div>
+                    <a href="https://github.com/taras-polishchuk/operatoros-framework/blob/main/methodology/04-agent-bootstrap.md" class="final-link" style="color: var(--accent-cyan); font-weight: 400;" target="_blank" rel="noopener">Bootstrap Your First Agent</a>
+                </div>
+                <div class="final-meta">
+                    <span class="final-meta-version">v0.6.0</span>
+                    <span class="final-meta-sep">·</span>
+                    <a href="https://github.com/taras-polishchuk/operatoros-framework/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+                    <span class="final-meta-sep">·</span>
+                    <a href="https://github.com/taras-polishchuk/operatoros-framework" target="_blank" rel="noopener">GitHub</a>
+                    <span class="final-meta-sep">·</span>
+                    <a href="https://taras-polishchuk.github.io/" target="_blank" rel="noopener">taras-polishchuk.github.io</a>
+                </div>
+            </div>
+        </section>
 
-  <div class="footer">
-    <div>OperatorOS · MIT 2026 Taras Polishchuk</div>
-    <div>v0.5.2-alpha · local-first invariant enforced · 27 tests · 7 commands</div>
-  </div>
+    </main>
 
-</div>
+    <script>
+        // Virtual Filesystem Toggle
+        function toggleFolder(element) {
+            const parent = element.parentElement;
+            parent.classList.toggle('open');
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Trigger AI Bootstrap Sequence if it's that section
+                    if (entry.target.querySelector('#bs-container')) {
+                        const steps = entry.target.querySelectorAll('.bs-step');
+                        steps.forEach((step, index) => {
+                            setTimeout(() => {
+                                step.classList.add('active');
+                            }, index * 400); // progressive animation
+                        });
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Subtle Parallax & 3D Tilt on Hero Diagram based on scroll and mouse.
+        //
+        // Both effects share one transform target. Earlier versions wrote
+        // transforms from two independent listeners (scroll vs mousemove), and
+        // either one erasing the other produced visible "jumps" — e.g. a hover
+        // after partial scroll would instantly snap back to scale=1 because the
+        // mousemove handler had no awareness of the scroll-driven scale.
+        //
+        // Model: a single render() reads two independent state slots
+        // (scrollState, tiltState) and writes the consolidated transform in one
+        // place. Listeners ONLY update state. rAF coalesces events to once per
+        // frame, eliminating mid-frame overwrite and ensuring smooth motion.
+        const heroDiagram = document.getElementById('hero-diagram');
+
+        // Scroll-driven state: zoom + tilt-forward as user scrolls past hero.
+        const scrollState = { scale: 1, rotateXScroll: 0 };
+        // Mouse-driven state: parallax tilt toward cursor.
+        const tiltState = { rotateY: 0, rotateX: 0 };
+
+        function renderHero() {
+            if (!heroDiagram) return;
+            // Compose all transforms atomically. Order matters: scale first
+            // (group transform), then 3D rotations.
+            heroDiagram.style.transform =
+                `scale(${scrollState.scale}) ` +
+                `rotateX(${(scrollState.rotateXScroll + tiltState.rotateX).toFixed(2)}deg) ` +
+                `rotateY(${tiltState.rotateY.toFixed(2)}deg)`;
+        }
+
+        let heroRafQueued = false;
+        function queueHeroRender() {
+            if (heroRafQueued) return;
+            heroRafQueued = true;
+            requestAnimationFrame(() => {
+                renderHero();
+                heroRafQueued = false;
+            });
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY >= window.innerHeight) {
+                // Past the hero: lock to last value (avoids unset state).
+                if (scrollState.scale !== 1 || scrollState.rotateXScroll !== 0) {
+                    scrollState.scale = 1;
+                    scrollState.rotateXScroll = 0;
+                    queueHeroRender();
+                }
+                return;
+            }
+            // Subtle zoom only — removed scroll-driven rotateX because it
+            // compounded with the mousemove rotateX and produced double-tilt.
+            scrollState.scale = 1 + (scrollY * 0.0005);
+            scrollState.rotateXScroll = 0;
+            queueHeroRender();
+        }, { passive: true });
+
+        document.addEventListener('mousemove', (e) => {
+            // Only respond to mouse moves while the hero is on screen.
+            if (window.scrollY >= window.innerHeight) return;
+            // Damp the tilt so small mouse jitters don't cause visible jolts.
+            const rawX = (window.innerWidth / 2 - e.pageX) / 50;
+            const rawY = (window.innerHeight / 2 - e.pageY) / 50;
+            // Clamp to keep the diagram legible at screen extremes.
+            tiltState.rotateY = Math.max(-8, Math.min(8, rawX));
+            tiltState.rotateX = Math.max(-6, Math.min(6, -rawY));
+            queueHeroRender();
+        }, { passive: true });
+
+        // Initial paint (in case the page loads already-scrolled, e.g. on
+        // refresh — the hero was off-screen and listeners hadn't fired).
+        renderHero();
+
+        // Procedural Particle Background Canvas (Vanilla JS)
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.2; // very slow
+                this.vy = (Math.random() - 0.5) * 0.2;
+                this.radius = Math.random() * 1.5;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap around edges seamlessly
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 212, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        // Initialize particles
+        const particleCount = Math.min(window.innerWidth / 10, 100); // scale with screen size
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw particles
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw subtle connections
+            for(let i=0; i<particles.length; i++) {
+                for(let j=i+1; j<particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        const alpha = (1 - dist/100) * 0.1;
+                        ctx.strokeStyle = `rgba(0, 102, 255, ${alpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateCanvas);
+        }
+
+        animateCanvas();
+    </script>
 </body>
 </html>

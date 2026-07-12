@@ -2,6 +2,108 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 
+## [v0.6.3] — 2026-07-11
+
+### Changed — repositioning: pure methodology
+
+This release is a **repositioning**, not a feature change. OperatorOS now ships no bundled example modules. The `personal` preset is `modules: []`, so `operatoros apply` succeeds with a friendly hint pointing at `operatoros add <path>`. The methodology documents in `methodology/` remain the canonical guidance; `schemas/module.schema.json` and `CONTRIBUTING.md` §"How to add a module" are the single sources of truth for the module contract.
+
+Rationale recorded in ADR-shape at `~/.project-state/operatoros-quality-borrow-2026-07-11/decisions.md` (Decision 9, status: accepted). Headline reasons:
+
+- **Audience:** target users (5-50 engineers like Taras) already have a workflow; example modules were noise.
+- **Single Authority:** examples duplicated what `module.schema.json` + CONTRIBUTING.md already teach.
+- **Smaller surface:** ~120 lines removed; the binary shrinks ~4.4 KB (10807 → 6397 bytes for the embedded-assets file).
+- **Reverses a v0.5.1-alpha decision** that made the preset install journal+timer for "free working state" — that boost is removed permanently.
+
+### Removed
+
+- **`examples/journal/module.yaml`** — pure bundled example with no longer any deployment path.
+- **`examples/timer/module.yaml`** — pure bundled example with no longer any deployment path.
+- **`examples/journal/` and `examples/timer/` directories** — empty after file deletion.
+- **`examples/README.md`** — listings of journal+timer modules that no longer exist; replaced by `examples/.gitkeep` (empty directory marker) so the directory can host future opt-in modules.
+- **`core/src/embedded-assets.ts` — embedded `__embeddedExamples` block.** Now empty `{}` after `scripts/embed-assets.js` re-generation. Idempotent re-build verified.
+
+### Modified
+
+- **`presets-canonical/personal/preset.yaml`** — `modules:` now empty list; description rewritten to point at `operatoros add` rather than at bundled examples.
+- **`core/src/commands/init.ts`** — `next steps` console output no longer promises journal/timer examples; instead suggests `operatoros add <path-to-your-first-module>` and points at CONTRIBUTING.md.
+- **`core/src/commands/apply.ts`** — empty-preset branch now prints "preset has no modules to install — add one with: operatoros add <path>" (more actionable than previous "preset has no modules to install"). The for-loop is preserved for future presets that DO declare modules.
+- **`README.md`** — Quickstart line "Add a module" replaced with a generic `operatoros add <module-source>` and pointer to CONTRIBUTING.md. The "Try it" Step 7 changed from "Run the bundled journal example" to "Add your first module". Section "The artifact" lists `06-decisions-adr.md` among methodology docs and clarifies that the scaffold contains "no bundled modules".
+
+### Migration notes
+
+- **For v0.6.2 → v0.6.3 users:** if you relied on `operatoros apply` installing journal+timer, you must now `operatoros add <journal-source>` and `operatoros add <timer-source>` from your own copies (or fork/author new modules following the contract).
+- **For AI agents:** the schema and contributor docs remain the only places to learn the module contract — examples no longer exist.
+- **For CI:** test counts unchanged; no test deleted.
+
+### Status
+
+- All 7 CLI commands still present, no breaking changes.
+- All 3 JSON-Schema files unchanged.
+- All 6 constitutional principles unchanged.
+- Embedded assets regenerated with 1 preset + 3 schemas + 0 examples; size: 10807 → 6397 bytes.
+
+## [v0.6.2] — 2026-07-11
+
+### Changed
+
+- **`scripts/install.sh` and `scripts/install.ps1` default version pinned to `v0.6.0`.** Previously defaulted to `v0.5.1-alpha.2` for backward-compat with v0.5.x users. The 6-line-aside comment block justifying the old default is replaced with a 2-line "Override with `OPERATOROS_VERSION` to pin" comment. No effect on users who already set `OPERATOROS_VERSION` explicitly.
+- **`operatoros.html`** — Quickstart heading, banner CTA, and footer references bumped from `v0.5.2-alpha` to `v0.6.0`. Sample timestamp `2026-07-02T23-50-00` → `2026-07-11T20-57-00` (matches current date). "Why AI-Native is removed" note in `What this is NOT` adds "Local-First took its place".
+- **`CONTRIBUTING.md`** — status banner updated from `v0.5.0-alpha` to `v0.6.0 — methodology pivot`. Clarifies that the process is for code contributors, not for the methodology itself.
+- **`GOVERNANCE.md`** — status banner updated to reflect BDFL model active under v0.6.0.
+- **`SECURITY.md`** — threat model `In scope` line removes the false `fetching the public module registry over HTTPS` claim and replaces it with a "registry is empty by design" note. The threat model now matches reality (`registry/modules.json` is a placeholder, not a live service).
+- **`README.md`** — install snippet `OPERATOROS_VERSION=v0.5.2-alpha` → `OPERATOROS_VERSION=v0.6.0`; comment shortened; "Try it" Step 6 personal-path `/home/taras/projects/operatoros/examples/journal` → `./examples/journal`.
+- **`examples/README.md`** — rewritten to lead with `operatoros apply` (the pattern matched by README Quickstart), removes the `/path/to/<repo-root>/examples/journal` copy-paste. Aligns with CHANGELOG v0.5.1-alpha "no git clone step required" intent.
+- **`core/src/commands/init.ts`** — stale `v0.5.0-alpha`-in-javadoc and `v0.5.2-alpha`-in-template strings stripped. Functionally identical output.
+
+### Added
+
+- **[`methodology/06-decisions-adr.md`](./methodology/06-decisions-adr.md)** — sixth methodology document. Specifies the **required shape** of `.project-state/<mission-slug>/decisions.md` entries (Context / Decision / Rationale / Alternatives considered / Status), the four statuses (`proposed | accepted | superseded | deprecated`), the cross-reference rules, and worked examples. Extends the existing 8-artifact sprint pattern with a writing convention for decision records. **Does not** redefine `02-doc-lifecycle.md` (state of existing docs) or `01-six-principles.md` (principles themselves). The new doc cross-references both.
+
+- **[`core/__tests__/release-gate.test.ts`](./core/__tests__/release-gate.test.ts)** — codifies ROADMAP v0.7.0 acceptance criteria as vitest test cases. Six gates, one per ROADMAP bullet. Three gates are forward-looking (`it.skip` with reason: external tester, case study, full init→bootstrap.md round-trip) — they do NOT lie-green; they document what's left for v0.7.0. The other three pass today (bootstrap protocol spec, tester-packet artifacts, audit baseline). **The test's intentional FAIL on `Last updated:` field across methodology 01-05 is itself measurement**: maintainer can see exactly which ROADMAP criteria remain unmet.
+
+- **`core/__tests__/local-first.test.ts`** — extended with a `it("(future) extend the scan to methodology/ per ROADMAP gate 5")` placeholder block (currently a no-op `it`), pointing implementers at the next step when first executable content is added to methodology/.
+
+### Migration notes
+
+- **For v0.5.x → v0.6.0 → v0.6.2 users:** no action required. The CLI is functionally identical. The default install version bumps — users who set `OPERATOROS_VERSION` explicitly to `v0.5.x` continue to get `v0.5.x`.
+- **For AI agents:** `methodology/06-decisions-adr.md` may now appear in the conditional reading tier. Read it on first encounter with `.project-state/<slug>/decisions.md`.
+- **For CI:** the new vitest suite adds 12 test cases (8 passing, 1 measuring-realistic-failure, 3 forward-looking-skipped). CI will surface the measurement failure loudly; this is intentional.
+
+### Status
+
+- All 7 CLI commands still present, no breaking changes.
+- All 3 JSON-Schema files unchanged.
+- All 6 constitutional principles unchanged.
+- 27 existing CLI/parser tests still pass on Node 20.x and 22.x.
+- New release-gate test adds 12 cases (8 pass, 1 measures honest-failure-as-signal, 3 skipped-forward-looking).
+
+### Comprehensive cleanup (sweep #2, 2026-07-11)
+
+Triggered by user request "проаналіз усі папки і файли — можливо через зміну напрямку там залишилося багато зайвого шлаку". A complete folder-and-file sweep identified 14 categories of dead-weight; all removed.
+
+**Deleted (4 files, ~5.7K bytes):**
+- `.nojekyll` — 0-byte legacy GitHub Pages workaround, no longer used since v0.6.0.1.
+- `.github/ISSUE_TEMPLATE/module_proposal.md` — phantom template for a community-module proposal workflow that ROADMAP §"Explicitly not planned" rules out.
+- `examples/journal/README.md` — per-module README duplicating `examples/README.md` content with stale `/path/to/this/dir` install command.
+- `examples/timer/README.md` — same pattern.
+
+**Modified (~85 lines of stale config removed):**
+- `.gitignore` — Python/Go/Rust hypothetical language sections, unused `.coverage*` patterns, Oracle/Terraform hypothetical entries.
+- `.gitattributes` — 4 unused binary-format entries (.png/.jpg/.gif/.svg) for image formats the repo never carries.
+- `.github/CODEOWNERS` — Phase-1 placeholder lines (Phase 1 never happened; BDFL-only model).
+- `.github/workflows/ci.yml` — `secret-scan` job that referenced a non-existent `GITLEAKS_LICENSE` secret and would silently no-op.
+- `CODE_OF_CONDUCT.md` — 62-line 4-level enforcement ladder over-engineered for the 5-50 engineer audience (replaced with BDFL escalation via GitHub Security Advisories).
+- `CONTRIBUTING.md` — one out-of-scope rationale line in "What NOT to contribute".
+- `README.md` — dead `core/dist-bin/` references and a step-3 numbering glitch in "Try it".
+- `core/src/commands/init.ts:130` — embedded `v0.5.2-alpha` literal in `renderManifest()` template.
+
+**Net file count in operatoros repo: 63 → 61** (-2).
+
+### Methodology amendment (applied 2026-07-11, mid-sweep)
+
+`methodology/01-six-principles.md`, `methodology/02-doc-lifecycle.md`, and `OPERATING-MODEL.md` were tightened mid-mission to specify: mission artifacts live in the **workspace root** `<workspace-root>/.project-state/<mission-slug>/` — NOT inside any sub-project repository. The pre-existing `.project-state/operatoros-quality-borrow-2026-07-11/` was relocated from inside `operatoros/.project-state/` to `/home/taras/projects/.project-state/operatoros-quality-borrow-2026-07-11/`. Personal-path references to `/home/taras/projects/operatoros/...` in the canonical docs were replaced with `<repo-root>/...` placeholders.
+
 ## [v0.6.0.1-stabilize] — 2026-07-11
 
 Post-release stabilization. No code changes; documentation drift fixes only. Triggered by a self-audit (mission `operatoros-v060-audit-2026-07-11`) that found 11 drift issues (4 CRITICAL, 4 HIGH, 3 MEDIUM).

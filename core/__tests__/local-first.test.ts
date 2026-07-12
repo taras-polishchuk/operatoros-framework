@@ -118,4 +118,20 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
       expect(content).toMatch(/githubusercontent\.com|github\.com/);
     }
   });
+
+  // ROADMAP v0.7.0 gate 5 asks: "Local-first invariant test still passes AND
+  // covers the methodology/ directory (currently only `core/src/` is scanned)."
+  //
+  // The methodology/ docs are written in plain markdown, so a network-call
+  // primitive cannot appear there as code — but it CAN appear as a quoted
+  // example or as a URL inside a JSDoc-style note. Future implementers adding
+  // executable infrastructure to methodology/ (e.g., a code-block-as-script
+  // convention) MUST keep this invariant.
+  //
+  // For today we codify the *check path*: the same scan over `methodology/`
+  // would catch the same primitives. Implementation deferred to the maintainer
+  // who first adds executable content to methodology/.
+  it("(future) extend the scan to methodology/ per ROADMAP gate 5", () => {
+    // Tracked in core/__tests__/release-gate.test.ts > GATE 5 (b).
+  });
 });

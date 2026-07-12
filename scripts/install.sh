@@ -4,13 +4,9 @@
 set -euo pipefail
 
 REPO="taras-polishchuk/operatoros-framework"
-# Stable install default = v0.5.1-alpha.2 (last release with binaries before
-# the v0.5.2-alpha source drop). v0.5.2-alpha IS NOW PUBLISHED with binary
-# assets at https://github.com/taras-polishchuk/operatoros-framework/releases/tag/v0.5.2-alpha
-# — opt into it explicitly: OPERATOROS_VERSION=v0.5.2-alpha ./install.sh
-# Defaulting to v0.5.1-alpha.2 avoids silently upgrading people who pinned to
-# the previous version.
-VERSION="${OPERATOROS_VERSION:-v0.5.1-alpha.2}"
+# Default = current published release. Override with OPERATOROS_VERSION
+# to pin to a specific tag (e.g., v0.6.0 or v0.7.0).
+VERSION="${OPERATOROS_VERSION:-v0.6.0}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
 

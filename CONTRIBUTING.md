@@ -1,6 +1,6 @@
 # Contributing to OperatorOS
 
-> **Status:** v0.5.0-alpha. Process is being established.
+> **Status:** v0.6.0 — methodology pivot. Process is for contributors, not for the methodology itself.
 
 ## Ground rules
 
@@ -95,7 +95,6 @@ Until the project has real external users, please don't propose:
 - Marketplace / registry population (the registry is empty by design)
 - Telemetry
 - Web UI
-- Native binary compilation
 - Module signing
 
 These may be added later. For now, they're explicitly out of scope. See [ROADMAP.md](ROADMAP.md) for the criteria new features must meet.

@@ -91,7 +91,7 @@ The Workspace OS methodology is built on six principles. They were extracted fro
 **Explanation.** Decisions made without evidence accumulate. They become assumptions, then traditions, then myths. Evidence-Based means: when you change something, you write down why. The why is at least as important as the what.
 
 **Operational rule.**
-- Mission artifacts (per Workspace OS Article VII) live in `.project-state/<mission-slug>/`.
+- Mission artifacts (per Workspace OS Article VII) live in the **workspace root** `<workspace-root>/.project-state/<mission-slug>/` — NOT inside any sub-project repository. Each OperatorOS-managed workspace has exactly one `.project-state/` root, owned by the workspace, not by any project inside it. In Taras's Workspace OS the canonical root resolves to `/home/taras/projects/.project-state/`; other OperatorOS users substitute their own workspace path.
 - Each mission produces a `final-report.md` that records decisions, evidence, and outcomes.
 - Code commits reference mission slugs. PR descriptions link to mission reports.
 - Speculative features ("maybe users will want X") are not built. Features are built when at least one real user describes a real need.

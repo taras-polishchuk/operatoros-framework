@@ -55,7 +55,7 @@ draft  ──────────► active  ──────────�
 
 ## Mission artifacts
 
-Mission artifacts (per Workspace OS Article VII — Sprint Pattern) live in `.project-state/<mission-slug>/` and follow their own lifecycle:
+Mission artifacts (per Workspace OS Article VII — Sprint Pattern) live in the **workspace root** `<workspace-root>/.project-state/<mission-slug>/` — NOT inside any sub-project repository. Each OperatorOS-managed workspace has exactly one `.project-state/` root, owned by the workspace. They follow their own lifecycle:
 
 | State | Definition |
 |---|---|

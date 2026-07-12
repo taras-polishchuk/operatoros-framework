@@ -1,10 +1,7 @@
 # OperatorOS — generated artefacts
-.operatoros/
 dist/
 build/
 *.log
-.coverage
-.coverage.*
 
 # OS noise
 .DS_Store
@@ -23,23 +20,6 @@ node_modules/
 yarn.lock
 pnpm-lock.yaml
 
-# Python (Core if implemented in Python)
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-
-# Go (Core if implemented in Go)
-*.test
-*.out
-vendor/
-
-# Rust (Core if implemented in Rust)
-target/
-Cargo.lock
-
 # Secrets — defence in depth, NOT primary scan
 .env
 .env.*
@@ -49,11 +29,6 @@ id_rsa*
 *.sqlite
 *.sqlite-journal
 *.db
-
-# Build artefacts
-oci/
-terraform.tfstate*
-.terraform/
 
 # Core build artefacts
 core/dist/

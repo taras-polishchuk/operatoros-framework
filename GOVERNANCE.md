@@ -1,6 +1,6 @@
 # Governance
 
-> **Status:** v0.5.0-alpha. BDFL model for v0.x.
+> **Status:** v0.6.0 — BDFL model active. Methodology pivot complete; governance remains single-operator-driven until v1.0.
 
 ## Current model (v0.x)
 

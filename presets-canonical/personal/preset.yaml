@@ -1,14 +1,10 @@
 version: "0.2"
 name: personal
 description: |
-  Default OperatorOS workspace. Installs two bundled example modules
-  (journal, timer) so `operatoros apply` produces something visible
-  immediately. Override with `operatoros add <path-or-url>` for your own.
-modules:
-  - name: journal
-    source: ../../examples/journal
-  - name: timer
-    source: ../../examples/timer
+  Empty OperatorOS workspace scaffold. The `personal` preset ships with no
+  modules — the methodology is yours to assemble. Add modules with
+  `operatoros add <path-or-git-url>`.
+modules: []
 settings:
   vault_path: vault/
   state_path: state/

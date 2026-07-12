@@ -49,7 +49,7 @@ Anything that needs to reference one of these references by path. Duplicates are
 
 **Workspace OS expression.**
 
-Mission work produces artifacts in `.project-state/<mission-slug>/`. Each mission directory is self-contained. When the mission is done, the directory is moved to archive. The rest of the workspace is unaffected.
+Mission work produces artifacts in the **workspace root** `<workspace-root>/.project-state/<mission-slug>/`. Each OperatorOS-managed workspace has exactly one `.project-state/` root, owned by the workspace itself — never inside any sub-project repository. In Taras's Workspace OS the canonical root resolves to `/home/taras/projects/.project-state/`; other OperatorOS users substitute their own workspace path. When the mission is done, the directory is moved to archive. The rest of the workspace is unaffected.
 
 The 8-artifact sprint pattern (`source-task.md`, `decisions.md`, `progress.md`, `blockers.md`, `artifacts.md`, `environment.md`, `execution-log.md`, `final-report.md`) is the contract. Remove any one artifact, and the mission is no longer a mission — it's just a folder.
 
@@ -120,7 +120,7 @@ The bootstrap protocol tells agents: "Read final-report.md files to learn from p
 
 **Workspace OS expression.**
 
-The Core CLI (`/home/taras/projects/operatoros/core/`) has no network code. The constitutional test `__tests__/local-first.test.ts` enforces this on every PR. Violations fail the build.
+The Core CLI (`<repo-root>/core/`) has no network code. The constitutional test `__tests__/local-first.test.ts` enforces this on every PR. Violations fail the build.
 
 In Workspace OS itself, mission artifacts stay on the local disk. Cloud services (if used) are opt-in modules with explicit network declarations.
 

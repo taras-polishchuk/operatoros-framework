@@ -30,7 +30,7 @@ You will receive an acknowledgement within 72 hours. A fix timeline will be disc
 
 OperatorOS Core is a local CLI that runs with the user's own user permissions. The threat model is:
 
-- **In scope:** the local CLI process reading/writing files in the user's workspace; running shell commands declared as hooks; fetching the public module registry over HTTPS; cloning git repositories the user explicitly requests via `add`.
+- **In scope:** the local CLI process reading/writing files in the user's workspace; running shell commands declared as hooks; cloning git repositories the user explicitly requests via `add`. Note: OperatorOS does **not** fetch a remote module registry — `registry/modules.json` is currently an empty design placeholder, not a live service.
 - **Out of scope:** remote attacks against the OperatorOS binary itself; supply-chain attacks against npm packages we depend on (use `npm audit` if this matters to you); behavior of third-party modules you install with `add`.
 
 The deny-list in `export` (`vault/**`, `**/.env`, `**/*.sqlite`, `**/id_rsa*`, etc.) is a defense-in-depth measure. It is not a security boundary. Do not rely on it to keep secrets safe from a determined attacker.

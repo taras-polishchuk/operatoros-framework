@@ -52,10 +52,11 @@ Located in `methodology/`. These explain how an engineer can build their own per
 - `03-token-economy.md` — how an AI agent decides what to read
 - `04-agent-bootstrap.md` — how a new agent enters a workspace
 - `05-onboarding-interview.md` — five questions an agent should ask a new user
+- `06-decisions-adr.md` — the shape of an ADR in `.project-state/<slug>/decisions.md`
 
 ### 2. The empty workspace scaffold
 
-Located in `presets-canonical/personal/`. This is what you start with. It contains folders, schemas, and example files — but no personal content.
+Located in `presets-canonical/personal/`. This is what you start with: an empty preset, folder layout, and JSON-Schema definitions for `operatoros.yaml`, `module.yaml`, and `preset.yaml`. No bundled modules; you assemble your own from `operatoros add <path>`.
 
 ```yaml
 # presets-canonical/personal/preset.yaml
@@ -71,22 +72,26 @@ You don't import someone else's life. You build your own.
 Located in `core/`. Seven commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`.
 
 ```bash
-# Install (pin to v0.5.2-alpha explicitly; the install script defaults to v0.5.1-alpha.2
-# for backward-compatibility with prior users — set OPERATOROS_VERSION to opt in)
-OPERATOROS_VERSION=v0.5.2-alpha \
+# Install (pin to v0.6.0 to match README/CHANGELOG; install.sh also defaults to v0.6.0)
+OPERATOROS_VERSION=v0.6.0 \
   curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # Scaffold a new workspace
 operatoros init my-os
 
-# Add a module (e.g., the bundled journal example)
-operatoros add ./examples/journal
+# Add a module — replace `<module-source>` with a local path or git URL.
+# OperatorOS ships no bundled modules (Decision 9, v0.6.3).
+# See CONTRIBUTING.md §"How to add a module" for the contract.
+operatoros add <module-source>
 
 # Validate the workspace against its schema
-operatoros validate my-os/operatoros.yaml
+operatoros validate operatoros.yaml
 
-# Run a module's command
-operatoros run journal add "first entry"
+# Run a module's command (replace `<module>` with one you added via `operatoros add`)
+operatoros run <module> <command> [args...]
+
+# Export the workspace as a portable bundle
+operatoros export
 ```
 
 The CLI is **the carrier, not the product**. It is small, single-file (~787 KB), and quietly stays out of your way.
@@ -119,21 +124,20 @@ cd operatoros-framework
 ls methodology/
 cat methodology/01-six-principles.md
 
-# 3. Run the CLI in dry-run mode (no install needed)
-./core/dist-bin/operatoros init /tmp/test-workspace
+# 4. Run the CLI in dry-run mode (no install needed; use a built binary or run
+#    from the cloned repo with `node core/src/cli.js`)
+node core/src/cli.js version
 
-# 4. Inspect what was generated
+# 5. Inspect what was generated
 ls -la /tmp/test-workspace
 cat /tmp/test-workspace/operatoros.yaml
 
-# 5. Validate the scaffold against its schema
-./core/dist-bin/operatoros validate /tmp/test-workspace
+# 6. Validate the scaffold against its schema
+operatoros-core validate /tmp/test-workspace
 
-# 6. Run the bundled journal example
-cd /tmp/test-workspace
-/path/to/operatoros add /home/taras/projects/operatoros/examples/journal
-/path/to/operatoros run journal add "first entry"
-cat journal.txt
+# 7. Add your first module — see CONTRIBUTING.md §"How to add a module"
+#    Example: git-clone an existing module repository and `operatoros add` it.
+#    Or author one from scratch following the contract in schemas/module.schema.json.
 ```
 
 ### First 5 minutes — the canonical onboarding path

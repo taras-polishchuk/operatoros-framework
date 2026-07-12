@@ -1,11 +1,5 @@
 # OperatorOS — code owners
-# Phase 0: BDFL only. Expand at Phase 1.
 
-# All files require BDFL review at Phase 0.
+# BDFL model in effect under v0.x (per GOVERNANCE.md).
+# All files require BDFL review.
 * @taras-polishchuk
-
-# Phase 1 to refine:
-# /core/**           @core-team
-# /schemas/**        @schema-team
-# /docs/**           @docs-team
-# /presets/**        @preset-team
