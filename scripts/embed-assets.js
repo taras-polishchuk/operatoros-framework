@@ -40,7 +40,7 @@ if (fs.existsSync(presetsDir)) {
 
 // 2. JSON Schemas — map { name: parsed-object }
 const schemas = {};
-const schemaNames = ["workspace", "module", "preset"];
+const schemaNames = ["workspace", "module", "preset", "catalog"];
 for (const name of schemaNames) {
   const file = path.join(root, "schemas", `${name}.schema.json`);
   if (fs.existsSync(file)) schemas[name] = JSON.parse(fs.readFileSync(file, "utf8"));

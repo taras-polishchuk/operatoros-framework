@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/taras-polishchuk/operatoros-framework/schemas/catalog.schema.json",
+  "title": "OperatorOS Workspace Catalog (v0.7.0+)",
+  "description": "Durable, content-hash inventory of Workspace artifacts. Schema intentionally excludes any usage/telemetry/access tracking (per design brief).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["indexed_at", "entries"],
+  "properties": {
+    "indexed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the catalog was generated."
+    },
+    "entries": {
+      "type": "array",
+      "description": "One entry per file, directory, or symlink under the workspace root.",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "type", "size", "mtime", "content_hash", "indexed_at"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^[^/].*[^/]$|^[^/]$",
+          "description": "Path relative to workspace root. No leading or trailing slash."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["file", "directory", "symlink"],
+          "description": "Entry kind."
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Size in bytes. 0 for directories."
+        },
+        "mtime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification time of the artifact."
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$|^$",
+          "description": "SHA-256 hex digest of file contents. Empty string for directories or symlinks. Omit for ephemeral fields is impossible — schema enforces present."
+        },
+        "indexed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Per-entry indexed timestamp (catalog generation time). All entries in one catalog share the same indexed_at as the top-level field, but the schema carries it per-entry so partial rebuilds remain self-describing."
+        }
+      }
+    }
+  }
+}

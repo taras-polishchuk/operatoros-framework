@@ -120,9 +120,19 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     info(`bootstrap.md already exists — left untouched (use --force to regenerate)`);
   }
 
+  // .operatoros/index.json — Workspace Catalog. Single explicit invocation.
+  // Per brief §6: catalog is durable metadata only (no usage tracking, no
+  // telemetry). Catalog is generated on init so `doctor` and `stats` work
+  // immediately without a separate `index` step.
+  const { buildCatalog } = await import("../lib/catalog");
+  const catalogPath = await buildCatalog(target);
+  ok(`created catalog at ${path.relative(target, catalogPath)}`);
+
   console.log("\n  next steps:");
   console.log("    $ operatoros validate operatoros.yaml");
   console.log("    $ operatoros add <path-to-your-first-module>  # see CONTRIBUTING.md");
+  console.log("    $ operatoros doctor   # check workspace health");
+  console.log("    $ operatoros stats    # see catalog statistics");
   console.log("");
 }
 

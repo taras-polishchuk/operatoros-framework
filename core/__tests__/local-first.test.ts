@@ -127,10 +127,62 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
   // executable infrastructure to methodology/ (e.g., a code-block-as-script
   // convention) MUST keep this invariant.
   //
-  // For today we codify the *check path*: the same scan over `methodology/`
-  // would catch the same primitives. Implementation deferred to the maintainer
-  // who first adds executable content to methodology/.
-  it("(future) extend the scan to methodology/ per ROADMAP gate 5", () => {
-    // Tracked in core/__tests__/release-gate.test.ts > GATE 5 (b).
+  // Smart scope: only fenced code blocks (` ```bash `, ` ```typescript `, etc.)
+  // count. Plain prose is allowed to mention URLs (e.g., docs/tester-packet.md).
+  it("methodology/ contains no network-call primitives in fenced code blocks", async () => {
+    const methodologyDir = path.resolve(__dirname, "..", "..", "methodology");
+    if (!(await fs.pathExists(methodologyDir))) {
+      // methodology/ directory is optional — skip silently if not present.
+      return;
+    }
+    const files = (await fs.readdir(methodologyDir, { recursive: true })) as string[];
+    const mdFiles = files.filter((f) => f.endsWith(".md"));
+
+    const offenders: Array<{ file: string; line: number; pattern: string; snippet: string }> = [];
+    // Reuse the same primitive list as the core/src/ scan above.
+    const codeBlockPatterns: Array<[string, RegExp]> = networkPatterns.filter(
+      (n) => n[0] !== "agent (http)"   // require(...) was Node-http import, not a fenced-block match
+    );
+
+    for (const relPath of mdFiles) {
+      const abs = path.join(methodologyDir, relPath);
+      const content = await fs.readFile(abs, "utf8");
+      // Split into fenced-code-block regions. Fence delimiter is ``` at line start
+      // (with optional language tag). A ``` toggles: into / out of code mode.
+      const lines = content.split("\n");
+      let inFence = false;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        // Detect fence open/close: line starts with ``` (3+ backticks)
+        if (/^```/.test(line.trim())) {
+          inFence = !inFence;
+          continue;
+        }
+        if (!inFence) continue;
+        for (const [name, pat] of codeBlockPatterns) {
+          if (pat.test(line)) {
+            offenders.push({
+              file: relPath,
+              line: i + 1,
+              pattern: name,
+              snippet: line.trim().substring(0, 120),
+            });
+          }
+        }
+      }
+    }
+    if (offenders.length > 0) {
+      const msg = offenders
+        .map((o) => `  methodology/${o.file}:${o.line} [${o.pattern}]  ${o.snippet}`)
+        .join("\n");
+      throw new Error(
+        `\n\nLocal-First invariant violated in methodology/ — a fenced code block contains a network primitive.\n` +
+          `See Principle 6 of methodology/01-six-principles.md.\n\n` +
+          `Offending lines:\n${msg}\n\n` +
+          `If this is a legitimate example (e.g., showing what NOT to do), ` +
+          `wrap it as an obvious counter-example inside a doc-comment fence.\n`
+      );
+    }
+    expect(offenders).toEqual([]);
   });
 });

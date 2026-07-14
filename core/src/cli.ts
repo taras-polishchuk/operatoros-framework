@@ -3,7 +3,7 @@
  * OperatorOS Core CLI — main entry point.
  *
  * Implements the OperatorOS framework spec defined in this repo's schemas/ directory.
- * CLI surface (7 commands):
+ * CLI surface (13 commands — v0.7.0):
  *   operatoros init [--preset <name>] [--target <path>] [--force]
  *   operatoros validate <path> [--schema <name>]
  *   operatoros add <module-path-or-url> [--name <name>] [--pin <ref>]
@@ -11,6 +11,12 @@
  *   operatoros run <module> <command> [args...]
  *   operatoros export [--bundle tar.gz] [--out <path>] [--include-secrets]
  *   operatoros version
+ *   -- v0.7.0: Workspace Catalog commands (catalog is a pure, durable artifact inventory)
+ *   operatoros index                     # rebuild .operatoros/index.json
+ *   operatoros doctor [--target <path>]  # report workspace health
+ *   operatoros stats [--target <path>]   # report counts/sizes by type
+ *   operatoros stale [--target <path>]   # list orphan artifacts
+ *   operatoros prune [--paths ...] [--dry-run | --confirm]
  */
 import { Command } from "commander";
 import { installEmbeddedAssets } from "./embedded-assets";
@@ -22,6 +28,12 @@ import { applyCommand } from "./commands/apply";
 import { runCommand } from "./commands/run";
 import { exportCommand } from "./commands/export";
 import { versionCommand } from "./commands/version";
+// v0.7.0 Workspace Catalog commands
+import { indexCommand } from "./commands/index";
+import { doctorCommand } from "./commands/doctor";
+import { statsCommand } from "./commands/stats";
+import { staleCommand } from "./commands/stale";
+import { pruneCommand } from "./commands/prune";
 import { version as pkgVersion } from "../package.json";
 
 // __EMBEDDED_ASSETS__
@@ -90,6 +102,66 @@ program
   .command("version")
   .description("Print OperatorOS Core version")
   .action(versionCommand);
+
+// ─── v0.7.0 Workspace Catalog commands ─────────────────────────────────
+
+program
+  .command("index")
+  .description("Rebuild the Workspace Catalog (.operatoros/index.json). Durable metadata only — no usage tracking or telemetry.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .action((opts) => indexCommand(opts));
+
+program
+  .command("doctor")
+  .description("Workspace diagnostics: report manifest validity, layout completeness, catalog freshness.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .action(async (opts) => {
+    const result = await doctorCommand(opts);
+    for (const f of result.findings) {
+      console.log(`[${f.level}] ${f.code}: ${f.message}`);
+    }
+    if (!result.ok) process.exit(1);
+  });
+
+program
+  .command("stats")
+  .description("Workspace statistics: file counts, sizes, type breakdown. Reads catalog if present.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .action(async (opts) => {
+    const s = await statsCommand(opts);
+    console.log(JSON.stringify(s, null, 2));
+  });
+
+program
+  .command("stale")
+  .description("List orphan artifacts: files with no in-workspace references and not in denylist.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .action(async (opts) => {
+    const orphans = await staleCommand(opts);
+    for (const o of orphans) console.log(o.path);
+  });
+
+program
+  .command("prune")
+  .description("Two-phase cleanup. Default: --dry-run lists planned deletions. Pass --paths <list> --confirm to delete.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .option("--paths [paths...]", "explicit paths to delete (else derives from `stale`)")
+  .option("--dry-run", "list planned deletions only (default when --confirm is absent)")
+  .option("--confirm", "confirm deletion; requires --paths")
+  .action(async (opts) => {
+    // Commander coerce: dryRun defaults to true UNLESS user passed --confirm.
+    // - If user passed neither: dryRun=true (safe default).
+    // - If user passed --confirm: dryRun=false (explicit destructive path).
+    // - If user passed --dry-run + --confirm: dryRun=false (--confirm wins).
+    const dryRun = opts.confirm ? false : opts.dryRun !== undefined ? opts.dryRun : true;
+    const o = {
+      target: opts.target,
+      paths: opts.paths ?? [],
+      dryRun,
+      confirm: !!opts.confirm,
+    };
+    await pruneCommand(o);
+  });
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(`\n✗ ${err.message ?? err}`);
