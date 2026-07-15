@@ -2,7 +2,52 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 >
-> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset.
+> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary.
+
+## [v0.7.1] — 2026-07-15
+
+### Changed — Documentation positioning update
+
+The introductory sections of README and landing page (`index.html`) are updated to follow the validated positioning research (see `ANALYSIS-v0.7.1-directive.md`, `POSITIONING-RESEARCH-2026-07-15.md`, `POSITIONING-VALIDATION-2026-07-15.md`, `CORE-PROMISE-2026-07-15.md` in this repo root for the research trail). The structural change is **a three-layer split**: (1) **product category** in the hero, (2) **product promise** immediately after, (3) **product mechanism** only below. No architecture, schema, CLI, or methodology changes.
+
+### Hero (Layer 1 — product category)
+
+> **One sentence:** An engineering workspace framework that keeps engineer and AI in agreement about a workspace.
+
+This replaces the previous "methodology for engineers to build their own personal operating system — captured in code, documents, and a bootstrap protocol that an AI agent can run." The category noun moved from "personal operating system" to "engineering workspace framework"; the verb moved from "build" (which frames OperatorOS as a builder) to "keeps in agreement" (which frames it as a discipline).
+
+### `§What this is` (Layer 2 — product promise)
+
+The first sentence now states the core promise — *"OperatorOS keeps engineer and AI in agreement about a workspace."* — followed by a 2-sentence explanation of what drift between engineer and agent looks like and how OperatorOS prevents it (schema-validatable contract, catalog, bootstrap protocol).
+
+### `§Why this and not [common alternative]?` (new section)
+
+Three subsections were added that name OperatorOS's three closest peers and explain why they are peers, not competitors:
+
+- **Why not AGENTS.md / CLAUDE.md / `.cursorrules`?** — Those are the dominant prose formats. OperatorOS composes with them rather than replacing them; it adds typed, schema-validated contracts on top.
+- **Why not chezmoi / Dotbot / GNU Stow?** — Those are dotfile managers. OperatorOS governs what engineer and agent see in the workspace, not which files get synced.
+- **Why not Nix Home Manager / devenv / devpod?** — Those are declarative developer environments. OperatorOS governs the workspace they live in; it does not provision packages.
+
+### Landing page (`index.html`)
+
+- `<title>`: `Methodology — OperatorOS` → `OperatorOS — An engineering workspace framework`.
+- `<h1>`: `A methodology / for personal / operating systems.` → `An engineering / workspace / framework.`
+- `<p class="subtitle">`: simplified to one sentence stating Layer 2 (the promise) + a four-clause mechanism summary (bootstrap / schemas / catalog / CLI).
+- All `<meta name="description">`, `<meta property="og:*">`, `<meta name="twitter:*">` updated to match.
+- Animation, dark theme, sections, particle background, 3D tilt: preserved unchanged.
+
+### What did NOT change
+
+- `core/` source — zero code changes.
+- `schemas/` — zero schema changes.
+- `methodology/01-06-*.md` — methodology documents unchanged; methodology is mechanism, not positioning.
+- `ROADMAP.md` — unchanged.
+- `CONTRIBUTING.md`, `GOVERNANCE.md`, `SECURITY.md` — unchanged.
+- All principles, schemas, CLI commands, modules, exports — unchanged.
+
+### Why this is not a v0.7.0 release (and not a v0.8.0 release)
+
+This is a positioning update only; no CLI, schema, or runtime behavior changes. The v0.7.1 sub-release label records that the documentation is now consistent with the validated core promise; a `git tag` is not produced for it. Real version bumps remain gated by binary / schema / methodology changes (per ROADMAP v0.8.0 acceptance criteria).
 
 ## [v0.7.0] — 2026-07-14
 
@@ -178,7 +223,7 @@ Post-release stabilization. No code changes; documentation drift fixes only. Tri
 
 ### Removed
 
-- **`index.html`** — md5-identical duplicate of `operatoros.html`. Removed to comply with the Single Authority principle. GitHub Pages serves `operatoros.html` directly.
+- **`index.html`** — md5-identical duplicate of `operatoros.html`. Removed to comply with the Single Authority principle. *(Corrected in retrospect on 2026-07-15: GitHub Pages actually requires the file to be named `index.html` at the repo root, not `operatoros.html`. The historical claim "GH Pages serves operatoros.html directly" was incorrect — GH Pages only serves `index.html` at the configured source path. The fix appears in `chore(landing): rename operatoros.html → index.html` on 2026-07-15.)*
 - **`presets/`** — legacy directory (only README.md remained; legacy per v0.5.0-alpha). The canonical preset location is `presets-canonical/`.
 - **`+ .url`** — Windows copy-paste artifact (0 bytes, never tracked).
 

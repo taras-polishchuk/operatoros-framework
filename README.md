@@ -1,17 +1,33 @@
 # OperatorOS
 
 > **Status:** v0.7.0 · MIT licensed
-> **One sentence:** A methodology for engineers to build their own personal operating system — captured in code, documents, and a bootstrap protocol that an AI agent can run.
+> **One sentence:** An engineering workspace framework that keeps engineer and AI in agreement about a workspace.
 
 ---
 
 ## What this is
 
-OperatorOS is **a way of structuring an engineer's working environment**, distilled from four months of daily practice into a set of documents, an empty scaffold, and a small CLI.
+OperatorOS is an **engineering workspace framework**. It is a six-principle discipline for engineer workspaces, distilled from four months of daily practice into a bootstrap protocol an AI agent reads when it cold-starts, a JSON-Schema config system for everything in the workspace, a catalog of what's actually there, and a small CLI that ties it all together.
 
-It is not an operating system you install. It is a **seed** you grow into one.
+**OperatorOS keeps engineer and AI in agreement about a workspace.** A workspace that humans and AI agents co-occupy drifts — files appear, configs diverge, the agent that arrives next session has to re-discover everything. OperatorOS prevents that drift: it gives both sides a typed, schema-validatable contract for what the workspace is, a catalog of what's actually there, and a bootstrap protocol an agent reads first.
 
-If you are an engineer, developer, technical founder, or technical researcher who wants your work environment to behave the way your code does — typed, version-controlled, replaceable, and inspectable — this is for you.
+It is not an AI agent, not a dotfile manager, and not a package manager. It is the discipline that holds all of those in one shape — so an engineer, a fresh AI agent, and a new machine each look at the workspace and see the same one.
+
+If you are an engineer, developer, technical founder, or technical researcher whose work environment is supposed to behave like the code you write in it — typed, version-controlled, replaceable, inspectable — this is for you.
+
+### Why this and not [common alternative]?
+
+#### Why not AGENTS.md / CLAUDE.md / `.cursorrules`?
+
+Those are the dominant prose formats for hand-written agent instructions. OperatorOS does not replace them; it composes with them. OperatorOS supplies the typed bootstrap file (`bootstrap.md`), four JSON Schemas (`workspace`, `module`, `preset`, `catalog`), and the four-tier token economy that decides what an agent reads at cold start. AGENTS.md stays as the conditional-tier "human-emitted wisdom" file it already is. If your workspace only needs prose, use AGENTS.md. If it needs typed contracts and a catalog the agent can verify, use OperatorOS. Most engineer-grade workspaces need both.
+
+#### Why not chezmoi / Dotbot / GNU Stow?
+
+Those are dotfile managers — they sync and link files across machines. OperatorOS does not sync files; it governs what the engineer and the agent and the new machine see when they look at the workspace. Concretely: chezmoi reinstalls your dotfiles on a new machine; OperatorOS tells the agent that arrives on that new machine what's in the workspace (and what isn't). You can use both. They solve different layers of the same problem. Trying to use OperatorOS as a dotfile manager is like trying to use `git` as a backup tool — git can do backups, but that's not its job.
+
+#### Why not Nix Home Manager / devenv / devpod?
+
+Those are declarative developer environments — they manage packages, shells, container builds. OperatorOS does not provision packages. OperatorOS governs the workspace an engineer lives in: files, configs, schemas, agent-bootstrap contracts. The two compose: use Nix to make a reproducible shell; use OperatorOS to give that shell — and every AI agent that arrives in it — a typed, schema-validatable view of the workspace. OperatorOS's *Typed Substrate* principle overlaps with Nix's declarative configuration, but OperatorOS does not replace Nix; it sits one layer up, where the engineer and the agent interact with the workspace.
 
 ## What this is NOT
 
