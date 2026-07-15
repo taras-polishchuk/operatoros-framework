@@ -6,7 +6,7 @@ set -euo pipefail
 REPO="taras-polishchuk/operatoros-framework"
 # Default = current published release. Override with OPERATOROS_VERSION
 # to pin to a specific tag (e.g., v0.6.0 or v0.7.0).
-VERSION="${OPERATOROS_VERSION:-v0.6.0}"
+VERSION="${OPERATOROS_VERSION:-v0.7.0}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
 

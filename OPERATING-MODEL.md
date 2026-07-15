@@ -166,5 +166,5 @@ If you are building your own workspace, treat this as a worked example, not a te
 
 ---
 
-*Last updated: 2026-07-11 (v0.6.0 — methodology pivot).*
+*Last updated: 2026-07-14 (v0.7.0 — Workspace Catalog).*
 *Part of the OperatorOS methodology. See `methodology/` for the principles themselves.*

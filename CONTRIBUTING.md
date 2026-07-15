@@ -1,6 +1,6 @@
 # Contributing to OperatorOS
 
-> **Status:** v0.6.0 — methodology pivot. Process is for contributors, not for the methodology itself.
+> **Status:** v0.7.0 — Workspace Catalog. Process is for contributors, not for the methodology itself.
 
 ## Ground rules
 

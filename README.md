@@ -1,6 +1,6 @@
 # OperatorOS
 
-> **Status:** v0.6.0 · MIT licensed
+> **Status:** v0.7.0 · MIT licensed
 > **One sentence:** A methodology for engineers to build their own personal operating system — captured in code, documents, and a bootstrap protocol that an AI agent can run.
 
 ---
@@ -69,11 +69,11 @@ You don't import someone else's life. You build your own.
 
 ### 3. The CLI
 
-Located in `core/`. Seven commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`.
+Located in `core/`. Thirteen commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`, plus the v0.7.0 Workspace Catalog: `index`, `doctor`, `stats`, `stale`, `prune`.
 
 ```bash
-# Install (pin to v0.6.0 to match README/CHANGELOG; install.sh also defaults to v0.6.0)
-OPERATOROS_VERSION=v0.6.0 \
+# Install (pin to v0.7.0 to match README/CHANGELOG; install.sh also defaults to v0.7.0)
+OPERATOROS_VERSION=v0.7.0 \
   curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # Scaffold a new workspace (writes into ./my-os; omit --target to use the current dir)

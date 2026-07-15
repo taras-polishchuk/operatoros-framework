@@ -2,7 +2,59 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 >
-> **Release-tag reality (read this first):** the only tagged, installable release in the `v0.6` line is **`v0.6.0`** — it is what `git tag`, `scripts/install.sh`, `core/package.json`, and `operatoros version` all report. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments.
+> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset.
+
+## [v0.7.0] — 2026-07-14
+
+### Added — Workspace Catalog
+
+This release adds a **durable, content-hash-only Workspace Catalog** and six new CLI commands. The catalog is the project’s first non-trivial runtime tool: it is a metadata inventory of Workspace artifacts that survives across sessions, supports dead-reference detection, and stays compatible with the Local-First principle (no background processes, no telemetry, no usage tracking).
+
+- **`schemas/catalog.schema.json` (new).** JSON Schema 2020-12 defining the on-disk catalog at `.operatoros/index.json`. Six durable fields per entry: `path`, `type` (`file|directory|symlink`), `size` (bytes, `0` for directories), `mtime` (ISO 8601), `content_hash` (SHA-256 hex for files, `""` for directories and symlinks), `indexed_at` (ISO 8601). `additionalProperties: false` forbids any ephemeral field by name — explicitly rejects `opened_count`, `last_access`, `access_count`, and other usage-style fields at the schema level.
+- **`core/src/lib/catalog.ts` (new).** `buildCatalog(root)` writes the catalog from a single filesystem walk; `readCatalog(root)` returns it (or `null`) and compares against a fresh re-scan for staleness; `scanFresh(root)` is the read-only walker; `isCatalogStale(catalog, freshEntries)` is a pure helper. Catalog walker skips a `CATALOG_EXCLUDES` denylist (`.git`, `node_modules`, `dist`, `dist-bin`, `build`, `.svelte-kit`, `.vite`, `.cache`, `.operatoros`) so the catalog never includes generated content.
+- **`core/src/commands/{index,doctor,stats,stale,prune}.ts` (new).** Six new commands — total CLI surface grows from 7 → 13. See `core/src/cli.ts` header comment for the per-command synopsis.
+  - **`operatoros index`** — Rebuilds `.operatoros/index.json` from current filesystem state. Writes the entire catalog (idempotent; overwrites any prior file). Default target: workspace root if `operatoros.yaml` exists, else `cwd`.
+  - **`operatoros doctor`** — Read-only workspace diagnostics with three finding codes: `missing-manifest` (no `operatoros.yaml` at workspace root), `missing-layout` (any of the standard layout dirs is absent — informational warning), `missing-catalog` (no catalog yet — informational), `stale-catalog` (catalog exists but filesystem has changed since `indexed_at` — informational warning). Exits `1` only on error-level findings.
+  - **`operatoros stats`** — Returns `WorkspaceStats` JSON: `fileCount`, `directoryCount`, `symlinkCount`, `byType`, `totalSize`, optionally `catalogIndexedAt` + `catalogStale` when a catalog exists. Reads catalog for the fast path; falls back to a fresh `scanFresh()` if no catalog yet.
+  - **`operatoros stale`** — Lists orphan candidates: catalog entries whose path is not referenced by any other text-format file in the workspace. Reference detection is text-based (substring match on basename). Heuristic output for human review, not an authoritative deletion list.
+  - **`operatoros prune`** — Two-phase cleanup with two hard safety invariants: (a) dry-run is the default; `--confirm` is the only way to actually delete; (b) `--confirm` requires explicit `--paths <list>` — refuses to delete a blanket-derived list, preventing implicit mass deletion from a single flag. Files in `CATALOG_EXCLUDES` are always skipped even if explicitly listed.
+- **`core/src/commands/init.ts` updated.** `operatoros init` now also generates the catalog as part of scaffolding. The next-steps hint at the end of init advertises `operatoros doctor` and `operatoros stats` (in addition to the existing `validate` and `add`).
+- **`core/__tests__/catalog.test.ts` (new, 10 tests).** Schema validity, schema field enumeration, ephemeral-field rejection, `buildCatalog()` output, durable-fields-only entry shape, content-hash SHA-256 stability, ephemeral-directory exclusion, `readCatalog()` fresh + null paths, `isCatalogStale()` correctness across mtime/content changes.
+- **`core/__tests__/commands.test.ts` (new, 8 tests).** `index` writes catalog + excludes ephemeral dirs; `doctor` passes when workspace is well-formed, reports when manifest is missing, reports when layout is partial; `stats` returns file count and size breakdown; `stale` returns list shape; `prune --dry-run` does not delete; `prune --confirm` without explicit `--paths` refuses (no implicit blanket deletion).
+- **`core/src/cli.ts` updated.** Eight new command declarations (`index`, `doctor`, `stats`, `stale`, `prune`; plus two internal handlers for `stats` and `stale` that print to stdout). CLI surface 7 → 13. `--confirm` flag overrides the default `dryRun=true` in the prune handler (commander coerce).
+- **`scripts/embed-assets.js` updated.** Schema-name list extended from `[workspace, module, preset]` to `[workspace, module, preset, catalog]`. Embedded-assets file regenerated to include the new schema (4 schemas embedded instead of 3).
+
+### Changed — Local-First test extended (ROADMAP gate 5)
+
+- **`core/__tests__/local-first.test.ts`** — Local-First invariant test now scans `methodology/` in addition to `core/src/`. Scan is "smart" — only content inside fenced code blocks (lines matching `^```...` open/close pairs) is checked. Plain prose mentions of URLs (e.g., in `docs/tester-packet.md`) remain allowed. ROADMAP gate 5 ("Local-first invariant test still passes AND covers the methodology/ directory") is now satisfied: the new test passes against the current `methodology/` content.
+
+### Not changed
+
+- **`core/src/embedded-assets.ts`** — regenerated (no source change), 4 schemas embedded instead of 3.
+- **Existing 7 commands** (`init`, `validate`, `add`, `apply`, `run`, `export`, `version`) — unchanged behavior.
+- **Existing 3 schemas** (`workspace`, `module`, `preset`) — byte-identical.
+- **All 6 constitutional principles** — unchanged.
+- **Methodology documents** — unchanged.
+
+### Migration notes
+
+- **For v0.6.x → v0.7.0 users:** new commands are additive. No CLI command was renamed, removed, or had its flags changed. The catalog is generated automatically on `operatoros init`; run `operatoros index` to build one in an existing workspace, then `operatoros doctor` / `operatoros stats` / `operatoros stale` will start working.
+- **For maintainers:** tagged release `v0.7.0` points at the version-bump commit (which includes CHANGELOG + install-script default bumps in addition to the implementation). The implementation lives in `e287e83`. Identity-verified commit per `git-identity-preflight` Steps 1-5; push held per Workspace OS rule.
+
+### Stats
+
+- 5 new commands: `index`, `doctor`, `stats`, `stale`, `prune`. CLI surface 7 → 13.
+- 18 new tests (10 catalog + 8 commands); all RED-then-GREEN.
+- 1 new schema: `catalog.schema.json` (60 lines).
+- 1 new library: `core/src/lib/catalog.ts` (~180 lines, pure functions over filesystem).
+- 2 modified commands: `init` (now also builds catalog) + `cli.ts` (registers new commands).
+- 1 modified test: `local-first.test.ts` (methodology/ scan).
+- 1 modified build script: `scripts/embed-assets.js`.
+- Binary delta: still 768 KB single-file bundle (4 schemas embed adds < 2 KB).
+
+### Why v0.7.0 (not v0.6.x)
+
+Per SemVer, additive features that introduce new commands warrant a minor version bump. Adding 6 new commands (37.5% larger CLI surface) and a new schema is the threshold at which "minor" is the conservative call. The release itself is intentional and bounded — see `RATIFICATION.md` §4 (decisions taken in the Workspace Alignment mission) and `decisions.md` decision #6 (schema-versioned additions).
 
 ## [v0.6.3] — 2026-07-11
 

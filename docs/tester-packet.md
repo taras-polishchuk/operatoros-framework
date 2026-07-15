@@ -10,7 +10,7 @@
 > for how to use OperatorOS as a user, see the `README.md` §"Try it" section
 > and `methodology/05-onboarding-interview.md` instead.
 
-> **Version pin:** `OPERATOROS_VERSION=v0.6.0` — this is the current methodology-pivot release. The CLI is functionally identical to v0.5.2-alpha (no code changes), but v0.6.0 is the version that matches the README and CHANGELOG the tester will read.
+> **Version pin:** `OPERATOROS_VERSION=v0.7.0` — this is the Workspace Catalog release. Adds 6 new commands (`index`, `doctor`, `stats`, `stale`, `prune`) over v0.6.0 methodology pivot (which was the prior tester baseline). v0.7.0 is the version that matches the README and CHANGELOG the tester will read.
 
 ## 1. Message To Send The Tester
 
@@ -24,7 +24,7 @@ I need honest first-use feedback: where you got confused, what failed, what felt
 
 Please use this exact version:
 
-OPERATOROS_VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+OPERATOROS_VERSION=v0.7.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 Please record your terminal session and then run the exact commands I send below.
 
@@ -47,7 +47,7 @@ Please don't fix anything or open a PR yet - I just need honest usage data.
 Run the exact commands I send, record the terminal session, and note where anything feels unclear or breaks.
 
 Install with:
-OPERATOROS_VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+OPERATOROS_VERSION=v0.7.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 What I need back: terminal log + short feedback + GitHub issue only if something documented fails.
 ```
@@ -77,7 +77,7 @@ script -q operatoros-test.log
 Run the test:
 
 ```bash
-OPERATOROS_VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+OPERATOROS_VERSION=v0.7.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 mkdir -p ~/operatoros-eval
 cd ~/operatoros-eval
@@ -124,7 +124,7 @@ script -q operatoros-test.log
 Run the test:
 
 ```bash
-OPERATOROS_VERSION=v0.6.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+OPERATOROS_VERSION=v0.7.0 curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 mkdir -p ~/operatoros-eval
 cd ~/operatoros-eval
@@ -158,7 +158,7 @@ Start-Transcript -Path .\operatoros-test.txt
 Run the test:
 
 ```powershell
-$env:OPERATOROS_VERSION="v0.6.0"
+$env:OPERATOROS_VERSION="v0.7.0"
 iwr https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.ps1 -UseBasicParsing | iex
 
 New-Item -ItemType Directory -Force "$HOME\operatoros-eval" | Out-Null

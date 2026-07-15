@@ -1,6 +1,6 @@
 # Roadmap
 
-> **Status:** v0.6.0 — methodology pivot complete. The roadmap below reflects what was shipped and what the next user-relevant milestone looks like.
+> **Status:** v0.7.0 — Workspace Catalog shipped. The roadmap below reflects what was shipped and what the next user-relevant milestone looks like.
 
 ## Shipped
 
@@ -53,45 +53,45 @@
 - Landing page (`operatoros.html`) updated to match new framing
 - No code changes; no schema changes; no CLI changes
 
-## Next milestone — v0.7.0 (dogfooding + methodology validation)
+### v0.7.0 — Workspace Catalog (2026-07-14)
 
-The next release will not be a feature push. It will validate the methodology by using it.
+- New `schemas/catalog.schema.json` — durable-only fields (`path`, `type`, `size`, `mtime`, `content_hash`, `indexed_at`); ephemeral fields explicitly rejected by `additionalProperties: false`.
+- New library `core/src/lib/catalog.ts` — `buildCatalog()` / `readCatalog()` / `scanFresh()` / `isCatalogStale()` + `CATALOG_EXCLUDES` denylist.
+- Six new CLI commands: `operatoros index`, `doctor`, `stats`, `stale`, `prune`. CLI surface 7 → 13.
+- `operatoros init` now also generates `.operatoros/index.json` (the catalog) as part of scaffolding.
+- Local-First invariant test extended to scan `methodology/` (ROADMAP gate 5 satisfied).
+- 18 new tests added (10 catalog + 8 commands). All RED-then-GREEN.
+- No methodology changes; no governance changes; no Workspace OS contract changes.
 
-### Acceptance criteria — v0.7.0 ships when ALL of these are true
+## Next milestone — v0.8.0 (real-use validation + cleanup)
 
-1. **Bootstrap regeneration works end-to-end.** `operatoros init` produces a `bootstrap.md` that follows the protocol in `methodology/04-agent-bootstrap.md` (four sections: Always read / Conditional / Discovery / Ignore, plus Onboarding).
-2. **All five methodology documents have at least one revision from real-use feedback.** Each document's `Last updated:` field shows a date later than 2026-07-11 AND each has a "Changes from real use" section at the bottom.
-3. **At least one external tester has run the tester-packet flow** and submitted feedback (via `.github/ISSUE_TEMPLATE/user_test_session.md` or equivalent).
-4. **At least one case study** documents 4+ weeks of OperatorOS methodology use by an engineer other than Taras.
-5. **Local-first invariant test** still passes AND covers the methodology/ directory (currently only `core/src/` is scanned).
-6. **No CRITICAL or HIGH drift findings** in any subsequent audit (per the audit checklist in `operatoros-v060-audit-2026-07-11/`).
+The next release will validate v0.7.0 against the same `methodology/` documents — a dogfooding pass plus read-the-source-code-against-the-schema pass.
 
-### Planned activities (in support of the acceptance criteria)
+### Acceptance criteria — v0.8.0 ships when ALL of these are true
 
-1. Apply OperatorOS to a fresh engineering workspace — for example a knowledge-worker template, an indie-dev template, or a research-lab template. Run `operatoros init`, run `operatoros apply`, populate with one module, document onboarding interview answers.
-2. Track every friction point — confusing error messages, docs that didn't match reality, bootstrap too heavy or too thin.
-3. Tighten the methodology docs based on real use.
-4. Test the bootstrap protocol — have a fresh AI agent cold-start in the workspace. Verify the four-tier reading system works as designed.
-5. Write a case study — one engineer (the author) using the methodology for 4-6 weeks. What survived, what was abandoned, what was added.
-6. Extend the local-first test to scan `methodology/` for any forbidden patterns (currently scoped to `core/src/`).
+1. **External tester has run the v0.7.0 tester-packet flow.** A non-author completes `.github/ISSUE_TEMPLATE/user_test_session.md` against the v0.7.0 binary; feedback lands in CHANGELOG or relevant methodology doc.
+2. **All six methodology documents have a "Changes from real use" section.** Each one has at least one entry citing an issue raised by the real-use run (rather than aspirational content). This satisfies ROADMAP v0.7.0 gate 2 (previously skipped because no real use yet).
+3. **Catalog schema has been validated against the README docs.** Specifically: every user-facing claim in README §"The artifact" (e.g., "JSON-Schema definitions for operatoros.yaml, module.yaml, and preset.yaml. No bundled modules") matches what `schemas/` contains. Section 3 of README links to all 5 bundled schemas from v0.7.0 (the catalog schema was the missing one).
+4. **`bin/operatoros` install + smoke flow works on a fresh non-WSL Linux.** Tested in a clean `docker run --rm -it ubuntu:latest` container via the canonical install script. No leftover v0.6.0 binary on `$PATH` confuses the test.
+5. **No unaddressed issues from the v0.7.0 release.** Open issues filed against `v0.7.0` (if any) have either been fixed in v0.8.0 prep, deferred to v0.9.0 with rationale, or closed with explanation.
+6. **Methodology `05-onboarding-interview.md` is exercised against a real user.** Triggers a documentation pass that adds an "interview transcript" section showing actual answers from a non-author engineer.
 
-## Explicitly not planned
+### Planned activities
 
-Until a second real engineer applies the methodology to a non-trivial workspace and asks for a change, the following will NOT be added:
+1. Send tester-packet.md to a non-author engineer. Track every friction point.
+2. Run v0.7.0 binary in a clean container; verify install + 6 new commands end-to-end.
+3. Tighten the methodology docs based on tester feedback.
+4. Write a 4-week case study: one engineer (the author) using v0.7.0 in a real workspace. What survived, what was abandoned, what was added.
+5. Re-validate the catalog schema against the README claim about schema count.
+6. Apply any "from real use" updates to methodology/01-06.
 
-- Cloud features
-- Web UI / dashboards
-- Synchronization / multi-device
-- Marketplace
-- Telemetry
-- AI features that aren't required to satisfy the six principles
-- Module signing (premature for a methodology artifact)
-- Native single-binary compilation (bun/deno compile) — Node binary is sufficient
-- A registry of community modules — modules ship via the personal preset and local paths until there's a real second contributor
+### Explicitly not planned
+
+Identical to v0.7.0 "Explicitly not planned" (cloud, web UI, sync, marketplace, telemetry, AI features that aren't required by the principles, module signing, native single-binary compilation, central module registry). v0.8.0 is a validation release, not a feature release.
 
 ## Decision criteria for new methodology additions
 
-A proposed methodology document is worth writing if and only if:
+Identical to v0.6.0 criteria:
 
 1. **At least one real engineer needed it.** Hypothetical users don't count.
 2. **It survives first contact with reality.** If the use case the user describes changes once they try it, it's not a real requirement.
