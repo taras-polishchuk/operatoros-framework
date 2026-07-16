@@ -17,19 +17,44 @@ if [[ ! -f "$history" ]]; then
   exit 1
 fi
 
-# Last line of JSONL = latest interview
-latest="$(tail -1 "$history")"
+# Last line of JSONL = latest interview.
+# M2 fix: parse with node instead of grep regex. node handles escaped
+# quotes, multi-line strings, and non-ASCII cleanly. Fallback to grep
+# if node is unavailable (graceful degradation).
+if command -v node >/dev/null 2>&1; then
+  # Use node to parse the JSONL robustly.
+  parsed="$(node -e '
+    const fs = require("fs");
+    const lines = fs.readFileSync(process.argv[1], "utf8").trim().split("\n");
+    const last = JSON.parse(lines[lines.length - 1]);
+    for (let i = 1; i <= 5; i++) {
+      const v = (last.answers && last.answers["q" + i]) || "";
+      process.stdout.write(v + "\n");
+    }
+  ' "$history" 2>/dev/null || true)"
+  if [[ -n "$parsed" ]]; then
+    a1="$(echo "$parsed" | sed -n '1p')"
+    a2="$(echo "$parsed" | sed -n '2p')"
+    a3="$(echo "$parsed" | sed -n '3p')"
+    a4="$(echo "$parsed" | sed -n '4p')"
+    a5="$(echo "$parsed" | sed -n '5p')"
+  fi
+fi
 
-# Extract answers via grep (avoid jq dependency)
-extract() {
-  echo "$latest" | grep -oE "\"q${1}\":\"[^\"]*\"" | sed -E "s/\"q${1}\":\"([^\"]*)\"/\1/" || true
-}
-
-a1="$(extract 1)"
-a2="$(extract 2)"
-a3="$(extract 3)"
-a4="$(extract 4)"
-a5="$(extract 5)"
+# Fallback: grep-based extraction (works for simple inputs without
+# escaped quotes, multi-line, or non-ASCII). Used if node is unavailable
+# OR node failed to parse.
+if [[ -z "${a1:-}${a2:-}${a3:-}${a4:-}${a5:-}" ]]; then
+  latest="$(tail -1 "$history")"
+  extract() {
+    echo "$latest" | grep -oE "\"q${1}\":\"[^\"]*\"" | sed -E "s/\"q${1}\":\"([^\"]*)\"/\1/" || true
+  }
+  a1="$(extract 1)"
+  a2="$(extract 2)"
+  a3="$(extract 3)"
+  a4="$(extract 4)"
+  a5="$(extract 5)"
+fi
 
 # Vault-leakage tick (I2): refuse to write if any answer matches a secrets pattern.
 # Per I2: identity-md MUST NOT write paths matching **/secrets.* or vault/.

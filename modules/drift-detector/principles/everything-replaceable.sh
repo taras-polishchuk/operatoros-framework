@@ -11,6 +11,17 @@ target="${1:-.}"
 count=0
 while IFS= read -r ref; do
   [[ -z "$ref" ]] && continue
+  # M4 fix: skip known composition patterns. bootstrap-tier-refresh
+  # legitimately composes bootstrap-md + identity-md (per plan §4.9 + B2);
+  # these are the documented runtime composition, not a violation.
+  case "$ref" in
+    *"bootstrap-tier-refresh/bin/refresh.sh:"*) continue ;;
+  esac
+  # Also skip drift-detector's gate.sh which composes check.sh
+  # (intentional internal composition).
+  case "$ref" in
+    *"drift-detector/bin/gate.sh:"*) continue ;;
+  esac
   count=$((count + 1))
   echo "  - $ref"
 done < <(grep -rE 'modules/[a-z0-9_-]+/bin/' "$target/modules" \

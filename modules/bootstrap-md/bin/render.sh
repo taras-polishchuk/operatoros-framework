@@ -30,10 +30,19 @@ if [[ ! -f "$manifest" ]]; then
 fi
 
 # Discover active preset + installed modules
+# M3 fix: only indented list items under `modules:` block, not other YAML
+# lists like `deny:`. We extract the `modules:` block first, then list
+# items within it. Two-space indent is the convention in
+# presets-canonical/personal/preset.yaml.
 preset="$(grep -E '^preset:' "$manifest" | head -1 | sed -E 's/^preset:[[:space:]]*//' | tr -d '\"' || true)"
 [[ -z "$preset" ]] && preset="personal"
 
-modules="$(grep -E '^- ' "${target}/presets/${preset}/preset.yaml" 2>/dev/null | head -20 || true)"
+# Extract just the `modules:` block (from "modules:" to next top-level key)
+modules="$(awk '
+  /^modules:[[:space:]]*$/ { in_block=1; next }
+  in_block && /^[a-zA-Z]/ { in_block=0 }
+  in_block && /^  - / { print }
+' "${target}/presets/${preset}/preset.yaml" 2>/dev/null | head -20 || true)"
 [[ -z "$modules" ]] && modules="- (none yet — install one with \`operatoros add <path>\`)"
 
 today="$(date -u +%Y-%m-%d)"
@@ -94,7 +103,11 @@ cat > "$tmp" <<EOF
 
 ## Installed modules (current preset: ${preset})
 
-$(echo "$modules" | sed 's/^/- /')
+$(while IFS= read -r line; do
+  [[ -z "$line" ]] && continue
+  stripped="${line#  - }"
+  printf -- '- %s\n' "$stripped"
+done <<< "$modules")
 
 _last_updated: ${today}
 EOF
