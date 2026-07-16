@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 # drift-detector check — run all six per-principle checks.
+#
+# v0.8.0 M5 + B3 audit fix: walk up from cwd to find the workspace
+# root (where operatoros.yaml lives). This script is invoked via
+# `operatoros run drift-detector check` which spawns it with
+# cwd=moduleDir, but the per-principle scripts expect to look
+# inside the workspace. The walk-up handles that.
 set -euo pipefail
 
-target="."
+target=""
 format="md"
 strict=0
 
@@ -14,6 +20,26 @@ while [[ $# -gt 0 ]]; do
     *) echo "unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+# If --target was not provided, discover the workspace root by
+# walking up from the current directory until we find operatoros.yaml.
+# This is the B3 fix for the FTU finding that drift-detector silently
+# reported "all OK" when every per-principle script failed with
+# "file not found" because cwd=moduleDir, not workspace root.
+if [[ -z "$target" ]]; then
+  workspace_root="$PWD"
+  while [[ "$workspace_root" != "/" ]]; do
+    if [[ -f "$workspace_root/operatoros.yaml" ]]; then
+      break
+    fi
+    workspace_root="$(dirname "$workspace_root")"
+  done
+  if [[ ! -f "$workspace_root/operatoros.yaml" ]]; then
+    # No operatoros.yaml found anywhere. Fall back to cwd.
+    workspace_root="$PWD"
+  fi
+  target="$workspace_root"
+fi
 
 state_dir="${target}/state/drift-detector"
 mkdir -p "$state_dir"
@@ -30,6 +56,7 @@ principles=(
 
 violations=0
 reviews=0
+script_failures=0
 
 {
   echo "# Drift Report — ${target}"
@@ -44,11 +71,22 @@ reviews=0
     echo "### ${label}"
     echo
     out="$(bash "${target}/modules/drift-detector/principles/${script}.sh" "$target" 2>&1 || true)"
-    echo "$out"
-    if echo "$out" | grep -q "VIOLATION"; then
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+      # B3 fix: count script-level failures as findings, not
+      # silently swallow them. A non-zero exit means the principle
+      # check itself failed to run (e.g., wrong directory, missing
+      # files, broken bash). That's a finding, not an OK.
+      echo "  - SCRIPT FAILED (exit=${rc}) — principle check could not run"
+      script_failures=$((script_failures + 1))
       violations=$((violations + 1))
-    elif echo "$out" | grep -q "REVIEW"; then
-      reviews=$((reviews + 1))
+    else
+      echo "$out"
+      if echo "$out" | grep -q "VIOLATION"; then
+        violations=$((violations + 1))
+      elif echo "$out" | grep -q "REVIEW"; then
+        reviews=$((reviews + 1))
+      fi
     fi
     echo
   done
@@ -57,6 +95,7 @@ reviews=0
   echo
   echo "- VIOLATIONS: ${violations}"
   echo "- REVIEWS: ${reviews}"
+  echo "- SCRIPT FAILURES: ${script_failures}"
   echo "- OK: $((6 - violations - reviews))"
 } | tee "$report"
 
