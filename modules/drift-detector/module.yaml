@@ -1,0 +1,29 @@
+version: "1.0"
+name: drift-detector
+description: "Six per-principle drift checks against the workspace. Produces a structured report; --strict exits non-zero on any violation."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-reference, audit, principles]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  check:
+    run: "./bin/check.sh $@"
+    description: "Run all six principle checks; produce a Markdown report."
+    args:
+      - "--target <path>     target directory (default: workspace root)"
+      - "--format <fmt>      md (default) | json"
+      - "--strict            exit non-zero on any violation"
+  diff:
+    run: "./bin/diff.sh $@"
+    description: "Diff drift findings against a previously-emitted report."
+    args:
+      - "--target <path>"
+      - "--since <ref>"
+  gate:
+    run: "./bin/gate.sh $@"
+    description: "Exit 0 only if all six principle checks pass."
+    args:
+      - "--target <path>"

@@ -189,6 +189,8 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
   // v0.8.0 M1 — extend Local-First guard to module shell scripts.
   // Per D8 in operatoros-v080-implementation/decisions.md: every
   // modules/*/bin/*.sh script is scanned for forbidden network primitives.
+  // Drift-detector's principles/*.sh files are meta-files (they DEFINE the
+  // patterns to look for); they are excluded from the scan.
   it("modules/*/bin/*.sh contains no network-call primitives", async () => {
     const modulesDir = path.resolve(__dirname, "..", "..", "modules");
     if (!(await fs.pathExists(modulesDir))) {
@@ -222,6 +224,10 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
 
     const scripts = await walk(modulesDir);
     for (const abs of scripts) {
+      // Skip drift-detector's principles/ — those files DEFINE the patterns
+      // and legitimately mention "curl", "wget", etc. as strings to match.
+      if (abs.includes("/drift-detector/principles/")) continue;
+
       const content = await fs.readFile(abs, "utf8");
       const lines = content.split("\n");
       for (let i = 0; i < lines.length; i++) {
