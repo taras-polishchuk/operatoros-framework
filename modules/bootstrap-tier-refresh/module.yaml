@@ -1,0 +1,25 @@
+version: "1.0"
+name: bootstrap-tier-refresh
+description: "Atomically regenerate the always-read tier (bootstrap.md, IDENTITY.md, operatoros.yaml, presets/<active>/preset.yaml) using POSIX mv + backup-rollback."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-always-read, transactional, generator]
+
+requires:
+  core_version: "0.8.0"
+  modules:
+    - bootstrap-md
+    - identity-md
+
+commands:
+  refresh:
+    run: "./bin/refresh.sh $@"
+    description: "Refresh all four always-read files transactionally (best-effort with rollback)."
+    args:
+      - "--target <path>"
+      - "--no-backup      skip backup step (NOT recommended)"
+  diff:
+    run: "./bin/diff.sh $@"
+    description: "Show what would change without writing."
+    args:
+      - "--target <path>"
