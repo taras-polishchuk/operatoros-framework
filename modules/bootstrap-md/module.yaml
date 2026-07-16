@@ -1,0 +1,21 @@
+version: "1.0"
+name: bootstrap-md
+description: "Renders bootstrap.md from a five-section template, reading the workspace's current preset + modules to populate the always-read tier accurately. Replaces the in-binary generator when installed."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-always-read, generator, ai-context]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  render:
+    run: "./bin/render.sh $@"
+    description: "Render bootstrap.md for the workspace."
+    args:
+      - "--target <path>     target directory (default: workspace root)"
+      - "--out <path>        output file (default: <target>/bootstrap.md)"
+      - "--no-backup         skip the backup step (NOT recommended)"
+  template:
+    run: "./bin/template.sh"
+    description: "Print the five-section template to stdout."
