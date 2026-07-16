@@ -185,4 +185,75 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
     }
     expect(offenders).toEqual([]);
   });
+
+  // v0.8.0 M1 — extend Local-First guard to module shell scripts.
+  // Per D8 in operatoros-v080-implementation/decisions.md: every
+  // modules/*/bin/*.sh script is scanned for forbidden network primitives.
+  it("modules/*/bin/*.sh contains no network-call primitives", async () => {
+    const modulesDir = path.resolve(__dirname, "..", "..", "modules");
+    if (!(await fs.pathExists(modulesDir))) {
+      // modules/ directory is optional — skip silently if not present.
+      return;
+    }
+
+    const offenders: Array<{ file: string; line: number; pattern: string; snippet: string }> = [];
+    // Module scripts are bash, so the relevant primitives are slightly
+    // different. We check shell-level network tools.
+    const shellPatterns: Array<[string, RegExp]> = [
+      ["curl ",       /\bcurl\s+/g],
+      ["wget ",       /\bwget\s+/g],
+      ["http://",     /http:\/\//g],
+      ["https://",    /https:\/\//g],
+      // Node-style calls from inside a shell script (rare but possible).
+      ["fetch(",      /\bfetch\s*\(/g],
+      ["node-fetch",  /\bnode-fetch\b/g],
+    ];
+
+    async function walk(dir: string): Promise<string[]> {
+      const out: string[] = [];
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const e of entries) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) out.push(...(await walk(p)));
+        else if (e.isFile() && e.name.endsWith(".sh")) out.push(p);
+      }
+      return out;
+    }
+
+    const scripts = await walk(modulesDir);
+    for (const abs of scripts) {
+      const content = await fs.readFile(abs, "utf8");
+      const lines = content.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        // Skip pure comments (start with #) — allow documentation URLs.
+        const trimmed = line.trim();
+        if (trimmed.startsWith("#")) continue;
+        for (const [name, pat] of shellPatterns) {
+          if (pat.test(line)) {
+            offenders.push({
+              file: path.relative(path.resolve(__dirname, "..", ".."), abs),
+              line: i + 1,
+              pattern: name,
+              snippet: trimmed.substring(0, 120),
+            });
+          }
+        }
+      }
+    }
+
+    if (offenders.length > 0) {
+      const msg = offenders
+        .map((o) => `  ${o.file}:${o.line} [${o.pattern}]  ${o.snippet}`)
+        .join("\n");
+      throw new Error(
+        `\n\nLocal-First invariant violated in modules/*/bin/*.sh — a shell script contains a network primitive.\n` +
+          `See Principle 6 of methodology/01-six-principles.md.\n\n` +
+          `Offending lines:\n${msg}\n\n` +
+          `Module shell scripts MUST NOT make network calls. If you need to fetch something, ` +
+          `the design is wrong — abort and split the feature into a separate tool.\n`
+      );
+    }
+    expect(offenders).toEqual([]);
+  });
 });
