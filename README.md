@@ -1,6 +1,6 @@
 # OperatorOS
 
-> **Status:** v0.7.0 · MIT licensed
+> **Status:** v0.8.0 · MIT licensed
 > **One sentence:** An engineering workspace framework that keeps engineer and AI in agreement about a workspace.
 
 ---
@@ -85,15 +85,18 @@ You don't import someone else's life. You build your own.
 
 ### 3. The CLI
 
-Located in `core/`. Thirteen commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`, plus the v0.7.0 Workspace Catalog: `index`, `doctor`, `stats`, `stale`, `prune`.
+Located in `core/`. Fourteen commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`, plus the v0.7.0 Workspace Catalog (`index`, `doctor`, `stats`, `stale`, `prune`), plus the v0.8.0 `inspect`.
 
 ```bash
-# Install (pin to v0.7.0 to match README/CHANGELOG; install.sh also defaults to v0.7.0)
-OPERATOROS_VERSION=v0.7.0 \
+# Install (pin to v0.8.0; install.sh defaults to v0.8.0)
+OPERATOROS_VERSION=v0.8.0 \
   curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # Scaffold a new workspace (writes into ./my-os; omit --target to use the current dir)
 operatoros init --target my-os
+
+# v0.8.0: see what your workspace looks like through an AI's eyes
+operatoros inspect --target my-os
 
 # Add a module — replace `<module-source>` with a local path or git URL.
 # OperatorOS ships no bundled modules (Decision 9, v0.6.3).
@@ -110,7 +113,50 @@ operatoros run <module> <command> [args...]
 operatoros export
 ```
 
-The CLI is **the carrier, not the product**. It is small, single-file (~787 KB), and quietly stays out of your way.
+The CLI is **the carrier, not the product**. It is small, single-file, and quietly stays out of your way.
+
+## Try it (v0.8.0 — 10-command flow)
+
+The first 10 minutes with OperatorOS. Each step is one command.
+
+```bash
+# 1. Install (skip if already installed)
+OPERATOROS_VERSION=v0.8.0 \
+  curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+
+# 2. Scaffold a workspace
+operatoros init --target my-os
+
+# 3. Step into it
+cd my-os
+
+# 4. See your workspace through an AI's eyes (v0.8.0)
+operatoros inspect --format terminal
+
+# 5. Add a Tier-0 read-out module (renders an AI-context bundle)
+operatoros add ../operatoros/modules/context-builder
+
+# 6. Add the always-read tier generators
+operatoros add ../operatoros/modules/bootstrap-md
+operatoros add ../operatoros/modules/identity-md
+
+# 7. Add the methodology checker
+operatoros add ../operatoros/modules/drift-detector
+
+# 8. Run context-builder for a deep bundle
+operatoros run context-builder inspect
+
+# 9. Run the drift check
+operatoros run drift-detector check --strict
+
+# 10. Run the always-read tier regeneration (transactional)
+operatoros add ../operatoros/modules/bootstrap-tier-refresh
+operatoros run bootstrap-tier-refresh refresh
+```
+
+After step 10, your `bootstrap.md`, `IDENTITY.md`, and `operatoros.yaml`
+are coherent. An AI agent arriving cold can read `bootstrap.md` first
+and orient itself in under a minute.
 
 ## The bootstrap protocol
 
