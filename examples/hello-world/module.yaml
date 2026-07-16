@@ -1,0 +1,16 @@
+version: "1.0"
+name: hello-world
+description: "A canonical OperatorOS module — runnable, over-commented, used as the module-cookbook's worked example."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [example, tutorial]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  greet:
+    run: "./bin/greet.sh $@"
+    description: "Print a friendly greeting. Defaults to 'World' if no name provided."
+    args:
+      - "<name>             name to greet (default: World)"

@@ -1,0 +1,24 @@
+version: "1.0"
+name: context-builder
+description: "Render a deep context bundle (800–1500 tokens) from the workspace — what an AI agent would conclude handed the project with no prior knowledge."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-0, read-out, ai-context]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  inspect:
+    run: "./bin/inspect.sh $@"
+    description: "Render the context bundle for the workspace."
+    args:
+      - "--target <path>     target directory (default: workspace root)"
+      - "--format <fmt>      md (default) | json"
+      - "--since <ref>       git ref; only include changes since"
+  diff:
+    run: "./bin/diff.sh $@"
+    description: "Show the diff between --since and current state, in context format."
+    args:
+      - "--target <path>     target directory"
+      - "--since <ref>       git ref to diff against"

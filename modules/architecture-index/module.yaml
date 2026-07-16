@@ -1,0 +1,28 @@
+version: "1.0"
+name: architecture-index
+description: "Produce architecture.md (a Markdown narrative of workspace structure) + architecture-index.json (machine-readable companion)."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-0, read-out, ai-context]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  show:
+    run: "./bin/show.sh $@"
+    description: "Render architecture.md for the workspace."
+    args:
+      - "--target <path>"
+      - "--out <path>        output directory (default: state/)"
+  diff:
+    run: "./bin/diff.sh $@"
+    description: "Diff architecture-index.json against a previously-emitted version."
+    args:
+      - "--target <path>"
+      - "--since <ref>       tag or commit to diff against"
+  validate:
+    run: "./bin/validate.sh $@"
+    description: "Cross-reference every 'this folder is for X' claim in architecture.md against the filesystem."
+    args:
+      - "--target <path>"

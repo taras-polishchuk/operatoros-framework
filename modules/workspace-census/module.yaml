@@ -1,0 +1,27 @@
+version: "1.0"
+name: workspace-census
+description: "Walk the workspace, classify files by kind, surface orphans and anomalies."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-0, read-out, audit]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  census:
+    run: "./bin/census.sh $@"
+    description: "File-kind breakdown + counts."
+    args:
+      - "--target <path>     target directory"
+  orphans:
+    run: "./bin/orphans.sh $@"
+    description: "List orphan files (heuristic: text-format with no in-workspace references)."
+    args:
+      - "--target <path>"
+      - "--since <iso>       only files older than this iso date"
+  anomalies:
+    run: "./bin/anomalies.sh $@"
+    description: "List files matching secret-ish or stale patterns (.env.*.local, secrets.*.bak, etc.)."
+    args:
+      - "--target <path>"
