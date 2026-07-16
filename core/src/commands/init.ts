@@ -114,8 +114,36 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   // point; the user is expected to customize it for their real workspace.
   const bootstrapPath = path.join(target, "bootstrap.md");
   if (!(await fs.pathExists(bootstrapPath)) || opts.force) {
-    await fs.writeFile(bootstrapPath, renderBootstrap());
-    ok(`created bootstrap.md (AI-agent entry point)`);
+    // Per B2 amendment: if the `bootstrap-md` module is installed, delegate
+    // to it. Otherwise fall back to the in-binary generator (no behavior
+    // change for users who haven't installed the module).
+    const bootstrapMdModule = path.join(target, "modules", "bootstrap-md");
+    const useModule = await fs.pathExists(path.join(bootstrapMdModule, "module.yaml"));
+    if (useModule) {
+      // Delegate to the module via `operatoros run`. This is best-effort:
+      // if the module's render fails, fall back to the in-binary generator
+      // so init never blocks on a broken module.
+      const { spawn } = await import("child_process");
+      const result = await new Promise<{ code: number }>((resolve) => {
+        const child = spawn(
+          process.execPath,
+          [path.join(__dirname, "..", "cli.js"), "run", "bootstrap-md", "render",
+           "--target", target, "--out", bootstrapPath],
+          { stdio: "inherit" }
+        );
+        child.on("close", (code) => resolve({ code: code ?? 1 }));
+        child.on("error", () => resolve({ code: 1 }));
+      });
+      if (result.code === 0) {
+        ok(`created bootstrap.md (via bootstrap-md module)`);
+      } else {
+        await fs.writeFile(bootstrapPath, renderBootstrap());
+        ok(`created bootstrap.md (in-binary fallback — module render failed)`);
+      }
+    } else {
+      await fs.writeFile(bootstrapPath, renderBootstrap());
+      ok(`created bootstrap.md (in-binary fallback — install bootstrap-md module for higher-fidelity render)`);
+    }
   } else {
     info(`bootstrap.md already exists — left untouched (use --force to regenerate)`);
   }
