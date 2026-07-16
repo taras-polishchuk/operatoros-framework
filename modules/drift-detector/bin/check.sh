@@ -35,8 +35,11 @@ if [[ -z "$target" ]]; then
     workspace_root="$(dirname "$workspace_root")"
   done
   if [[ ! -f "$workspace_root/operatoros.yaml" ]]; then
-    # No operatoros.yaml found anywhere. Fall back to cwd.
-    workspace_root="$PWD"
+    # No operatoros.yaml found anywhere up the tree.
+    # Surface this clearly so it is not silently misdiagnosed
+    # as "all OK" against a non-workspace directory.
+    echo "drift-detector: no operatoros.yaml found (run inside an OperatorOS workspace)" >&2
+    exit 2
   fi
   target="$workspace_root"
 fi
