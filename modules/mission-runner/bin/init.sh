@@ -47,7 +47,7 @@ cat > "$dest/source-task.md" <<EOF
 
 ## Mission objective
 
-${objective:-_(fill in 1-3 sentences)_
+${objective:-_(fill in 1-3 sentences)_}
 
 ## Scope
 

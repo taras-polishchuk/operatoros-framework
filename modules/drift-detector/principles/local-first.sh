@@ -15,6 +15,12 @@ if [[ -d "$target/modules" ]]; then
     case "$primitive" in
       "#"*) continue ;;
     esac
+    # Skip drift-detector/principles/ meta-files — they DEFINE the patterns
+    # to look for and legitimately mention "curl", "wget" etc. as strings.
+    # Mirrors the exclusion in core/__tests__/local-first.test.ts.
+    case "$primitive" in
+      *"/drift-detector/principles/"*) continue ;;
+    esac
     count=$((count + 1))
     echo "  - $primitive"
   done < <(grep -rE '\b(curl |wget |fetch\(|http://|https://|node-fetch)' "$target/modules" \

@@ -8,8 +8,29 @@
 #   1. Snapshot to state/bootstrap-tier-refresh/backup-<ts>/
 #   2. Render new content into sibling temp paths
 #   3. mv each temp → target (atomic per file)
-#   4. Delete backup. On any failure: restore from backup.
+#   4. Delete backup. On any failure: restore from backup automatically.
 set -euo pipefail
+
+# Rollback helper: trap any error and restore from backup if it exists.
+rollback() {
+  local rc=$?
+  if [[ -n "${backup_dir:-}" && -d "$backup_dir" ]]; then
+    echo "rollback: restoring from ${backup_dir} (exit=${rc})" >&2
+    # Walk the backup and restore each file
+    while IFS= read -r -d '' f; do
+      rel="${f#${backup_dir}/}"
+      target_file="${target}/${rel}"
+      mkdir -p "$(dirname "$target_file")"
+      cp "$f" "$target_file"
+    done < <(find "$backup_dir" -type f -print0 2>/dev/null)
+    # Clean up any temp files
+    rm -f "${target}"/*.tmp.* 2>/dev/null || true
+    rm -rf "$backup_dir" || true
+    echo "rollback: complete" >&2
+  fi
+  exit $rc
+}
+trap rollback ERR
 
 target="."
 no_backup=0
@@ -111,5 +132,8 @@ elif [[ $no_backup -eq 0 ]]; then
   rm -rf "$backup_dir"
   echo "step 4: nothing to commit; backup deleted"
 fi
+
+# Clear the rollback trap on success
+trap - ERR
 
 echo "bootstrap-tier-refresh: done (${#new_paths[@]} file(s) refreshed)"
