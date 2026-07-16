@@ -103,7 +103,18 @@ program
   .description("Print OperatorOS Core version")
   .action(versionCommand);
 
-// ─── v0.7.0 Workspace Catalog commands ─────────────────────────────────
+// ─── v0.8.0 — Three-section workspace report ───────────────────────────
+import { inspectCommand } from "./commands/inspect";
+
+program
+  .command("inspect")
+  .description("Three-section workspace report (inventory / cold-read narrative / structural gaps). Non-destructive.")
+  .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .option("--format <fmt>", "output format: md (default) | json | terminal")
+  .option("--no-bootstrap", "do not recommend or mention bootstrap.md")
+  .action((opts) => {
+    void inspectCommand(opts);
+  });
 
 program
   .command("index")
