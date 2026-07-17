@@ -1,6 +1,6 @@
 # OperatorOS
 
-> **Status:** v0.7.0 · MIT licensed
+> **Status:** v0.8.0 · MIT licensed
 > **One sentence:** An engineering workspace framework that keeps engineer and AI in agreement about a workspace.
 
 ---
@@ -39,7 +39,7 @@ Those are declarative developer environments — they manage packages, shells, c
 | A replacement for Claude Code, Aider, or Hermes | Those are agent runtimes. OperatorOS is the workspace they work in. |
 | A universal second brain | This is not for students, managers, or non-technical users. It assumes comfort with terminal, git, and JSON-Schema. |
 | A paid product | MIT-licensed. No premium tier. No account. Donations are welcome and unmotivated. |
-| A mass-adoption play | Realistic audience: 5-50 engineers like Taras, not 100,000 users. |
+| A mass-adoption play | Realistic audience: 5-50 engineers comfortable with terminal, git, and JSON-Schema who want their workspace to behave like the code they write in it. |
 | A community OS | BDFL governance. Contributions welcome, but the methodology is one person's. |
 
 ## The methodology
@@ -85,15 +85,18 @@ You don't import someone else's life. You build your own.
 
 ### 3. The CLI
 
-Located in `core/`. Thirteen commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`, plus the v0.7.0 Workspace Catalog: `index`, `doctor`, `stats`, `stale`, `prune`.
+Located in `core/`. Fourteen commands: `init`, `validate`, `add`, `apply`, `run`, `export`, `version`, plus the v0.7.0 Workspace Catalog (`index`, `doctor`, `stats`, `stale`, `prune`), plus the v0.8.0 `inspect`.
 
 ```bash
-# Install (pin to v0.7.0 to match README/CHANGELOG; install.sh also defaults to v0.7.0)
-OPERATOROS_VERSION=v0.7.0 \
+# Install (pin to v0.8.0; install.sh defaults to v0.8.0)
+OPERATOROS_VERSION=v0.8.0 \
   curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
 
 # Scaffold a new workspace (writes into ./my-os; omit --target to use the current dir)
 operatoros init --target my-os
+
+# v0.8.0: see what your workspace looks like through an AI's eyes
+operatoros inspect --target my-os
 
 # Add a module — replace `<module-source>` with a local path or git URL.
 # OperatorOS ships no bundled modules (Decision 9, v0.6.3).
@@ -110,7 +113,77 @@ operatoros run <module> <command> [args...]
 operatoros export
 ```
 
-The CLI is **the carrier, not the product**. It is small, single-file (~787 KB), and quietly stays out of your way.
+The CLI is **the carrier, not the product**. It is small, single-file, and quietly stays out of your way.
+
+## What `inspect` looks like
+
+Drop the binary into any project. See what an AI sees in 1 second.
+
+```bash
+$ operatoros inspect --target /path/to/your/project
+```
+
+```
+OperatorOS Inspect — /path/to/your/project
+
+1. What's here
+   - Total entries: 5
+   - file: 4
+   - directory: 1
+   - symlink: 0
+
+2. How an AI agent would describe it cold
+
+   This directory contains 4 files across 1 subdirectories, occupying 146 bytes in total.
+
+   Top-level organization: src.
+   Source-tree organization (`src/`, `lib/`, `tests/`) suggests a software project rather than a personal OperatorOS workspace.
+
+3. What's structurally missing
+
+   [ERROR] missing-manifest: no operatoros.yaml at workspace root
+   [WARNING] missing-layout: missing required layout directory: modules/
+   [WARNING] missing-bootstrap: no bootstrap.md at workspace root
+   [WARNING] missing-identity: no IDENTITY.md at workspace root
+```
+
+`inspect` works on **any directory** — not just OperatorOS
+workspaces. It is the fastest way to see what an AI agent would
+"see cold" when entering your project. No setup, no install, no
+commit required.
+
+## Try it (v0.8.0 — 7-command flow)
+
+The first 5 minutes with OperatorOS. Each step is one command.
+
+```bash
+# 1. Install (skip if already installed)
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+
+# 2. Scaffold a workspace
+operatoros init --target my-os
+
+# 3. Step into it
+cd my-os
+
+# 4. See your workspace through an AI's eyes (v0.8.0)
+operatoros inspect --format terminal
+
+# 5. Validate a config file against its JSON Schema
+operatoros validate operatoros.yaml
+
+# 6. Check workspace health
+operatoros doctor
+
+# 7. Build a stats snapshot of the workspace
+operatoros stats
+```
+
+After step 7, you've seen your workspace through three lenses:
+**inventory** (inspect), **schema validity** (validate), and
+**structural health** (doctor and stats). The 9 modules that ship
+with v0.8.0 are installed via `operatoros add <path>` for engineers
+who want to extend further — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## The bootstrap protocol
 
@@ -126,35 +199,6 @@ The bootstrap protocol tells the agent:
 The agent then runs a five-question onboarding interview to learn what you actually do, what you care about, and what kind of work the workspace should optimize for. The interview is documented at `methodology/05-onboarding-interview.md`.
 
 This is the part that makes OperatorOS **AI-usable without being AI-dependent**: any agent — Claude, GPT, Hermes, Aider — can read `bootstrap.md` and behave correctly. None of them are required.
-
-## Try it
-
-You don't have to believe the methodology to try the scaffold.
-
-```bash
-# 1. Clone and look around
-git clone https://github.com/taras-polishchuk/operatoros-framework.git
-cd operatoros-framework
-
-# 2. Read the methodology
-ls methodology/
-cat methodology/01-six-principles.md
-
-# 4. Run the CLI in dry-run mode (no install needed; use a built binary or run
-#    from the cloned repo with `node core/src/cli.js`)
-node core/src/cli.js version
-
-# 5. Inspect what was generated
-ls -la /tmp/test-workspace
-cat /tmp/test-workspace/operatoros.yaml
-
-# 6. Validate the scaffold against its schema
-operatoros-core validate /tmp/test-workspace
-
-# 7. Add your first module — see CONTRIBUTING.md §"How to add a module"
-#    Example: git-clone an existing module repository and `operatoros add` it.
-#    Or author one from scratch following the contract in schemas/module.schema.json.
-```
 
 ### First 5 minutes — the canonical onboarding path
 

@@ -1,0 +1,23 @@
+version: "1.0"
+name: schema-validator
+description: "Validate any YAML/JSON file against a JSON Schema on demand. Distinct from operatoros validate (Core): operates on user-supplied files outside the workspace manifest."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-0, read-out, schema, v080x-candidate]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  check:
+    run: "./bin/check.sh $@"
+    description: "Validate a YAML/JSON file against a JSON Schema."
+    args:
+      - "<target>            file to validate"
+      - "--schema <path>     JSON Schema file (default: schemas/<name>.schema.json)"
+      - "--schema-name <n>   name from operatoros's bundled schemas (workspace|module|preset|catalog|identity)"
+  list:
+    run: "./bin/list.sh $@"
+    description: "List available schemas (bundled + workspace)."
+    args:
+      - "--target <path>     workspace root"

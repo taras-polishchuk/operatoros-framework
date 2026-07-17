@@ -1,0 +1,24 @@
+version: "1.0"
+name: commit-message
+description: "Generate a Conventional Commits message from staged git diff. Pure local, no network."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [showcase, workflow, v080x-candidate]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  generate:
+    run: "./bin/generate.sh $@"
+    description: "Generate a commit message from the staged git diff."
+    args:
+      - "--target <path>     git repo root (default: cwd)"
+      - "--type <type>       conventional commit type (feat|fix|chore|docs|refactor|test|perf)"
+      - "--scope <scope>     conventional commit scope (e.g., inspect, bootstrap-md)"
+      - "--max-lines <n>     max lines of file summary (default: 5)"
+  preview:
+    run: "./bin/preview.sh $@"
+    description: "Preview the message without staging."
+    args:
+      - "--target <path>"

@@ -1,0 +1,22 @@
+version: "1.0"
+name: module-cookbook
+description: "Showcase module — generates examples/hello-world (a complete, runnable, over-commented module) and prints educational Markdown for each module topic."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [showcase, tutorial, read-out]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  hello-world:
+    run: "./bin/hello-world.sh $@"
+    description: "Scaffold a complete runnable example module into examples/hello-world/."
+    args:
+      - "--target <path>     target directory (default: workspace root)"
+      - "--force             overwrite if exists"
+  show:
+    run: "./bin/show.sh $@"
+    description: "Print educational Markdown explaining the topic (commands, settings, hooks, requires, manifest)."
+    args:
+      - "<topic>             one of: commands, settings, hooks, requires, manifest"

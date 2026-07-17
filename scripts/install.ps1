@@ -3,8 +3,8 @@ $ErrorActionPreference = "Stop"
 
 $Repo = "taras-polishchuk/operatoros-framework"
 # Default = current published release. Override with $env:OPERATOROS_VERSION
-# to pin to a specific tag (e.g., v0.6.0 or v0.7.0).
-$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.7.0" }
+# to pin to a specific tag (e.g., v0.7.0 or v0.8.0).
+$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.8.0" }
 $InstallDir = if ($env:OPERATOROS_INSTALL_DIR) { $env:OPERATOROS_INSTALL_DIR } else { "$HOME\.local\bin" }
 $BinName = "operatoros.cmd"
 $BundleName = "operatoros.cmd.js"

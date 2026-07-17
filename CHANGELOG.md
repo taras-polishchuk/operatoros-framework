@@ -4,11 +4,159 @@
 >
 > **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary.
 
+## [v0.8.0] — 2026-07-16
+
+### Added — 10 ships (1 Core + 9 modules)
+
+**Core capability (1)**
+
+- **`operatoros inspect`** — three-section workspace report:
+  (1) inventory, (2) AI cold-read narrative, (3) structural gaps. Non-destructive.
+  Formats: `md` (default), `json`, `terminal`. CLI surface grows 13 → 14.
+
+**Tier-0 read-out modules (3) — M1 Stream B**
+
+- **`modules/context-builder/`** — renders an 800–1500 token context bundle
+  for an AI agent handed the workspace cold. Subcommands: `inspect`, `diff`.
+- **`modules/workspace-census/`** — file-kind breakdown + orphan detection
+  + secret-pattern anomaly scan. Subcommands: `census`, `orphans`, `anomalies`.
+- **`modules/architecture-index/`** — produces `state/architecture.md` +
+  `state/architecture-index.json` with claim-by-claim validation against the
+  filesystem. Subcommands: `show`, `diff`, `validate`.
+
+**Showcase module (1) — M1 Stream F**
+
+- **`modules/module-cookbook/`** — `hello-world` scaffolds `examples/hello-world/`
+  (canonical runnable demo); `show <topic>` prints educational Markdown for
+  `commands`, `settings`, `hooks`, `requires`, `manifest`.
+
+**Always-read tier generators (2) — M2 Stream C**
+
+- **`modules/bootstrap-md/`** — renders `bootstrap.md` from a 5-section
+  template, reading the active preset + installed modules. Atomic write
+  (temp → mv); backup history in `state/bootstrap-md/history.jsonl`.
+- **`modules/identity-md/`** — walks 5 onboarding questions
+  (`methodology/05`) and consolidates into `IDENTITY.md`. Vault-leakage
+  tick (I2): refuses to write if any answer matches `secrets.*` / `vault/`
+  / `.env` / `API_KEY=` patterns.
+
+**Reference modules (2) — M3 Stream D**
+
+- **`modules/drift-detector/`** — six per-principle drift checks
+  (`principles/*.sh`), each independently runnable. Subcommands: `check`
+  (Markdown report), `gate` (exit 0 only if all six pass), `diff`.
+- **`modules/mission-runner/`** — scaffolds the canonical 8-artifact
+  mission directory `.project-state/<slug>/`. Subcommands: `init`, `list`,
+  `validate`, `archive`.
+
+**Transactional module (1) — M4 Stream E**
+
+- **`modules/bootstrap-tier-refresh/`** — atomically regenerates
+  `bootstrap.md` + `IDENTITY.md` + `operatoros.yaml` (preset ref) +
+  `presets/<active>/preset.yaml`. POSIX `mv` + backup-rollback per
+  B3 (revised).
+
+**Schemas (1)**
+
+- **`schemas/identity.schema.json`** — JSON Schema for IDENTITY.md
+  produced by `identity-md` (5 required sections, `onboarding_complete: true`).
+  Per I1 amendment.
+
+**Methodology (1)**
+
+- **`methodology/07-capability-selection.md`** — renders the capability
+  framework as a methodology doc.
+
+**Core behavior changes**
+
+- **`core/src/commands/init.ts`** — when `modules/bootstrap-md` is installed,
+  `init` delegates to the module's `render` subcommand; otherwise the
+  in-binary `renderBootstrap()` fallback runs (no behavior change for
+  uninstalled-bootstrap-md users). Per B2 amendment.
+
+**Test coverage**
+
+- New: `core/__tests__/inspect.test.ts` (6 tests).
+- Extended: `core/__tests__/local-first.test.ts` now scans
+  `modules/*/bin/*.sh` for forbidden network primitives (excludes
+  `drift-detector/principles/*.sh` meta-files which legitimately
+  contain the patterns as strings).
+
+**Examples**
+
+- **`examples/hello-world/`** — canonical runnable module used by
+  `module-cookbook hello-world`.
+
+### Architecture artifacts (frozen, no runtime change)
+
+Located at `docs/internal/architecture/`. The v0.8.0 architecture-program
+artifacts were moved out of the repo root after v0.8.0 ship; this CHANGELOG
+entry preserves the original filenames for traceability.
+
+- `docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md` — 17 §6 frozen decisions.
+- `docs/internal/architecture/ARCHITECTURE-PROGRAM-CLOSING-v0.8.0.md` — program closure.
+- `docs/internal/architecture/CANONICAL-QUESTIONS-v0.8.0.md` — Q1–Q11 canonical question taxonomy.
+- `docs/internal/architecture/CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md` — 6-gate decision tree.
+- `docs/internal/architecture/FIRST-10-MINUTES-DESIGN-v0.8.0.md` — adopt-on-ramp journey.
+- `docs/internal/architecture/IMPLEMENTATION-PLAN-v0.8.0.md` — 5-milestone, 8-workstream plan.
+- `docs/internal/architecture/IMPLEMENTATION-START-BRIEF-v0.8.0.md` — one-page hand-off.
+- `docs/internal/architecture/MODULE-ECOSYSTEM-DESIGN-v0.8.0.md` — module ecosystem taxonomy.
+- `docs/internal/architecture/MODULE-MODEL-CLARIFICATION-v0.8.0.md` — wrap-not-replace rule.
+- `docs/internal/architecture/CORE-PROMISE-2026-07-15.md` — validated one-sentence promise.
+- `docs/internal/architecture/POSITIONING-RESEARCH-2026-07-15.md` — competitor analysis.
+- `docs/internal/architecture/POSITIONING-VALIDATION-2026-07-15.md` — visitor first-impression validation.
+- `docs/internal/architecture/ANALYSIS-v0.7.1-directive.md` — v0.7.1 → v0.8.0 pivot input.
+- `docs/internal/architecture/OPERATING-MODEL.md` — author's daily-practice model.
+
+### Plan amendments applied (per readiness audit)
+
+- **B1** — module runtime = shell string in `commands[].run` (no schema change).
+- **B2** — `init` lifecycle: first-init uses in-binary fallback; subsequent
+  `init --force` with `bootstrap-md` installed delegates to the module.
+- **B3 (revised)** — atomic-write scheme = POSIX `mv` + backup-rollback;
+  no Core helper added (rationale documented).
+- **I1** — `schemas/identity.schema.json` added.
+- **I2** — vault-leakage tick in `identity-md`.
+- **I3** — `operatoros.yaml` scope: only `preset:` reference line is regenerated.
+- **I4** — per-principle test files enumerated (`principles/*.sh`).
+- **I5** — byte-equal → schema-equal modulo timestamps.
+
+### Validation tickets (deferred to M5 audit mission)
+
+Per framework §1.4 Phase 3: ten validation tickets filed in
+`state/v080-validate/<capability>.md`. Validation tickets require a
+non-proposer engineer (per framework §1.4 test 1). In autonomous mode
+without a third-party validator, the agent-self-validation report
+records this caveat explicitly.
+
+### Why this release
+
+v0.8.0 implements the 8-capability ships-set adopted by the
+architecture freeze. After v0.8.0, the adopt-on-ramp story is real:
+a first-time engineer who runs `operatoros inspect` sees their
+workspace reflected back; the methodology (drift-detector) is
+machine-checked; the always-read tier (bootstrap-md + identity-md)
+is regenerable transactionally (bootstrap-tier-refresh).
+
+### Risks tracked (per plan §6)
+
+- Risk 1: `bootstrap-md` regression in `init` — mitigated by in-binary fallback.
+- Risk 2: `bootstrap-tier-refresh` mid-write failure — manual eyeball check
+  in M4 validation ticket (not CI).
+- Risk 3: `drift-detector` principle checks shallow — each finding has
+  non-empty recommendation.
+- Risk 4: `architecture-index` validate false positives — conservative
+  (flag uncertain as "needs review", not violation).
+- Risk 5: `mission-runner` ADR shape drift — templates generated from
+  `methodology/06-decisions-adr.md`.
+- Risk 6: README §"Try it" regression — clean-room engineer run-through
+  in M5.
+
 ## [v0.7.1] — 2026-07-15
 
 ### Changed — Documentation positioning update
 
-The introductory sections of README and landing page (`index.html`) are updated to follow the validated positioning research (see `ANALYSIS-v0.7.1-directive.md`, `POSITIONING-RESEARCH-2026-07-15.md`, `POSITIONING-VALIDATION-2026-07-15.md`, `CORE-PROMISE-2026-07-15.md` in this repo root for the research trail). The structural change is **a three-layer split**: (1) **product category** in the hero, (2) **product promise** immediately after, (3) **product mechanism** only below. No architecture, schema, CLI, or methodology changes.
+The introductory sections of README and landing page (`index.html`) are updated to follow the validated positioning research (see `docs/internal/architecture/ANALYSIS-v0.7.1-directive.md`, `docs/internal/architecture/POSITIONING-RESEARCH-2026-07-15.md`, `docs/internal/architecture/POSITIONING-VALIDATION-2026-07-15.md`, `docs/internal/architecture/CORE-PROMISE-2026-07-15.md` for the research trail; these files were at the repo root in v0.7.1 and have since moved to `docs/internal/architecture/`). The structural change is **a three-layer split**: (1) **product category** in the hero, (2) **product promise** immediately after, (3) **product mechanism** only below. No architecture, schema, CLI, or methodology changes.
 
 ### Hero (Layer 1 — product category)
 

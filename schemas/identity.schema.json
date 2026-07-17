@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/taras-polishchuk/operatoros-framework/schemas/identity.schema.json",
+  "title": "OperatorOS IDENTITY.md Schema",
+  "description": "Schema for IDENTITY.md produced by the identity-md module. Per implementation plan I1 amendment.",
+  "type": "object",
+  "required": ["sections", "onboarding_complete"],
+  "properties": {
+    "sections": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "required": ["who_am_i", "what_i_care_about", "how_i_work", "current_focus", "what_ai_should_never_do"],
+      "properties": {
+        "who_am_i":                   { "type": "string", "minLength": 1 },
+        "what_i_care_about":          { "type": "string", "minLength": 1 },
+        "how_i_work":                 { "type": "string", "minLength": 1 },
+        "current_focus":              { "type": "string", "minLength": 1 },
+        "what_ai_should_never_do":    { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "onboarding_complete": { "type": "boolean", "const": true },
+    "_last_updated": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

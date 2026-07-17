@@ -1,0 +1,25 @@
+version: "1.0"
+name: advisor
+description: "Interactive Q&A over the canonical questions Q1–Q11. Synthesizes inspect + context-builder + drift-detector output."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-0, read-out, ai-context, v080x-candidate]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  ask:
+    run: "./bin/ask.sh $@"
+    description: "Ask a canonical question by Q-number (Q1–Q11)."
+    args:
+      - "<Q-number>          one of Q1..Q11"
+      - "--target <path>     workspace root"
+  list:
+    run: "./bin/list.sh"
+    description: "List all 11 canonical questions."
+  chat:
+    run: "./bin/chat.sh $@"
+    description: "Interactive REPL — ask any Q-number in a loop."
+    args:
+      - "--target <path>"

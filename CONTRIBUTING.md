@@ -1,6 +1,6 @@
 # Contributing to OperatorOS
 
-> **Status:** v0.7.0 — Workspace Catalog. Process is for contributors, not for the methodology itself.
+> **Status:** v0.8.0 — 10-ship milestone. Process is for contributors, not for the methodology itself.
 
 ## Ground rules
 
@@ -9,6 +9,40 @@
 3. **No drive-by refactors.** A PR titled "drive-by cleanup" is grounds for close.
 4. **Tests are not optional.** If your change can be tested, it must be tested.
 5. **If a feature is not implemented, don't pretend it is.** Aspirational registry entries, empty example directories, and placeholder READMEs will be removed on sight.
+
+## How to propose a capability
+
+A capability is a unit of workspace behavior that answers a canonical
+question (Q1–Q11). The capability selection framework is the 6-gate
+decision tree documented at [`methodology/07-capability-selection.md`](methodology/07-capability-selection.md).
+
+To propose a new capability:
+
+1. **Identify the canonical question.** Map your proposal to one of Q1–Q11
+   from [`CANONICAL-QUESTIONS-v0.8.0.md`](./docs/internal/architecture/CANONICAL-QUESTIONS-v0.8.0.md).
+   If it doesn't map, it's a utility, not a capability — propose it
+   elsewhere.
+
+2. **Walk the 6 gates.**
+   - Gate 1 — canonical question (yes).
+   - Gate 2 — layer fit (Core vs Module, no duplication).
+   - Gate 3 — principle compliance (six principles, see methodology/01).
+   - Gate 4 — tier placement (always-read / tier-0 / reference / transactional / showcase).
+   - Gate 5 — phase-3 validation (a non-proposer engineer runs it).
+   - Gate 6 — architecture-fit (no violation of the 17 §6 frozen decisions).
+
+3. **File a capability proposal issue** using the capability-proposal
+   issue template (see `.github/ISSUE_TEMPLATE/`). Include:
+   - The canonical question it answers.
+   - The layer + tier placement.
+   - The principle-compliance checklist.
+   - The proposed module manifest (sketch of `module.yaml`).
+
+4. **Defer-to-decision.** A capability that fails any gate is
+   deferred to a later version. Adding to the v0.8.x ships-set
+   requires an ADR per the architecture freeze §8.4.
+
+See [`CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md`](./docs/internal/architecture/CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md) for the full framework.
 
 ## How to add a module
 

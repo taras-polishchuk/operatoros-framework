@@ -1,0 +1,36 @@
+version: "1.0"
+name: mission-runner
+description: "Scaffold and validate the canonical 8-artifact mission directory under .project-state/<slug>/."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-reference, methodology, scaffolding]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  init:
+    run: "./bin/init.sh $@"
+    description: "Scaffold .project-state/<slug>/ with the 8 standard artifacts."
+    args:
+      - "<slug>              mission slug (kebab-case)"
+      - "--target <path>     target workspace root"
+      - "--force             overwrite if exists"
+      - "--objective <text>  pre-fill source-task.md objective"
+  list:
+    run: "./bin/list.sh $@"
+    description: "List existing missions under .project-state/."
+    args:
+      - "--target <path>"
+  validate:
+    run: "./bin/validate.sh $@"
+    description: "Verify all 8 standard artifacts are present; flag missing."
+    args:
+      - "<slug>"
+      - "--target <path>"
+  archive:
+    run: "./bin/archive.sh $@"
+    description: "Move mission to .project-state/archive/<slug>/."
+    args:
+      - "<slug>"
+      - "--target <path>"

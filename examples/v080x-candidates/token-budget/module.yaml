@@ -1,0 +1,22 @@
+version: "1.0"
+name: token-budget
+description: "Measure token cost of always-read tier (bootstrap.md + IDENTITY.md + operatoros.yaml). Warn if it exceeds the budget."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-always-read, governance, v080x-candidate]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  measure:
+    run: "./bin/measure.sh $@"
+    description: "Measure token cost of the always-read tier."
+    args:
+      - "--target <path>     workspace root"
+      - "--budget <n>        token budget (default: 3000)"
+  budget:
+    run: "./bin/budget.sh $@"
+    description: "Show the budget configuration."
+    args:
+      - "--target <path>"

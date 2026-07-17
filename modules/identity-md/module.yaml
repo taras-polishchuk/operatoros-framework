@@ -1,0 +1,27 @@
+version: "1.0"
+name: identity-md
+description: "Walks through the 5 onboarding questions (methodology/05) and consolidates answers into IDENTITY.md."
+author: "OperatorOS maintainers"
+license: "MIT"
+tags: [tier-always-read, generator, ai-context]
+
+requires:
+  core_version: "0.8.0"
+
+commands:
+  init:
+    run: "./bin/init.sh $@"
+    description: "Consolidate the latest interview answers into IDENTITY.md."
+    args:
+      - "--target <path>"
+  interview:
+    run: "./bin/interview.sh $@"
+    description: "Walk through the 5 onboarding questions and record answers."
+    args:
+      - "--target <path>"
+      - "--answer <n>=<value>   provide a single answer (or use interactive)"
+  validate:
+    run: "./bin/validate.sh $@"
+    description: "Validate IDENTITY.md against methodology/05 §5 rules."
+    args:
+      - "--target <path>"
