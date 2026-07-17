@@ -1,6 +1,7 @@
 # Document Lifecycle
 
 > **Status:** Constitutional convention. Every document in your workspace has a state. State transitions are explicit.
+> Last updated: 2026-07-15
 
 Documents are not eternal. They have births, lives, and deaths. A methodology that doesn't account for this accumulates stale documents — which eventually become indistinguishable from active ones.
 
@@ -105,3 +106,14 @@ A: They're active by default. "Active" means "the current authoritative version"
 - **The silent death.** A document that gets replaced without being moved to legacy. Old references break silently.
 - **The legacy pile.** A workspace with 50 legacy documents and 5 active ones. Consolidate: if 10 legacy docs are all replaced by one active doc, archive 9 of them.
 - **The hidden archive.** An `ARCHIVE/` directory that no one indexes. Agents read it accidentally. Keep an archive index.
+
+---
+
+## Changes from real use
+
+This section tracks revisions derived from actual workspace use,
+not aspirational design. Each entry is dated and references the
+specific use case that motivated the change.
+
+- **2026-07-15** — Initial version aligned with v0.8.0 ships-set
+  and methodology cleanup for release.

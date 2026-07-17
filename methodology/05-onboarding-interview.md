@@ -1,6 +1,7 @@
 # Onboarding Interview
 
 > **Status:** Operational protocol. The five questions an agent should ask when entering a new workspace for the first time.
+> Last updated: 2026-07-15
 
 When a workspace doesn't have `onboarding_complete: true` in `IDENTITY.md`, the agent runs the onboarding interview. The interview has five questions. Each answer is recorded. After the interview, the agent writes the answers to `IDENTITY.md` so future cold-starts don't repeat it.
 
@@ -192,3 +193,14 @@ The agent then sets `onboarding_complete: true`. Future cold-starts skip the int
 - **The empty answers.** "I don't know" is not an acceptable answer. The agent should push back once, then accept and use defaults.
 - **The stale answers.** The owner changes focus but doesn't update `IDENTITY.md`. Solution: agents should check the `last_updated` field and offer to re-interview if it's > 6 months old.
 - **The interview-as-test.** The owner treats the interview as a test of the agent's intelligence. It's not. It's a parameter collection.
+
+---
+
+## Changes from real use
+
+This section tracks revisions derived from actual workspace use,
+not aspirational design. Each entry is dated and references the
+specific use case that motivated the change.
+
+- **2026-07-15** — Initial version aligned with v0.8.0 ships-set
+  and methodology cleanup for release.

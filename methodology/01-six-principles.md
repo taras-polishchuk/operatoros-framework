@@ -1,6 +1,7 @@
 # The Six Principles
 
 > **Status:** Constitutional. These are not aspirational — they are enforced where the codebase allows it, and codified as invariant rules where it doesn't.
+> Last updated: 2026-07-15
 
 The OperatorOS methodology is built on six principles. They were extracted from a workspace in daily use since early 2026 and refined into the rules below. Each principle has a one-sentence statement, an explanation, an operational rule, and an enforcement mechanism. A worked example of one engineer applying these principles lives at `OPERATING-MODEL.md`; the canonical rules below are framework-neutral and apply to any OperatorOS-managed workspace.
 
@@ -144,3 +145,14 @@ You are not required to accept all six. You may:
 - **Translate them** into your own language. The substance matters more than the words.
 
 The principles are not commandments. They are the seed. Grow what fits.
+
+---
+
+## Changes from real use
+
+This section tracks revisions derived from actual workspace use,
+not aspirational design. Each entry is dated and references the
+specific use case that motivated the change.
+
+- **2026-07-15** — Initial version aligned with v0.8.0 ships-set
+  and methodology cleanup for release.

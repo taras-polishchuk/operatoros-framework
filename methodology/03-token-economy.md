@@ -1,6 +1,7 @@
 # Token Economy
 
 > **Status:** Operational convention. The whole point of having structure is to read less, not more.
+> Last updated: 2026-07-15
 
 A personal workspace accumulates documents. Without rules, every agent that enters the workspace reads everything. That's expensive — and worse, it dilutes attention. The token economy is the set of rules that decide what gets read when.
 
@@ -132,3 +133,14 @@ When you add a document to your workspace, ask:
 If the answers are "conditional, rarely, yes", put it in conditional tier. If they're "discovery, once, yes", put it in discovery. If they're "ignore, never, no", delete it.
 
 Most workspaces have too many "discovery" docs that should be "ignore". Be ruthless.
+
+---
+
+## Changes from real use
+
+This section tracks revisions derived from actual workspace use,
+not aspirational design. Each entry is dated and references the
+specific use case that motivated the change.
+
+- **2026-07-15** — Initial version aligned with v0.8.0 ships-set
+  and methodology cleanup for release.

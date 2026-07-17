@@ -1,6 +1,7 @@
 # Agent Bootstrap Protocol
 
 > **Status:** Operational protocol. This is what an AI agent does when it enters your workspace for the first time.
+> Last updated: 2026-07-15
 
 The bootstrap protocol is the contract between a workspace and an AI agent. The workspace says: "Here is what you should read, in what order, and when to ask me questions." The agent says: "I will respect this contract."
 
@@ -160,3 +161,14 @@ Each agent reads the shared `IDENTITY.md` and its own override. The overrides co
 A well-bootstrapped agent should complete this task in < 5K tokens and produce an accurate summary.
 
 If it takes > 10K tokens or the summary is wrong, your bootstrap file needs work.
+
+---
+
+## Changes from real use
+
+This section tracks revisions derived from actual workspace use,
+not aspirational design. Each entry is dated and references the
+specific use case that motivated the change.
+
+- **2026-07-15** — Initial version aligned with v0.8.0 ships-set
+  and methodology cleanup for release.
