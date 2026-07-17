@@ -3,13 +3,13 @@
  * OperatorOS Core CLI — main entry point.
  *
  * Implements the OperatorOS framework spec defined in this repo's schemas/ directory.
- * CLI surface (13 commands — v0.7.0):
+ * CLI surface (14 commands — v0.8.0):
  *   operatoros init [--preset <name>] [--target <path>] [--force]
  *   operatoros validate <path> [--schema <name>]
  *   operatoros add <module-path-or-url> [--name <name>] [--pin <ref>]
  *   operatoros apply [preset]
  *   operatoros run <module> <command> [args...]
- *   operatoros export [--bundle tar.gz] [--out <path>] [--include-secrets]
+ *   operatoros export [--bundle <format>] [--out <path>] [--include-secrets]
  *   operatoros version
  *   -- v0.7.0: Workspace Catalog commands (catalog is a pure, durable artifact inventory)
  *   operatoros index                     # rebuild .operatoros/index.json
@@ -17,6 +17,8 @@
  *   operatoros stats [--target <path>]   # report counts/sizes by type
  *   operatoros stale [--target <path>]   # list orphan artifacts
  *   operatoros prune [--paths ...] [--dry-run | --confirm]
+ *   -- v0.8.0: Three-section workspace report
+ *   operatoros inspect [--target <path>] [--format md|json|terminal] [--no-bootstrap]
  */
 import { Command } from "commander";
 import { installEmbeddedAssets } from "./embedded-assets";
@@ -34,6 +36,8 @@ import { doctorCommand } from "./commands/doctor";
 import { statsCommand } from "./commands/stats";
 import { staleCommand } from "./commands/stale";
 import { pruneCommand } from "./commands/prune";
+// v0.8.0 — Three-section workspace report
+import { inspectCommand } from "./commands/inspect";
 import { version as pkgVersion } from "../package.json";
 
 // __EMBEDDED_ASSETS__
@@ -65,12 +69,22 @@ program
   .option("--preset <name>", "use a specific preset (e.g., personal, minimal, team-research, dev-machine)")
   .option("-t, --target <path>", "target directory (default: current dir)")
   .option("-f, --force", "overwrite existing files")
+  .addHelpText("after", `
+Examples:
+  $ operatoros init --target my-os
+  $ operatoros init --preset personal --target ~/projects/personal
+  $ operatoros init --force                       # overwrite existing init`)
   .action(initCommand);
 
 program
   .command("validate <path>")
   .description("Validate a workspace/module/preset against its JSON-Schema")
   .option("--schema <name>", "schema name (workspace, module, preset)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros validate operatoros.yaml
+  $ operatoros validate ./modules/my-module --schema module
+  $ operatoros validate ./presets/personal/preset.yaml --schema preset`)
   .action(validateCommand);
 
 program
@@ -78,16 +92,32 @@ program
   .description("Install a module from a local path or git URL")
   .option("-n, --name <name>", "override module name")
   .option("--pin <ref>", "git ref (branch/tag/sha) when source is a git URL")
+  .addHelpText("after", `
+Examples:
+  $ operatoros add ./modules/my-module
+  $ operatoros add https://github.com/me/my-module.git
+  $ operatoros add https://github.com/me/my-module.git --pin v1.0.0
+  $ operatoros add ./local-module --name custom-name`)
   .action(addCommand);
 
 program
   .command("apply [preset]")
   .description("Apply a preset — install all modules declared in the preset's preset.yaml")
+  .addHelpText("after", `
+Examples:
+  $ operatoros apply                    # apply the preset named in operatoros.yaml
+  $ operatoros apply personal           # apply the 'personal' preset explicitly
+  $ operatoros apply team-research`)
   .action(applyCommand);
 
 program
   .command("run <module> <command> [args...]")
   .description("Execute a command from an installed module")
+  .addHelpText("after", `
+Examples:
+  $ operatoros run context-builder inspect
+  $ operatoros run drift-detector check --strict
+  $ operatoros run my-module greet "Taras"`)
   .action(runCommand);
 
 program
@@ -96,15 +126,22 @@ program
   .option("-b, --bundle <format>", "bundle format (tar.gz, zip)", "tar.gz")
   .option("-o, --out <path>", "output file path")
   .option("--include-secrets", "include secret files (default: deny-list)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros export                                  # writes ./operatoros-workspace.tar.gz
+  $ operatoros export -o backup.tar.gz
+  $ operatoros export --bundle zip -o workspace.zip
+  $ operatoros export --include-secrets               # include vault/ (off by default)`)
   .action(exportCommand);
 
 program
   .command("version")
   .description("Print OperatorOS Core version")
+  .addHelpText("after", `
+Examples:
+  $ operatoros version
+  Output: operatoros-core: 0.8.0, git: <branch> @ <sha>`)
   .action(versionCommand);
-
-// ─── v0.8.0 — Three-section workspace report ───────────────────────────
-import { inspectCommand } from "./commands/inspect";
 
 program
   .command("inspect")
@@ -112,6 +149,16 @@ program
   .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
   .option("--format <fmt>", "output format: md (default) | json | terminal")
   .option("--no-bootstrap", "do not recommend or mention bootstrap.md")
+  .addHelpText("after", `
+Examples:
+  $ operatoros inspect                              # report on the workspace you're in
+  $ operatoros inspect --target /path/to/project    # any project, not just operatoros
+  $ operatoros inspect --format json                 # machine-readable
+  $ operatoros inspect --format terminal --no-bootstrap  # concise, no bootstrap.md mention
+
+Use case: drop operatoros into any project to see what an AI
+agent would "see cold" when entering. Works on non-OperatorOS
+projects too — that's the aha moment.`)
   .action((opts) => {
     void inspectCommand(opts);
   });
@@ -120,12 +167,29 @@ program
   .command("index")
   .description("Rebuild the Workspace Catalog (.operatoros/index.json). Durable metadata only — no usage tracking or telemetry.")
   .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros index                    # rebuild catalog for the current workspace
+  $ operatoros index --target /path/to/workspace
+
+The catalog contains ONLY durable metadata (path, type, size, mtime,
+content_hash, indexed_at). No background processes; no telemetry.
+The catalog is a pure inventory snapshot, refreshed on explicit
+invocation only.`)
   .action((opts) => indexCommand(opts));
 
 program
   .command("doctor")
   .description("Workspace diagnostics: report manifest validity, layout completeness, catalog freshness.")
   .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros doctor                    # check the current workspace
+  $ operatoros doctor --target /path/to/workspace
+
+Reports findings by level (error / warning / info). Exits with
+code 1 if any error-level finding is present. Run after a fresh
+init to confirm the scaffold is well-formed.`)
   .action(async (opts) => {
     const result = await doctorCommand(opts);
     for (const f of result.findings) {
@@ -138,6 +202,13 @@ program
   .command("stats")
   .description("Workspace statistics: file counts, sizes, type breakdown. Reads catalog if present.")
   .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros stats                    # count + size by type
+  $ operatoros stats --target /path/to/workspace
+
+Output: JSON with fileCount, directoryCount, symlinkCount, byType,
+totalSize, catalogIndexedAt, catalogStale, scannedDirect.`)
   .action(async (opts) => {
     const s = await statsCommand(opts);
     console.log(JSON.stringify(s, null, 2));
@@ -147,6 +218,13 @@ program
   .command("stale")
   .description("List orphan artifacts: files with no in-workspace references and not in denylist.")
   .option("-t, --target <path>", "target directory (default: workspace root or cwd)")
+  .addHelpText("after", `
+Examples:
+  $ operatoros stale                    # list orphans in the current workspace
+  $ operatoros stale --target /path/to/workspace
+
+Outputs one path per line. "Orphan" = no in-workspace reference and
+not in the denylist. Read-only — does not modify the workspace.`)
   .action(async (opts) => {
     const orphans = await staleCommand(opts);
     for (const o of orphans) console.log(o.path);
@@ -159,6 +237,18 @@ program
   .option("--paths [paths...]", "explicit paths to delete (else derives from `stale`)")
   .option("--dry-run", "list planned deletions only (default when --confirm is absent)")
   .option("--confirm", "confirm deletion; requires --paths")
+  .addHelpText("after", `
+Examples:
+  $ operatoros prune                              # dry-run; lists what would be deleted
+  $ operatoros prune --paths foo.txt bar.md --confirm
+  $ operatoros prune --target /path/to/workspace
+
+WARNING: --confirm deletes files. The default is --dry-run which
+prints planned deletions without touching the filesystem.
+
+Destructive action — combine with --target to scope.
+--dry-run is the default when --confirm is absent.
+--dry-run + --confirm: --confirm wins (explicit destructive path).`)
   .action(async (opts) => {
     // Commander coerce: dryRun defaults to true UNLESS user passed --confirm.
     // - If user passed neither: dryRun=true (safe default).
