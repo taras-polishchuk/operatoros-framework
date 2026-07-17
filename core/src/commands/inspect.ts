@@ -160,7 +160,7 @@ function computeGaps(
     gaps.push({
       code: "missing-bootstrap",
       level: "warning",
-      message: "no bootstrap.md at workspace root — install the `bootstrap-md` module to generate one",
+      message: "no bootstrap.md at workspace root — run: operatoros add <path-to-operatoros>/modules/bootstrap-md to generate one",
     });
   }
 
@@ -168,7 +168,7 @@ function computeGaps(
     gaps.push({
       code: "missing-identity",
       level: "warning",
-      message: "no IDENTITY.md at workspace root — install the `identity-md` module to scaffold one",
+      message: "no IDENTITY.md at workspace root — run: operatoros add <path-to-operatoros>/modules/identity-md to scaffold one",
     });
   }
 

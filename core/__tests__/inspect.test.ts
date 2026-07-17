@@ -164,10 +164,12 @@ describe("inspect command", () => {
       expect(codes).toContain("missing-bootstrap");
       expect(codes).toContain("missing-identity");
 
-      // Message-based: gap messages name the exact filenames.
+      // Message-based: gap messages name the exact filenames AND
+      // include the install command (UX fix 2026-07-17).
       const joined = messages.join(" ");
       expect(joined).toContain("bootstrap.md");
       expect(joined).toContain("IDENTITY.md");
+      expect(joined).toContain("operatoros add");
     } finally {
       process.stdout.write = original;
     }

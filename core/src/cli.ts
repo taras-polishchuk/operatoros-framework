@@ -89,12 +89,14 @@ Examples:
 
 program
   .command("add <source>")
-  .description("Install a module from a local path or git URL")
+  .alias("install")
+  .description("Install a module from a local path or git URL (alias: install)")
   .option("-n, --name <name>", "override module name")
   .option("--pin <ref>", "git ref (branch/tag/sha) when source is a git URL")
   .addHelpText("after", `
 Examples:
   $ operatoros add ./modules/my-module
+  $ operatoros install ./modules/my-module      # alias for "add"
   $ operatoros add https://github.com/me/my-module.git
   $ operatoros add https://github.com/me/my-module.git --pin v1.0.0
   $ operatoros add ./local-module --name custom-name`)
