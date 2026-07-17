@@ -2,7 +2,76 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 >
-> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary. `v0.8.0` ships the 10-ship v0.8.0 ships-set; `v0.8.1` is a polish release on top (no Core code change, CLI version stays `0.8.0`).
+> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary. `v0.8.0` ships the 10-ship v0.8.0 ships-set; `v0.8.1` is a polish release on top (no Core code change, CLI version stays `0.8.0`); `v0.8.2` adds cross-platform install reliability + fixes CI release-gate.
+
+## [v0.8.2] — 2026-07-17
+
+Cross-platform install reliability patch on top of v0.8.1.
+The 10 ships are unchanged; the CLI surface stays at 14 commands
+with `operatoros-core: 0.8.0`.
+
+### Fixed — install reliability
+
+- **`scripts/install.sh` — bash-only with friendly sh error.**
+  When invoked via `curl ... | sh` (Debian/Ubuntu/Alpine
+  default), the script now prints a helpful error message
+  explaining why this fails and the correct `curl ... | bash`
+  pattern. Previously the install would silently die at
+  `set -euo pipefail` with an opaque message.
+- **`scripts/install.sh` — platform detection + Node pre-flight.**
+  Detects Linux / macOS / Windows. If Node 20+ is missing,
+  prints platform-specific install commands (`brew install node@20`,
+  `nvm install 20`, `apt install nodejs`, etc.).
+- **`scripts/install.sh` — PATH check post-install.**
+  Detects shell (bash/zsh/fish on Linux, zsh on macOS) and prints
+  the exact `echo 'export PATH=...' >> ~/.bashrc` line.
+- **`scripts/install.sh` — download failure diagnostic.**
+  Catches `curl` failures with possible causes (wrong version,
+  network, GitHub outage).
+- **`scripts/install.ps1` — HEAD pre-flight + 3-asset pattern.**
+  Verifies both `operatoros.cmd` and `operatoros.cmd.js` URLs
+  resolve before downloading. Windows install previously
+  returned 404 on the missing `operatoros.cmd.js`.
+
+### Fixed — CI release gate
+
+- **Methodology headers.** `methodology/01-05` now each have
+  a `Last updated: YYYY-MM-DD` header (date > 2026-07-11) and
+  a `Changes from real use` section. Fixes the failing
+  `release-gate.test.ts` GATE 2 (a) check that previously
+  caused every CI build to fail.
+
+### Changed
+
+- **README: 195 lines** with comprehensive cross-platform install
+  instructions (Linux/macOS/WSL + Windows, with Node.js pre-flight
+  and PATH instructions). The `What inspect looks like` aha
+  section is preserved at line 8.
+
+### Added
+
+- **3-asset GitHub release:** `operatoros` (Linux/macOS bundle,
+  ~835 KB), `operatoros.cmd` (Windows wrapper, 43 bytes), and
+  `operatoros.cmd.js` (Windows bundle, ~835 KB).
+
+### Verified
+
+- Architecture Freeze: 17/17 §6 decisions preserved.
+- Local-First invariant: green.
+- Test suite: 62/65 pass (was 1 failed | 61 passed | 3 skipped;
+  the previously failing release-gate GATE 2 (a) now passes).
+- `curl ... | bash` tested end-to-end on Linux.
+- Windows URLs verified via HEAD pre-flight.
+
+### Git
+
+- Tag: `v0.8.2` at commit `223e884` (with methodology fix).
+- Branch: `main` (merge of `v0.8.0-implementation` is `8543b42`).
+- 6 commits since `v0.8.1`:
+  `589a1e5` (S1), `2c62d7d` (install default),
+  `b7371a3` (S2), `865c4b8` (S3), `e561ca0` + `ec61c47` +
+  `1a22e6e` (install fixes), `fad42eb` (README rewrite),
+  `223e884` (methodology CI fix).
 
 ## [v0.8.1] — 2026-07-17
 
