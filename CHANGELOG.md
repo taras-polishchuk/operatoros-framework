@@ -2,7 +2,81 @@
 
 > **Format:** [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). **Versioning:** [SemVer 2.0](https://semver.org/). **Cadence:** irregular while in alpha.
 >
-> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary.
+> **Release-tag reality (read this first):** the tagged, installable releases in the `v0.6` line are `v0.6.0`, and `v0.7.0` is the first tagged minor-bump-of-minor over v0.6. The `v0.6.0.1`, `v0.6.2`, and `v0.6.3` sections below are **post-v0.6.0 increments folded into the `main` branch without their own git tags or a `package.json` bump** (documentation/repositioning changes, no CLI code change). Treat them as sub-releases within the v0.6.0 line. A version bump + new tag is a deliberate release action and has not been performed for these increments. `v0.7.0` is tagged, has a `package.json` bump (`0.6.0` → `0.7.0`), and ships a single-file binary asset. `v0.7.1` is the documentation-positioning update below; it has no `package.json` bump and ships no new binary. `v0.8.0` ships the 10-ship v0.8.0 ships-set; `v0.8.1` is a polish release on top (no Core code change, CLI version stays `0.8.0`).
+
+## [v0.8.1] — 2026-07-17
+
+Polish release on top of v0.8.0. The 10 ships are unchanged;
+the CLI surface stays at 14 commands with `operatoros-core: 0.8.0`.
+
+### Added — visitor-experience polish
+
+- **S1 — Root repo cleanup.** The 14 architecture-program artifacts
+  (ANALYSIS-v0.7.1-directive, ARCHITECTURE-FREEZE-v0.8.0,
+  ARCHITECTURE-PROGRAM-CLOSING-v0.8.0, CANONICAL-QUESTIONS-v0.8.0,
+  CAPABILITY-SELECTION-FRAMEWORK-v0.8.0, CORE-PROMISE-2026-07-15,
+  FIRST-10-MINUTES-DESIGN-v0.8.0, IMPLEMENTATION-PLAN-v0.8.0,
+  IMPLEMENTATION-START-BRIEF-v0.8.0, MODULE-ECOSYSTEM-DESIGN-v0.8.0,
+  MODULE-MODEL-CLARIFICATION-v0.8.0, OPERATING-MODEL,
+  POSITIONING-RESEARCH-2026-07-15, POSITIONING-VALIDATION-2026-07-15)
+  are moved from the repo root to `docs/internal/architecture/`.
+  A new `docs/internal/architecture/README.md` indexes the
+  directory and explains when to read each file. Root now has
+  exactly 9 entries (8 .md + 1 LICENSE).
+
+- **S2 — Per-command help.** All 14 commands now have
+  example invocations and use-case notes via Commander's
+  `addHelpText('after', ...)`. `operatoros <cmd> --help`
+  shows 2-4 example invocations plus behavior notes for
+  complex commands. Replaces the previous behavior where
+  per-command help returned only the generic usage line.
+
+- **S3 — README rewrite.** Cut from 241 to 95 lines. Leads
+  with the `inspect` aha at line 7 (right after the title),
+  so the visitor sees the aha moment at minute 0 of reading.
+  Long-form content (Why not X, Origin, Who this is for,
+  bootstrap protocol deep-dive, First 5 minutes canonical
+  path) moved to `docs/about.md`.
+
+- **Install-script default version.** `scripts/install.sh`
+  and `scripts/install.ps1` default to `v0.8.0`. Bare
+  `curl ... | sh` now installs v0.8.0 without requiring
+  `OPERATOROS_VERSION` flag.
+
+### Changed
+
+- README: 241 → 95 lines. The `What this is` paragraph and
+  the 8-row "What this is NOT" table are condensed; the
+  detailed comparisons with AGENTS.md / chezmoi / Nix Home
+  Manager move to `docs/about.md`.
+- `.gitignore`: `state/drift-detector/` now ignored (auto-gen
+  runtime output, not source).
+
+### Verified
+
+- Architecture Freeze: 17/17 §6 decisions preserved.
+- Local-First invariant: green.
+- Test suite: 61/65 pass (1 pre-existing release-gate
+  methodology-timestamp failure unchanged from baseline).
+- FTU validation re-run: 12 friction points, 11 resolved,
+  1 deferred (`N1` — `examples/v080x-candidates/` rename to
+  `docs/case-studies/`, post-v0.8.x work).
+- Binary: `core/dist-bin/index.js` rebuilt at 839,358 bytes
+  with per-command help.
+
+### Git
+
+- Tag: `v0.8.1` at commit `865c4b8` (S3 final commit on `main`).
+- Branch: `v0.8.0-implementation` merged to `main` (merge commit
+  `8543b42`).
+- 4 commits since `v0.8.0`: `589a1e5` (S1), `2c62d7d` (install
+  default), `b7371a3` (S2), `865c4b8` (S3).
+
+### See also
+
+- `docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md`
+- `docs/about.md` (long-form visitor context)
+- FTU validation re-run report (operatoros-ftu-rerun mission).
 
 ## [v0.8.0] — 2026-07-16
 
