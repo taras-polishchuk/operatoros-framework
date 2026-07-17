@@ -12,6 +12,13 @@ import * as path from "path";
 import { heading, ok, info, fail } from "../lib/print";
 import { WORKSPACE_FILENAME, WORKSPACE_LAYOUT } from "../lib/workspace";
 import { version as CORE_VERSION } from "../../package.json";
+// Side-effect import: guarantees `__embedded*` globals are populated
+// before initCommand runs. In the ncc bundle, cli.ts already imports
+// this; in dev/test mode where vitest imports init.ts directly, this
+// import is required to populate the methodology/presets/schemas
+// globals for init.
+import { installEmbeddedAssets } from "../embedded-assets";
+installEmbeddedAssets();
 
 interface InitOptions {
   personal?: boolean;
@@ -162,6 +169,33 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     `# modules/\n\nModules extend your workspace. Install one with:\n\n    operatoros add <path-or-url>   # from local path or git URL\n\nModules declare their contract via \`module.yaml\` at the root.\n`
   );
   ok(`created modules/README.md`);
+
+  // Methodology documents — bundled as bootstrap payload so AI agents
+  // entering the workspace have the six principles, the bootstrap
+  // protocol, the token economy, etc. physically present (not as
+  // dead links to a remote repo). These are the SAME files in
+  // `methodology/` of the framework repo, embedded at build time via
+  // scripts/embed-assets.js. They are version-locked to the Core
+  // version (matching operatoros_version in operatoros.yaml).
+  const methodologyDir = path.join(target, "methodology");
+  const embeddedMethodology = (globalThis as {
+    __embeddedMethodology?: Record<string, string>;
+  }).__embeddedMethodology;
+  if (embeddedMethodology && Object.keys(embeddedMethodology).length > 0) {
+    await fs.ensureDir(methodologyDir);
+    await fs.writeFile(
+      path.join(methodologyDir, "README.md"),
+      `# methodology/\n\nSix principles, doc lifecycle, token economy, bootstrap protocol,\nADR shape — for the AI agent and engineer to read when making decisions\nabout this workspace.\n\nEach document is a constitutional or operational rule that is enforced\nwhere the codebase allows it, and codified as invariant rules where it\ndoesn't. Read them when you're making non-trivial decisions.\n\nIf you want to disagree with a principle, that's fine — write the\ndisagreement to your \`IDENTITY.md\` override and proceed.\n`
+    );
+    let written = 0;
+    for (const [name, content] of Object.entries(embeddedMethodology)) {
+      await fs.writeFile(path.join(methodologyDir, name), content);
+      written += 1;
+    }
+    ok(`created methodology/ (${written} documents bundled with this Core version)`);
+  } else {
+    info(`no methodology docs embedded in this Core version — bootstrap.md references will resolve remotely via the framework repo`);
+  }
 
   // bootstrap.md — the AI-agent entry point. Follows the five-section contract
   // documented in methodology/04-agent-bootstrap.md. This is a DEFAULT starting

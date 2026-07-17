@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * scripts/embed-assets.js — read all canonical assets (presets, schemas,
- * example modules) and inject them into src/embedded-assets.ts at ncc-build time.
+ * example modules, methodology documents) and inject them into
+ * src/embedded-assets.ts at ncc-build time.
  *
  * The runtime file (src/embedded-assets.ts) is loaded eagerly from cli.ts via
  * `installEmbeddedAssets()`. This guarantees the globals are set before any
@@ -14,6 +15,13 @@
  *   - presets: { name: yaml-content }
  *   - schemas: { name: parsed-object }
  *   - examples: { name: { "module.yaml": yaml-content, "README.md": md-content } }
+ *   - methodology: { "01-six-principles.md": markdown-content, ... }
+ *
+ * `methodology` is bootstrap payload — bundled into the binary so a
+ * freshly-inited workspace can write out the methodology documents on
+ * `init`. This solves the "dead link in bootstrap.md" gap: bootstrap.md
+ * can reference `methodology/01-six-principles.md` and the visitor's
+ * workspace will have that file physically present. See v0.8.7 audit.
  *
  * Invariant: src/embedded-assets.ts MUST contain the markers
  *   // __EMBEDDED_RUNTIME__
@@ -64,10 +72,26 @@ if (fs.existsSync(examplesDir)) {
   }
 }
 
+// 4. Methodology documents — map { "NN-name.md": markdown-content, ... }
+// Bundled as bootstrap payload so `init` can write them into the workspace.
+// We exclude `v0.8.x-design/` subdirectory (design artifacts, not core
+// methodology) and any `archive/` subdirectory (deprecated docs).
+const methodology = {};
+const methodologyDir = path.join(root, "methodology");
+if (fs.existsSync(methodologyDir)) {
+  // Top-level .md files only — methodology is intentionally flat: NN-name.md.
+  for (const f of fs.readdirSync(methodologyDir)) {
+    if (!f.endsWith(".md")) continue;
+    const full = path.join(methodologyDir, f);
+    if (fs.statSync(full).isFile()) methodology[f] = fs.readFileSync(full, "utf8");
+  }
+}
+
 const replacement = `
   (globalThis as unknown as { __embeddedPresets: Record<string,string> }).__embeddedPresets = ${JSON.stringify(presets)};
   (globalThis as unknown as { __embeddedSchemas: Record<string,object> }).__embeddedSchemas = ${JSON.stringify(schemas)};
   (globalThis as unknown as { __embeddedExamples: Record<string,Record<string,string>> }).__embeddedExamples = ${JSON.stringify(examples)};
+  (globalThis as unknown as { __embeddedMethodology: Record<string,string> }).__embeddedMethodology = ${JSON.stringify(methodology)};
 `;
 
 const body = fs.readFileSync(target, "utf8");
@@ -113,7 +137,7 @@ const updated = body.replace(re, () => replacementText);
 if (updated === body) {
   console.log(
     `[embed-assets] no-op: src/embedded-assets.ts already has current ` +
-      `preset+schema+example content (idempotent re-run).`
+      `preset+schema+example+methodology content (idempotent re-run).`
   );
   process.exit(0);
 }
@@ -121,6 +145,7 @@ if (updated === body) {
 fs.writeFileSync(target, updated);
 console.log(
   `[embed-assets] injected ${Object.keys(presets).length} presets + ` +
-    `${Object.keys(schemas).length} schemas + ${Object.keys(examples).length} examples ` +
+    `${Object.keys(schemas).length} schemas + ${Object.keys(examples).length} examples + ` +
+    `${Object.keys(methodology).length} methodology docs ` +
     `into src/embedded-assets.ts`
 );

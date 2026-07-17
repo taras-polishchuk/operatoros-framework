@@ -58,7 +58,15 @@ describe("Local-First invariant — OperatorOS Core never makes a network call",
     const srcDir = path.resolve(__dirname, "..", "src");
     const files = await fs.readdir(srcDir, { recursive: true });
     const tsFiles = (files as string[]).filter(
-      (f) => f.endsWith(".ts") && !f.endsWith(".d.ts")
+      (f) =>
+        f.endsWith(".ts") &&
+        !f.endsWith(".d.ts") &&
+        // Exclude generated content (`embedded-assets.ts` is regenerated
+        // by scripts/embed-assets.js at build time; its content is the
+        // canonical assets inlined as JS literals. It is NOT source code
+        // and its content includes URLs/docstrings that match network
+        // lints legitimately. Document content → fixture, not lint subject.)
+        f !== "embedded-assets.ts"
     );
 
     const offenders: Array<{ file: string; line: number; pattern: string; snippet: string }> = [];

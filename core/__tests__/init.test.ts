@@ -71,6 +71,40 @@ describe("init command scaffold", () => {
     ).rejects.toBeDefined();
   });
 
+  it("writes methodology/ with 7 embedded documents + README", async () => {
+    const { initCommand } = await import("../src/commands/init");
+    await initCommand({ personal: true, target: tmpDir });
+
+    const methodologyDir = path.join(tmpDir, "methodology");
+    expect(await fs.pathExists(methodologyDir)).toBe(true);
+    expect(await fs.pathExists(path.join(methodologyDir, "README.md"))).toBe(true);
+
+    // Per doc: must exist and be non-empty markdown
+    const expected = [
+      "01-six-principles.md",
+      "02-doc-lifecycle.md",
+      "03-token-economy.md",
+      "04-agent-bootstrap.md",
+      "05-onboarding-interview.md",
+      "06-decisions-adr.md",
+      "07-capability-selection.md",
+    ];
+    for (const name of expected) {
+      const p = path.join(methodologyDir, name);
+      expect(await fs.pathExists(p), `${name} should exist`).toBe(true);
+      const content = await fs.readFile(p, "utf8");
+      expect(content.length, `${name} should be non-empty`).toBeGreaterThan(100);
+      expect(content.startsWith("#"), `${name} should start with markdown heading`).toBe(true);
+    }
+
+    // Verify a known marker survives round-trip (not blank-template)
+    const principles = await fs.readFile(
+      path.join(methodologyDir, "01-six-principles.md"),
+      "utf8"
+    );
+    expect(principles).toMatch(/Single Authority/);
+  });
+
   it("--force confirmation message references --force --yes (structural)", async () => {
     // The --force confirmation logic is in src/commands/init.ts. Verify
     // that the source code contains both the listing logic AND the
