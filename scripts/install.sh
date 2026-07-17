@@ -12,9 +12,22 @@
 # /bin/sh is dash (Debian/Ubuntu/Alpine) because the shebang is ignored
 # when piped and dash doesn't support bash-isms.
 #
-# Environment:
-#   OPERATOROS_VERSION     pin to a specific tag (default: v0.8.0)
-#   OPERATOROS_INSTALL_DIR override install directory (default: ~/.local/bin)
+# If invoked under sh, detect and print a helpful error instead of
+# failing at `set -euo pipefail` with an opaque message.
+
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "ERROR: this installer requires bash, but was invoked under sh (or another non-bash shell)." >&2
+  echo "" >&2
+  echo "Use one of these instead:" >&2
+  echo "  curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | bash" >&2
+  echo "  bash <(curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh)" >&2
+  echo "  bash scripts/install.sh      # if you have the file locally" >&2
+  echo "" >&2
+  echo "Why: when piped via 'curl ... | sh', the shebang is ignored and your" >&2
+  echo "shell runs the script as sh. On Debian/Ubuntu/Alpine, /bin/sh is dash," >&2
+  echo "which doesn't support bash-isms like 'set -o pipefail' or '[['." >&2
+  exit 1
+fi
 
 set -euo pipefail
 
