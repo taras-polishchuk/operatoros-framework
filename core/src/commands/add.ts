@@ -47,19 +47,52 @@ export async function addCommand(source: string, opts: AddOptions): Promise<void
       process.exit(1);
     }
   } else {
-    const localPath = path.resolve(source);
-    if (!(await fs.pathExists(localPath))) {
-      fail(`source not found: ${localPath}`);
-      process.exit(1);
+    // Smart resolution: source could be (a) path, (b) bare name.
+    // (a) Path: contains '/', starts with '.' or '~'.
+    // (b) Name: bare word. Try cwd/<name>, then workspace/modules/<name>.
+    const looksLikePath =
+      source.includes("/") ||
+      source.startsWith(".") ||
+      source.startsWith("~") ||
+      source === ".." ||
+      /^[A-Za-z]:[\\/]/.test(source); // Windows drive letter
+
+    if (looksLikePath) {
+      const localPath = path.resolve(source);
+      if (!(await fs.pathExists(localPath))) {
+        fail(`source not found: ${localPath}`);
+        info(`hint: pass an absolute path, a relative path (./foo), or a git URL`);
+        process.exit(1);
+      }
+      stagingDir = localPath;
+      info(`local source: ${stagingDir}`);
+    } else {
+      // Bare name: try cwd/<name> and workspace/modules/<name>
+      const candidates = [
+        path.resolve(process.cwd(), source),
+        path.join(root, "modules", source),
+      ];
+      const found = candidates.find((p) => fs.pathExistsSync(p));
+      if (found) {
+        stagingDir = found;
+        info(`local source (resolved from name): ${stagingDir}`);
+      } else {
+        fail(`source not found: ${source}`);
+        info(`Searched:`);
+        for (const c of candidates) info(`  - ${c}`);
+        info(`hint: pass an absolute or relative path (./modules/${source}), or install a git URL`);
+        info(`hint: if you meant operatoros install <alias>, the alias is just 'add'`);
+        process.exit(1);
+      }
     }
-    stagingDir = localPath;
-    info(`local source: ${stagingDir}`);
   }
 
   // Locate module.yaml in staging
   const moduleYaml = path.join(stagingDir, "module.yaml");
   if (!(await fs.pathExists(moduleYaml))) {
-    fail(`module.yaml not found at root of source`);
+    fail(`${stagingDir} is not a valid OperatorOS module`);
+    info(`expected ./module.yaml at the root of the source`);
+    info(`see CONTRIBUTING.md for the module contract`);
     if (isGit) await fs.remove(stagingDir);
     process.exit(1);
   }

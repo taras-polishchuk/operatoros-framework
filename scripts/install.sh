@@ -32,7 +32,7 @@ fi
 set -euo pipefail
 
 REPO="taras-polishchuk/operatoros-framework"
-VERSION="${OPERATOROS_VERSION:-v0.8.0}"
+VERSION="${OPERATOROS_VERSION:-v0.8.4}"
 INSTALL_DIR="${OPERATOROS_INSTALL_DIR:-$HOME/.local/bin}"
 BIN_NAME="operatoros"
 

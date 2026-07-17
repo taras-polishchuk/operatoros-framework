@@ -6,7 +6,9 @@
 # Atomic write: temp file → mv. History is appended to state/bootstrap-md/history.jsonl.
 set -euo pipefail
 
-target="."
+# Default target = WORKSPACE_ROOT env (auto-injected by operatoros run);
+# falls back to "." if neither flag nor env is set.
+target="${WORKSPACE_ROOT:-.}"
 out=""
 no_backup=0
 

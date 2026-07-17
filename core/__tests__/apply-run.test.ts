@@ -177,3 +177,73 @@ commands:
     }
   });
 });
+
+
+describe("add command (v0.8.4 smart resolution)", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "operatoros-add-test-"));
+    const { initCommand } = await import("../src/commands/init");
+    await initCommand({ personal: true, target: tmpDir });
+  });
+
+  afterEach(async () => {
+    await fs.remove(tmpDir);
+  });
+
+  it("installs module from absolute path (path-resolution branch)", async () => {
+    // Create a temporary module with valid module.yaml
+    const srcDir = await fs.mkdtemp(path.join(os.tmpdir(), "mod-src-"));
+    await fs.writeFile(
+      path.join(srcDir, "module.yaml"),
+      `version: "1.0"
+name: testmod
+description: test
+license: MIT
+commands: {}
+`
+    );
+
+    const { addCommand } = await import("../src/commands/add");
+
+    const origCwd = process.cwd();
+    try {
+      process.chdir(tmpDir);
+      const captured = captureStdout();
+      try {
+        await addCommand(srcDir, {});
+      } finally {
+        captured.restore();
+      }
+      const added = await fs.pathExists(path.join(tmpDir, "modules", "testmod"));
+      expect(added).toBe(true);
+    } finally {
+      process.chdir(origCwd);
+      await fs.remove(srcDir);
+    }
+  });
+
+});
+
+
+// Helper: capture stdout + stderr + suppress process.exit during a callback
+function captureStdout() {
+  const origOut = process.stdout.write.bind(process.stdout);
+  const origErr = process.stderr.write.bind(process.stderr);
+  const origExit = process.exit;
+  let text = "";
+  process.stdout.write = ((chunk: any) => { text += chunk.toString(); return true; }) as any;
+  process.stderr.write = ((chunk: any) => { text += chunk.toString(); return true; }) as any;
+  (process as any).exit = ((code?: number) => {
+    throw new Error(`process.exit(${code})`);
+  });
+  return {
+    text: () => text,
+    restore: () => {
+      process.stdout.write = origOut as any;
+      process.stderr.write = origErr as any;
+      process.exit = origExit;
+    },
+  };
+}

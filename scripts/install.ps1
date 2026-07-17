@@ -21,7 +21,7 @@
 $ErrorActionPreference = "Stop"
 
 $Repo = "taras-polishchuk/operatoros-framework"
-$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.8.0" }
+$Version = if ($env:OPERATOROS_VERSION) { $env:OPERATOROS_VERSION } else { "v0.8.4" }
 $InstallDir = if ($env:OPERATOROS_INSTALL_DIR) {
     $env:OPERATOROS_INSTALL_DIR
 } else {

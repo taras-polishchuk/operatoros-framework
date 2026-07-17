@@ -60,7 +60,9 @@ const program = new Command();
 program
   .name("operatoros")
   .description("OperatorOS Core — CLI runtime for personal operating systems")
-  .version(CORE_VERSION);
+  .version(CORE_VERSION)
+  .enablePositionalOptions()
+  .showSuggestionAfterError(true);
 
 program
   .command("init")
@@ -115,11 +117,21 @@ Examples:
 program
   .command("run <module> <command> [args...]")
   .description("Execute a command from an installed module")
+  .enablePositionalOptions()
+  .passThroughOptions()
+  .showSuggestionAfterError(true)
+  .option("-t, --target <path>", "target workspace (default: walk-up from cwd)")
   .addHelpText("after", `
 Examples:
   $ operatoros run context-builder inspect
   $ operatoros run drift-detector check --strict
-  $ operatoros run my-module greet "Taras"`)
+  $ operatoros run my-module greet "Taras"
+  $ operatoros run bootstrap-md render --target .
+
+Module scripts receive WORKSPACE_ROOT and MODULE_DIR as env vars.
+The --target flag and any extra args are passed through to the
+underlying module command. Module scripts should accept their own
+positional args; --target sets the workspace context for them.`)
   .action(runCommand);
 
 program
