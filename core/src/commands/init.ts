@@ -18,6 +18,7 @@ interface InitOptions {
   preset?: string;
   target?: string;
   force?: boolean;
+  yes?: boolean;
 }
 
 function readCanonicalPreset(name: string): string | null {
@@ -39,6 +40,44 @@ function readCanonicalPreset(name: string): string | null {
   return null;
 }
 
+/**
+ * For the `--force` confirmation message, list existing user-customized
+ * files in the target workspace. We only list things init might overwrite
+ * or that hint at user work (modules/, bootstrap.md, IDENTITY.md, state/).
+ * Caps the list at 20 entries to keep the message readable.
+ */
+async function collectExistingWorkspaceAssets(target: string): Promise<string[]> {
+  const interesting = [
+    "modules",
+    "presets",
+    "bootstrap.md",
+    "IDENTITY.md",
+    "operatoros.yaml",
+    "state",
+    ".operatoros",
+    "schemas",
+    "vault",
+  ];
+  const present: string[] = [];
+  for (const rel of interesting) {
+    const p = path.join(target, rel);
+    if (await fs.pathExists(p)) present.push(rel);
+  }
+  // Also surface the modules/ subdirectories so users see installed modules.
+  const modulesDir = path.join(target, "modules");
+  if (await fs.pathExists(modulesDir)) {
+    try {
+      const entries = await fs.readdir(modulesDir);
+      for (const e of entries.slice(0, 20)) {
+        present.push(`modules/${e}`);
+      }
+    } catch {
+      // ignore readdir failures
+    }
+  }
+  return present;
+}
+
 export async function initCommand(opts: InitOptions): Promise<void> {
   heading("OperatorOS init");
 
@@ -48,6 +87,21 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   if (await fs.pathExists(path.join(target, WORKSPACE_FILENAME))) {
     if (!opts.force) {
       fail(`workspace already exists at ${target} (use --force to overwrite)`);
+      process.exit(1);
+    }
+    // --force path: explain what will be lost and require --yes for confirmation.
+    // This protects against accidental "init --force" destroying existing modules,
+    // bootstrap.md, IDENTITY.md, and state/ — all of which are user-customized.
+    const existing = await collectExistingWorkspaceAssets(target);
+    if (existing.length > 0 && !opts.yes) {
+      info(`workspace already exists at ${target} with the following files:`);
+      for (const f of existing) info(`  - ${f}`);
+      info(``);
+      info(`--force WILL OVERWRITE these files (modules/, bootstrap.md,`);
+      info(`IDENTITY.md if present, state/ — anything re-rendered by init).`);
+      info(``);
+      info(`re-run with \`--force --yes\` to confirm, or back up first:`);
+      info(`  cp -r ${target} ${target}.bak.$(date +%s)`);
       process.exit(1);
     }
   }

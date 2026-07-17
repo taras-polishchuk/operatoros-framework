@@ -70,12 +70,19 @@ program
   .option("-p, --personal", "scaffold a personal workspace (default preset)")
   .option("--preset <name>", "use a specific preset (e.g., personal, minimal, team-research, dev-machine)")
   .option("-t, --target <path>", "target directory (default: current dir)")
-  .option("-f, --force", "overwrite existing files")
+  .option("-f, --force", "overwrite existing workspace (PROMPTS for confirmation unless --yes)")
+  .option("-y, --yes", "with --force: skip confirmation prompt (assumes yes)")
   .addHelpText("after", `
 Examples:
   $ operatoros init --target my-os
   $ operatoros init --preset personal --target ~/projects/personal
-  $ operatoros init --force                       # overwrite existing init`)
+  $ operatoros init --force            # prompts before overwriting
+  $ operatoros init --force --yes      # overwrites without prompting
+
+If --force is set on a non-empty workspace, init lists which files
+would be overwritten and exits non-zero, unless --yes is also set.
+This protects against accidentally destroying installed modules,
+customized bootstrap.md, IDENTITY.md, and state/.`)
   .action(initCommand);
 
 program

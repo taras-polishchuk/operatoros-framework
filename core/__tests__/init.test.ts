@@ -70,4 +70,21 @@ describe("init command scaffold", () => {
       initCommand({ personal: true, target: tmpDir, force: false })
     ).rejects.toBeDefined();
   });
+
+  it("--force confirmation message references --force --yes (structural)", async () => {
+    // The --force confirmation logic is in src/commands/init.ts. Verify
+    // that the source code contains both the listing logic AND the
+    // documented "--force --yes" recovery path. This is a structural
+    // check that protects against refactor regressions where the
+    // --force prompt is silently removed.
+    const fsReal = await import("fs");
+    const src = fsReal.readFileSync(
+      "/home/taras/projects/operatoros/core/src/commands/init.ts",
+      "utf8"
+    );
+    expect(src).toMatch(/collectExistingWorkspaceAssets/);
+    expect(src).toMatch(/--force WILL OVERWRITE/);
+    expect(src).toMatch(/--force --yes/);
+  });
+
 });
