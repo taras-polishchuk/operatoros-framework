@@ -1,9 +1,10 @@
 # OperatorOS
 
-> **Status:** v0.8.0 · MIT licensed
+> **Status:** v0.8.2 · MIT licensed · Requires Node.js 20+
 > **One sentence:** An engineering workspace framework that keeps engineer and AI in agreement about a workspace.
 
 ---
+
 ## What `inspect` looks like
 
 Drop the binary into any project. See what an AI sees in 1 second.
@@ -27,22 +28,121 @@ workspaces. It is the fastest way to see what an AI agent would
 "see cold" when entering your project. No setup, no install,
 no commit required.
 
-## Try it (5 commands, 5 minutes)
+## Install
+
+OperatorOS requires **Node.js 20+**. Install Node first if you don't have it.
+
+### Linux / macOS / WSL
 
 ```bash
-# 1. Install
-curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh | bash
+```
 
-# 2. Scaffold a workspace
+Or, equivalently:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.sh)
+```
+
+> **Important:** use `| bash`, not `| sh`. On Debian/Ubuntu/Alpine,
+> `/bin/sh` is dash, which doesn't support bash-isms. The installer
+> detects this and prints a helpful error if you use `sh`.
+
+**Install Node.js first** (if needed):
+
+```bash
+# macOS (Homebrew)
+brew install node@20
+
+# Linux (nvm — recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install 20
+
+# Linux (system package, may be older)
+sudo apt install nodejs npm  # verify: node --version >= 20
+```
+
+**Verify the install:**
+
+```bash
+$ operatoros --version
+operatoros-core: 0.8.0
+```
+
+If `operatoros` is not found, add `~/.local/bin` to PATH:
+
+```bash
+# bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+
+# zsh (macOS default)
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+
+# fish
+echo 'set -gx PATH $HOME/.local/bin $PATH' >> ~/.config/fish/config.fish
+```
+
+### Windows (PowerShell)
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/taras-polishchuk/operatoros-framework/main/scripts/install.ps1 | iex
+```
+
+> **Important:** don't use `curl | sh` from PowerShell — `curl` is an alias
+> for `Invoke-WebRequest` and won't pipe raw bytes correctly. Use `iwr -useb | iex`.
+
+**Install Node.js first** (if needed):
+
+```powershell
+# winget (recommended on Windows 10/11)
+winget install OpenJS.NodeJS.LTS
+
+# chocolatey
+choco install nodejs-lts
+
+# official installer
+# Download from https://nodejs.org/
+```
+
+**Verify the install:**
+
+```powershell
+PS> operatoros version
+operatoros-core: 0.8.0
+```
+
+If `operatoros` is not found, add `%USERPROFILE%\.local\bin` to PATH:
+
+```powershell
+[Environment]::SetEnvironmentVariable('PATH', "$env:USERPROFILE\.local\bin;$env:PATH", 'User')
+# Then open a new PowerShell window.
+```
+
+### Pin to a specific version
+
+```bash
+# Linux/macOS
+OPERATOROS_VERSION=v0.8.2 curl -fsSL .../install.sh | bash
+
+# Windows PowerShell
+$env:OPERATOROS_VERSION = "v0.8.2"; iwr -useb .../install.ps1 | iex
+```
+
+## Try it (5 commands, 5 minutes)
+
+After install, on any platform:
+
+```bash
+# 1. Scaffold a workspace
 operatoros init --target my-os
 
-# 3. Step into it
+# 2. Step into it
 cd my-os
 
-# 4. See your workspace through an AI's eyes
+# 3. See your workspace through an AI's eyes
 operatoros inspect --format terminal
 
-# 5. Validate + check workspace health
+# 4. Validate + check workspace health
 operatoros validate operatoros.yaml && operatoros doctor
 ```
 
@@ -69,8 +169,8 @@ verified by `__tests__/local-first.test.ts` on every commit.
 14 commands. `init`, `validate`, `add`, `apply`, `run`, `export`,
 `version`, plus the v0.7.0 Catalog (`index`, `doctor`, `stats`,
 `stale`, `prune`), plus v0.8.0 `inspect`. Per-command help on
-`operatoros <cmd> --help`. Single-file binary (~835 KB), no
-runtime dependencies beyond Node 20+.
+`operatoros <cmd> --help`. Single-file bundle, no runtime
+dependencies beyond Node 20+.
 
 ## Documentation map
 
