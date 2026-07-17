@@ -2,30 +2,19 @@
 # OperatorOS Core installer
 # Downloads the bundled single-file binary and installs to ~/.local/bin/operatoros
 #
-# Robustness: when invoked via `curl ... | sh`, the shell is whichever sh
-# the OS provides (dash on Debian/Ubuntu, etc.), not necessarily bash. The
-# shebang on line 1 is ignored when piped. Detect this and re-exec with bash.
-#
-# Usage:
-#   curl -fsSL https://.../scripts/install.sh | sh
-#   curl -fsSL https://.../scripts/install.sh | bash -s -- [opts]
+# IMPORTANT: this script REQUIRES bash (not sh, not dash).
+# Invoke as one of:
+#   bash <(curl -fsSL https://.../scripts/install.sh)
+#   curl -fsSL https://.../scripts/install.sh | bash
 #   bash scripts/install.sh                  # direct invocation
-#   OPERATOROS_VERSION=v0.8.0 bash scripts/install.sh
+#
+# DO NOT invoke with `sh` — `curl ... | sh` fails on systems where
+# /bin/sh is dash (Debian/Ubuntu/Alpine) because the shebang is ignored
+# when piped and dash doesn't support bash-isms.
 #
 # Environment:
 #   OPERATOROS_VERSION     pin to a specific tag (default: v0.8.0)
 #   OPERATOROS_INSTALL_DIR override install directory (default: ~/.local/bin)
-
-# Self-bootstrap: if we're not running under bash, re-exec.
-if [ -z "${BASH_VERSION:-}" ]; then
-  if command -v bash >/dev/null 2>&1; then
-    exec bash "$0" "$@"
-  else
-    echo "ERROR: this installer requires bash, but neither \$BASH_VERSION is set nor is 'bash' on PATH." >&2
-    echo "Install bash first: https://www.gnu.org/software/bash/" >&2
-    exit 1
-  fi
-fi
 
 set -euo pipefail
 
@@ -57,7 +46,7 @@ if ! command -v node >/dev/null 2>&1; then
   case "$PLATFORM" in
     Linux*)
       echo "  - nvm (recommended): https://github.com/nvm-sh/nvm" >&2
-      echo "  - system package:     sudo apt install nodejs (Ubuntu/Debian) — verify >= 20" >&2
+      echo "  - system package:     sudo apt install nodejs (verify >= 20)" >&2
       echo "  - official:           https://nodejs.org/" >&2
       ;;
     Darwin*)
@@ -105,7 +94,6 @@ if ! command -v operatoros >/dev/null 2>&1; then
   echo ""
   case "$PLATFORM" in
     Linux*)
-      # Detect shell
       USER_SHELL="$(basename "${SHELL:-/bin/bash}")"
       case "$USER_SHELL" in
         bash) RC_FILE="~/.bashrc" ;;
