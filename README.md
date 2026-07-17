@@ -164,6 +164,25 @@ manager. It is the discipline that holds all of those in one
 shape. The constitutional principle is **Local-First** —
 verified by `__tests__/local-first.test.ts` on every commit.
 
+## Ships with 9 modules
+
+After `operatoros apply`, your workspace has these 9 modules installed
+under `modules/`. Run them with `operatoros run <module> <cmd>`.
+
+- `bootstrap-md` — render a full 5-section `bootstrap.md` (replaces
+  the in-binary fallback)
+- `identity-md` — 5-question onboarding interview → `IDENTITY.md`
+- `context-builder` — 800–1500-token context bundle for an AI agent
+- `workspace-census` — file inventory + orphan + anomaly scan
+- `architecture-index` — claim-by-claim validation of `state/architecture.md`
+- `module-cookbook` — scaffolds `examples/hello-world/`; topical help
+- `drift-detector` — six per-principle checks; CI-gateable
+- `mission-runner` — scaffolds the 8-artifact mission directory
+- `bootstrap-tier-refresh` — on-demand bootstrap.md regeneration
+
+For full per-module documentation, recipes, troubleshooting, and env
+variables, see **[docs/CHEATSHEET.md](./docs/CHEATSHEET.md)**.
+
 ## The CLI
 
 14 commands. `init`, `validate`, `add`, `apply`, `run`, `export`,
@@ -174,6 +193,9 @@ dependencies beyond Node 20+.
 
 ## Documentation map
 
+- **`docs/CHEATSHEET.md`** — **one-page reference for every
+  Core command, all 9 modules, common recipes, env variables,
+  troubleshooting.** Start here after `init`.
 - **`methodology/`** — the six principles, doc lifecycle, token
   economy, bootstrap protocol, ADR shape.
   Start with `methodology/01-six-principles.md`.

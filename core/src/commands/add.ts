@@ -88,13 +88,28 @@ export async function addCommand(source: string, opts: AddOptions): Promise<void
   }
 
   // Locate module.yaml in staging
-  const moduleYaml = path.join(stagingDir, "module.yaml");
+  let moduleYaml = path.join(stagingDir, "module.yaml");
   if (!(await fs.pathExists(moduleYaml))) {
-    fail(`${stagingDir} is not a valid OperatorOS module`);
-    info(`expected ./module.yaml at the root of the source`);
-    info(`see CONTRIBUTING.md for the module contract`);
-    if (isGit) await fs.remove(stagingDir);
-    process.exit(1);
+    // If this looks like a checkout of operatoros-framework (git source),
+    // try resolving a sibling `modules/<name>/` directory. This lets
+    // visitor presets point at https://github.com/.../operatoros-framework
+    // with `--pin v0.8.4` and pick up the matching modules/<name>/ subtree.
+    const inferredName = opts.name ?? "";
+    if (inferredName) {
+      const treePath = path.join(stagingDir, "modules", inferredName, "module.yaml");
+      if (await fs.pathExists(treePath)) {
+        stagingDir = path.join(stagingDir, "modules", inferredName);
+        moduleYaml = treePath;
+        info(`resolved operatoros-framework module tree: ${stagingDir}`);
+      }
+    }
+    if (!(await fs.pathExists(moduleYaml))) {
+      fail(`${stagingDir} is not a valid OperatorOS module`);
+      info(`expected ./module.yaml at the root of the source`);
+      info(`see CONTRIBUTING.md for the module contract`);
+      if (isGit) await fs.remove(stagingDir);
+      process.exit(1);
+    }
   }
 
   // Validate BEFORE copying

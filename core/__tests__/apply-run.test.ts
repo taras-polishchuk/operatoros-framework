@@ -192,6 +192,40 @@ describe("add command (v0.8.4 smart resolution)", () => {
     await fs.remove(tmpDir);
   });
 
+  it("resolves module.yaml under modules/<name>/ in git-style source", async () => {
+    // Simulate an operatoros-framework checkout: top-level has modules/<name>/module.yaml
+    const srcRoot = await fs.mkdtemp(path.join(os.tmpdir(), "fw-sim-"));
+    const modDir = path.join(srcRoot, "modules", "testmod");
+    await fs.ensureDir(modDir);
+    await fs.writeFile(
+      path.join(modDir, "module.yaml"),
+      `version: "1.0"
+name: testmod
+description: test
+license: MIT
+commands: {}
+`
+    );
+
+    const { addCommand } = await import("../src/commands/add");
+
+    const origCwd = process.cwd();
+    try {
+      process.chdir(tmpDir);
+      const captured = captureStdout();
+      try {
+        await addCommand(srcRoot, { name: "testmod" });
+      } finally {
+        captured.restore();
+      }
+      const installed = await fs.pathExists(path.join(tmpDir, "modules", "testmod"));
+      expect(installed).toBe(true);
+    } finally {
+      process.chdir(origCwd);
+      await fs.remove(srcRoot);
+    }
+  });
+
   it("installs module from absolute path (path-resolution branch)", async () => {
     // Create a temporary module with valid module.yaml
     const srcDir = await fs.mkdtemp(path.join(os.tmpdir(), "mod-src-"));

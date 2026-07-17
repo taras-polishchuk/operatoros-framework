@@ -1,10 +1,38 @@
 version: "0.2"
 name: personal
-description: |
-  Empty OperatorOS workspace scaffold. The `personal` preset ships with no
-  modules — the methodology is yours to assemble. Add modules with
-  `operatoros add <path-or-git-url>`.
-modules: []
+description: >
+  OperatorOS workspace scaffold with all 9 ships-modules pre-installed.
+  Running `operatoros apply personal` (the default after `init`) clones
+  each module from the operatoros-framework repo at v0.8.4. To customize:
+  edit this preset's `modules:` list or `operatoros add` your own.
+modules:
+  - name: bootstrap-md
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: identity-md
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: context-builder
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: workspace-census
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: architecture-index
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: module-cookbook
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: drift-detector
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: mission-runner
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
+  - name: bootstrap-tier-refresh
+    source: https://github.com/taras-polishchuk/operatoros-framework.git
+    pin: v0.8.4
 settings:
   vault_path: vault/
   state_path: state/
