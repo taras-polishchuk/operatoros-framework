@@ -50,7 +50,7 @@ any gate is binding.
 - [ ] Validation ticket template at `state/v080-validate/<capability>.md` ready
 
 ### Gate 6 — Architecture-fit
-- [ ] Does not violate any of the 17 §6 frozen decisions of `ARCHITECTURE-FREEZE-v0.8.0.md`
+- [ ] Does not violate any of the 17 §6 frozen decisions of [`docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md`](./docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md)
 - [ ] If it does, an ADR is filed (cite ADR number)
 
 ## Module manifest sketch

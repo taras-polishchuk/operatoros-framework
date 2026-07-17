@@ -19,7 +19,7 @@ decision tree documented at [`methodology/07-capability-selection.md`](methodolo
 To propose a new capability:
 
 1. **Identify the canonical question.** Map your proposal to one of Q1–Q11
-   from [`CANONICAL-QUESTIONS-v0.8.0.md`](CANONICAL-QUESTIONS-v0.8.0.md).
+   from [`CANONICAL-QUESTIONS-v0.8.0.md`](./docs/internal/architecture/CANONICAL-QUESTIONS-v0.8.0.md).
    If it doesn't map, it's a utility, not a capability — propose it
    elsewhere.
 
@@ -42,7 +42,7 @@ To propose a new capability:
    deferred to a later version. Adding to the v0.8.x ships-set
    requires an ADR per the architecture freeze §8.4.
 
-See [`CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md`](CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md) for the full framework.
+See [`CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md`](./docs/internal/architecture/CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md) for the full framework.
 
 ## How to add a module
 

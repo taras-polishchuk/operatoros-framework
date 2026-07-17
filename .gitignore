@@ -36,3 +36,6 @@ core/dist-bin/
 core/node_modules/
 core/coverage/
 core/*.log
+
+# Auto-generated drift-detector reports (runtime output, not source)
+state/drift-detector/

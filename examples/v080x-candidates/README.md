@@ -35,6 +35,6 @@ All candidates pass the extended local-first test
 
 ## See also
 
-- `CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md` — the 6 gates.
+- `docs/internal/architecture/CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md` — the 6 gates.
 - `methodology/07-capability-selection.md` — methodology doc.
-- `ARCHITECTURE-FREEZE-v0.8.0.md` §5.1, §8.4 — ships-set + ADR procedure.
+- `docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md` §5.1, §8.4 — ships-set + ADR procedure.

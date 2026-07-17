@@ -89,15 +89,24 @@
 
 ### Architecture artifacts (frozen, no runtime change)
 
-- `ARCHITECTURE-FREEZE-v0.8.0.md` — 17 §6 frozen decisions.
-- `ARCHITECTURE-PROGRAM-CLOSING-v0.8.0.md` — program closure.
-- `CANONICAL-QUESTIONS-v0.8.0.md` — Q1–Q11 canonical question taxonomy.
-- `CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md` — 6-gate decision tree.
-- `FIRST-10-MINUTES-DESIGN-v0.8.0.md` — adopt-on-ramp journey.
-- `IMPLEMENTATION-PLAN-v0.8.0.md` — 5-milestone, 8-workstream plan.
-- `IMPLEMENTATION-START-BRIEF-v0.8.0.md` — one-page hand-off.
-- `MODULE-ECOSYSTEM-DESIGN-v0.8.0.md` — module ecosystem taxonomy.
-- `MODULE-MODEL-CLARIFICATION-v0.8.0.md` — wrap-not-replace rule.
+Located at `docs/internal/architecture/`. The v0.8.0 architecture-program
+artifacts were moved out of the repo root after v0.8.0 ship; this CHANGELOG
+entry preserves the original filenames for traceability.
+
+- `docs/internal/architecture/ARCHITECTURE-FREEZE-v0.8.0.md` — 17 §6 frozen decisions.
+- `docs/internal/architecture/ARCHITECTURE-PROGRAM-CLOSING-v0.8.0.md` — program closure.
+- `docs/internal/architecture/CANONICAL-QUESTIONS-v0.8.0.md` — Q1–Q11 canonical question taxonomy.
+- `docs/internal/architecture/CAPABILITY-SELECTION-FRAMEWORK-v0.8.0.md` — 6-gate decision tree.
+- `docs/internal/architecture/FIRST-10-MINUTES-DESIGN-v0.8.0.md` — adopt-on-ramp journey.
+- `docs/internal/architecture/IMPLEMENTATION-PLAN-v0.8.0.md` — 5-milestone, 8-workstream plan.
+- `docs/internal/architecture/IMPLEMENTATION-START-BRIEF-v0.8.0.md` — one-page hand-off.
+- `docs/internal/architecture/MODULE-ECOSYSTEM-DESIGN-v0.8.0.md` — module ecosystem taxonomy.
+- `docs/internal/architecture/MODULE-MODEL-CLARIFICATION-v0.8.0.md` — wrap-not-replace rule.
+- `docs/internal/architecture/CORE-PROMISE-2026-07-15.md` — validated one-sentence promise.
+- `docs/internal/architecture/POSITIONING-RESEARCH-2026-07-15.md` — competitor analysis.
+- `docs/internal/architecture/POSITIONING-VALIDATION-2026-07-15.md` — visitor first-impression validation.
+- `docs/internal/architecture/ANALYSIS-v0.7.1-directive.md` — v0.7.1 → v0.8.0 pivot input.
+- `docs/internal/architecture/OPERATING-MODEL.md` — author's daily-practice model.
 
 ### Plan amendments applied (per readiness audit)
 
@@ -147,7 +156,7 @@ is regenerable transactionally (bootstrap-tier-refresh).
 
 ### Changed — Documentation positioning update
 
-The introductory sections of README and landing page (`index.html`) are updated to follow the validated positioning research (see `ANALYSIS-v0.7.1-directive.md`, `POSITIONING-RESEARCH-2026-07-15.md`, `POSITIONING-VALIDATION-2026-07-15.md`, `CORE-PROMISE-2026-07-15.md` in this repo root for the research trail). The structural change is **a three-layer split**: (1) **product category** in the hero, (2) **product promise** immediately after, (3) **product mechanism** only below. No architecture, schema, CLI, or methodology changes.
+The introductory sections of README and landing page (`index.html`) are updated to follow the validated positioning research (see `docs/internal/architecture/ANALYSIS-v0.7.1-directive.md`, `docs/internal/architecture/POSITIONING-RESEARCH-2026-07-15.md`, `docs/internal/architecture/POSITIONING-VALIDATION-2026-07-15.md`, `docs/internal/architecture/CORE-PROMISE-2026-07-15.md` for the research trail; these files were at the repo root in v0.7.1 and have since moved to `docs/internal/architecture/`). The structural change is **a three-layer split**: (1) **product category** in the hero, (2) **product promise** immediately after, (3) **product mechanism** only below. No architecture, schema, CLI, or methodology changes.
 
 ### Hero (Layer 1 — product category)
 
