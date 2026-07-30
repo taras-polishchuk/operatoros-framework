@@ -113,7 +113,7 @@ describe("init command scaffold", () => {
     // --force prompt is silently removed.
     const fsReal = await import("fs");
     const src = fsReal.readFileSync(
-      "/home/taras/projects/operatoros/core/src/commands/init.ts",
+      path.join(__dirname, "..", "src", "commands", "init.ts"),
       "utf8"
     );
     expect(src).toMatch(/collectExistingWorkspaceAssets/);
